@@ -1,0 +1,690 @@
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+
+const productsData = {
+  'precast-pavers': {
+    id: 'precast-pavers',
+    title: 'Precast Pavers',
+    subtitle: 'Industrial-Grade Concrete Paving Systems',
+    description: 'Engineered for maximum durability and aesthetic versatility, our precast pavers combine superior load-bearing capacity with refined surface finishes. Perfect for high-traffic pedestrian zones, commercial driveways, and premium landscaping applications.',
+    image: '/images/products/precast-pavers.jpg',
+    heroGradient: 'from-electric-500 via-cyan-400 to-electric-600',
+    specifications: [
+      { label: 'Compressive Strength', value: '50-65 MPa', unit: 'megapascals' },
+      { label: 'Water Absorption', value: '< 5%', unit: 'percentage' },
+      { label: 'Thickness Range', value: '60-100mm', unit: 'millimeters' },
+      { label: 'Load Capacity', value: '40+ tons', unit: 'maximum load' },
+      { label: 'Frost Resistance', value: 'F200+', unit: 'freeze-thaw cycles' },
+      { label: 'Surface Finish', value: 'Multiple', unit: 'options available' },
+    ],
+    dimensions: [
+      '400 × 400 × 60mm',
+      '500 × 500 × 80mm',
+      '600 × 300 × 80mm',
+      'Custom sizes available'
+    ],
+    features: [
+      {
+        icon: '🔩',
+        title: 'Interlocking Design',
+        description: 'Precision-engineered edges ensure perfect alignment and structural integrity'
+      },
+      {
+        icon: '💧',
+        title: 'Permeable Options',
+        description: 'Advanced drainage systems for sustainable water management'
+      },
+      {
+        icon: '🎨',
+        title: 'Aesthetic Versatility',
+        description: 'Multiple colors, textures, and patterns to match any design vision'
+      },
+      {
+        icon: '⚡',
+        title: 'Rapid Installation',
+        description: 'Modular system enables quick deployment with minimal site disruption'
+      },
+      {
+        icon: '🛡️',
+        title: 'Weather Resistant',
+        description: 'Engineered to withstand extreme temperatures and environmental stress'
+      },
+      {
+        icon: '♻️',
+        title: 'Sustainable',
+        description: 'Made with eco-friendly materials and recyclable components'
+      }
+    ],
+    applications: [
+      'Pedestrian plazas and walkways',
+      'Commercial parking areas',
+      'Residential driveways and patios',
+      'Urban streetscaping projects',
+      'Park and recreation facilities',
+      'Industrial loading zones'
+    ],
+    gallery: [
+      '/images/products/precast-pavers.jpg',
+      '/images/products/precast-pavers.jpg',
+      '/images/products/precast-pavers.jpg',
+      '/images/products/precast-pavers.jpg',
+    ]
+  },
+  'u-drains': {
+    id: 'u-drains',
+    title: 'U Drains',
+    subtitle: 'Precision-Engineered Drainage Solutions',
+    description: 'High-performance U-shaped drainage channels designed for optimal water flow management. Our precast U drains provide reliable, maintenance-free drainage for roads, highways, and urban infrastructure with exceptional durability.',
+    image: '/images/products/u-drains.jpg',
+    heroGradient: 'from-cyan-500 via-blue-400 to-cyan-600',
+    specifications: [
+      { label: 'Flow Capacity', value: '200-500 L/s', unit: 'liters per second' },
+      { label: 'Compressive Strength', value: '45+ MPa', unit: 'megapascals' },
+      { label: 'Channel Width', value: '300-1200mm', unit: 'millimeters' },
+      { label: 'Wall Thickness', value: '75-150mm', unit: 'millimeters' },
+      { label: 'Load Class', value: 'D400-F900', unit: 'EN 1433' },
+      { label: 'Slope Options', value: '0.5-2%', unit: 'gradient' },
+    ],
+    dimensions: [
+      '1000 × 400 × 500mm',
+      '1500 × 600 × 600mm',
+      '2000 × 800 × 700mm',
+      'Custom specifications'
+    ],
+    features: [
+      {
+        icon: '🌊',
+        title: 'Hydraulic Efficiency',
+        description: 'Smooth interior surfaces maximize flow rate and minimize debris accumulation'
+      },
+      {
+        icon: '🏗️',
+        title: 'Modular System',
+        description: 'Interlocking units enable flexible configuration for any project scale'
+      },
+      {
+        icon: '⚙️',
+        title: 'Corrosion Resistant',
+        description: 'Advanced concrete mix withstands chemical exposure and harsh conditions'
+      },
+      {
+        icon: '🔧',
+        title: 'Easy Maintenance',
+        description: 'Accessible design allows simple inspection and cleaning operations'
+      },
+      {
+        icon: '📐',
+        title: 'Precision Manufacturing',
+        description: 'Tight tolerances ensure perfect fit and seamless installation'
+      },
+      {
+        icon: '🎯',
+        title: 'Load Rated',
+        description: 'Certified for heavy traffic applications including highways'
+      }
+    ],
+    applications: [
+      'Highway and roadway drainage',
+      'Airport runway water management',
+      'Urban street drainage systems',
+      'Industrial facility water control',
+      'Residential subdivision drainage',
+      'Sports facility perimeter drainage'
+    ],
+    gallery: [
+      '/images/products/u-drains.jpg',
+      '/images/products/u-drains.jpg',
+      '/images/products/u-drains.jpg',
+      '/images/products/u-drains.jpg',
+    ]
+  },
+  'box-culverts': {
+    id: 'box-culverts',
+    title: 'Box Culverts',
+    subtitle: 'Heavy-Duty Underground Infrastructure',
+    description: 'Reinforced concrete box culverts engineered for maximum structural performance in demanding applications. Our precast solutions deliver unmatched strength for waterway crossings, underground passages, and high-load scenarios.',
+    image: '/images/products/box-culverts.jpg',
+    heroGradient: 'from-blue-500 via-indigo-400 to-blue-600',
+    specifications: [
+      { label: 'Load Capacity', value: 'HS20-HS25', unit: 'AASHTO rating' },
+      { label: 'Compressive Strength', value: '35-50 MPa', unit: 'megapascals' },
+      { label: 'Section Sizes', value: '1m - 4m', unit: 'internal span' },
+      { label: 'Wall Thickness', value: '150-300mm', unit: 'millimeters' },
+      { label: 'Reinforcement', value: 'High-tensile', unit: 'steel mesh' },
+      { label: 'Waterproofing', value: 'Integral', unit: 'system included' },
+    ],
+    dimensions: [
+      '1000 × 1000 × 2000mm',
+      '2000 × 2000 × 2500mm',
+      '3000 × 3000 × 3000mm',
+      'Engineered custom sizes'
+    ],
+    features: [
+      {
+        icon: '💪',
+        title: 'Superior Strength',
+        description: 'Reinforced concrete design handles extreme loading conditions'
+      },
+      {
+        icon: '⚡',
+        title: 'Rapid Deployment',
+        description: 'Precast sections enable fast installation with minimal excavation time'
+      },
+      {
+        icon: '💰',
+        title: 'Cost Effective',
+        description: 'Reduced labor and equipment costs compared to cast-in-place alternatives'
+      },
+      {
+        icon: '🔒',
+        title: 'Watertight Joints',
+        description: 'Advanced sealing systems prevent infiltration and exfiltration'
+      },
+      {
+        icon: '📏',
+        title: 'Quality Controlled',
+        description: 'Factory production ensures consistent quality and dimensional accuracy'
+      },
+      {
+        icon: '🌍',
+        title: 'Environmentally Sound',
+        description: 'Long service life and minimal maintenance reduce environmental impact'
+      }
+    ],
+    applications: [
+      'Stream and river crossings',
+      'Underground utility corridors',
+      'Storm water management systems',
+      'Wildlife passage structures',
+      'Pedestrian underpass tunnels',
+      'Heavy vehicle roadway crossings'
+    ],
+    gallery: [
+      '/images/products/box-culverts.jpg',
+      '/images/products/box-culverts.jpg',
+      '/images/products/box-culverts.jpg',
+      '/images/products/box-culverts.jpg',
+    ]
+  },
+  'retaining-walls': {
+    id: 'retaining-walls',
+    title: 'Retaining Walls',
+    subtitle: 'Structural Earth Retention Systems',
+    description: 'Advanced precast retaining wall systems combining structural integrity with architectural excellence. Our engineered solutions provide reliable slope stabilization and soil retention with customizable aesthetic options.',
+    image: '/images/products/retaining-walls.jpg',
+    heroGradient: 'from-indigo-500 via-purple-400 to-electric-500',
+    specifications: [
+      { label: 'Wall Height', value: '1m - 8m', unit: 'maximum height' },
+      { label: 'Design Load', value: '15+ kN/m²', unit: 'lateral pressure' },
+      { label: 'Panel Width', value: '2.4-3.0m', unit: 'meters' },
+      { label: 'Panel Thickness', value: '150-250mm', unit: 'millimeters' },
+      { label: 'Connection Type', value: 'Tongue & Groove', unit: 'interlock system' },
+      { label: 'Finish Options', value: '12+', unit: 'textures available' },
+    ],
+    dimensions: [
+      '2400 × 1000 × 200mm',
+      '3000 × 1500 × 250mm',
+      '2400 × 2000 × 200mm',
+      'Project-specific designs'
+    ],
+    features: [
+      {
+        icon: '🏛️',
+        title: 'Architectural Beauty',
+        description: 'Multiple finish options from smooth to textured stone appearance'
+      },
+      {
+        icon: '🏗️',
+        title: 'Quick Assembly',
+        description: 'Precision-fit panels stack rapidly with minimal equipment'
+      },
+      {
+        icon: '🔩',
+        title: 'Structural Integrity',
+        description: 'Engineered for maximum lateral earth pressure resistance'
+      },
+      {
+        icon: '🎨',
+        title: 'Customizable',
+        description: 'Choose from various colors, textures, and architectural patterns'
+      },
+      {
+        icon: '🛠️',
+        title: 'Minimal Maintenance',
+        description: 'Durable concrete requires no painting or ongoing treatment'
+      },
+      {
+        icon: '📐',
+        title: 'Geogrid Compatible',
+        description: 'Designed to integrate with reinforced soil systems for tall walls'
+      }
+    ],
+    applications: [
+      'Highway embankment support',
+      'Commercial site development',
+      'Residential property terracing',
+      'Bridge abutment construction',
+      'Parking structure walls',
+      'Waterfront stabilization'
+    ],
+    gallery: [
+      '/images/products/retaining-walls.jpg',
+      '/images/products/retaining-walls.jpg',
+      '/images/products/retaining-walls.jpg',
+      '/images/products/retaining-walls.jpg',
+    ]
+  }
+}
+
+export default function ProductDetailPage() {
+  const { productId } = useParams()
+  const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState('specifications')
+  const [scrollProgress, setScrollProgress] = useState(0)
+
+  const product = productsData[productId]
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const windowHeight = window.innerHeight
+      const documentHeight = document.documentElement.scrollHeight
+      const scrollTop = window.scrollY
+      const progress = (scrollTop / (documentHeight - windowHeight)) * 100
+      setScrollProgress(progress)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [productId])
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-display text-white mb-4">Product Not Found</h1>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-3 bg-electric-500 text-slate-950 font-technical font-bold rounded-lg"
+          >
+            Return Home
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative bg-slate-950 min-h-screen">
+      {/* Progress Bar */}
+      <div className="fixed top-0 left-0 w-full h-1 bg-slate-900 z-50">
+        <div
+          className={`h-full bg-gradient-to-r ${product.heroGradient} transition-all duration-300`}
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+
+      {/* Back Navigation */}
+      <button
+        onClick={() => navigate('/')}
+        className="fixed top-6 left-6 z-40 flex items-center space-x-2 px-4 py-2 glass-effect rounded-lg text-electric-400 font-technical hover:bg-white/10 transition-all group"
+      >
+        <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        <span>Back</span>
+      </button>
+
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src={product.image}
+            alt={product.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/60 to-slate-950" />
+          <div className={`absolute inset-0 bg-gradient-to-br ${product.heroGradient} opacity-20 mix-blend-overlay`} />
+        </div>
+
+        {/* Blueprint Grid Overlay */}
+        <div className="absolute inset-0 blueprint-line opacity-10" />
+
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="mb-6 animate-[slideUp_0.8s_ease-out]">
+            <span className="px-6 py-2 glass-effect rounded-full text-electric-400 font-technical text-sm tracking-[0.3em] uppercase border border-electric-500/30">
+              Premium Engineering
+            </span>
+          </div>
+
+          <h1
+            className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-black text-white mb-6 animate-[slideUp_0.8s_ease-out_0.2s] opacity-0"
+            style={{ animationFillMode: 'forwards' }}
+          >
+            {product.title}
+          </h1>
+
+          <p
+            className={`text-2xl sm:text-3xl md:text-4xl font-technical font-light bg-gradient-to-r ${product.heroGradient} bg-clip-text text-transparent mb-8 animate-[slideUp_0.8s_ease-out_0.4s] opacity-0`}
+            style={{ animationFillMode: 'forwards' }}
+          >
+            {product.subtitle}
+          </p>
+
+          <p
+            className="text-lg sm:text-xl text-concrete-300 font-technical max-w-4xl mx-auto leading-relaxed mb-12 animate-[slideUp_0.8s_ease-out_0.6s] opacity-0"
+            style={{ animationFillMode: 'forwards' }}
+          >
+            {product.description}
+          </p>
+
+          {/* CTA Buttons */}
+          <div
+            className="flex flex-wrap items-center justify-center gap-4 animate-[slideUp_0.8s_ease-out_0.8s] opacity-0"
+            style={{ animationFillMode: 'forwards' }}
+          >
+            <a
+              href="#specifications"
+              className={`px-8 py-4 bg-gradient-to-r ${product.heroGradient} text-slate-950 font-technical font-bold text-lg rounded-lg hover:shadow-2xl hover:shadow-electric-500/50 transition-all duration-300 transform hover:scale-105`}
+            >
+              View Specifications
+            </a>
+            <a
+              href="#contact"
+              className="px-8 py-4 glass-effect text-electric-400 font-technical font-bold text-lg rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:scale-105 border border-electric-500/30"
+            >
+              Request Quote
+            </a>
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-electric-400 rounded-full flex items-start justify-center p-2">
+            <div className="w-1.5 h-3 bg-electric-400 rounded-full animate-pulse" />
+          </div>
+        </div>
+
+        {/* Decorative Elements */}
+        <div className="absolute top-20 left-20 w-32 h-32 border-t-2 border-l-2 border-electric-500/30" />
+        <div className="absolute bottom-20 right-20 w-32 h-32 border-b-2 border-r-2 border-electric-500/30" />
+      </section>
+
+      {/* Specifications Section */}
+      <section id="specifications" className="relative py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Title */}
+          <div className="text-center mb-16">
+            <h2 className="text-5xl sm:text-6xl font-display font-black text-white mb-4">
+              Technical <span className="text-gradient">Specifications</span>
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-electric-500 to-transparent mx-auto" />
+          </div>
+
+          {/* Specs Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {product.specifications.map((spec, index) => (
+              <div
+                key={index}
+                className="group relative glass-effect rounded-xl p-6 hover:bg-white/10 transition-all duration-500 tech-border"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-technical font-semibold text-concrete-300 mb-2">
+                      {spec.label}
+                    </h3>
+                    <p className="text-3xl font-display font-bold text-white group-hover:text-gradient transition-all">
+                      {spec.value}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg bg-electric-500/10 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-electric-500/30 animate-pulse" />
+                  </div>
+                </div>
+                <p className="text-sm font-technical text-concrete-500 uppercase tracking-wider">
+                  {spec.unit}
+                </p>
+
+                {/* Decorative corner */}
+                <div className="absolute top-3 right-3 w-8 h-8 border-t-2 border-r-2 border-electric-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            ))}
+          </div>
+
+          {/* Dimensions */}
+          <div className="glass-effect rounded-2xl p-8 tech-border">
+            <h3 className="text-2xl font-display font-bold text-white mb-6">
+              Available <span className="text-gradient">Dimensions</span>
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {product.dimensions.map((dimension, index) => (
+                <div
+                  key={index}
+                  className="flex items-center space-x-3 p-4 bg-white/5 rounded-lg border border-electric-500/20 hover:border-electric-500/50 transition-all"
+                >
+                  <svg className="w-6 h-6 text-electric-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                  <span className="font-technical text-concrete-300">{dimension}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent via-slate-900/30 to-transparent">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl sm:text-6xl font-display font-black text-white mb-4">
+              Product <span className="text-gradient">Features</span>
+            </h2>
+            <p className="text-xl text-concrete-300 font-technical max-w-3xl mx-auto">
+              Engineered excellence in every detail
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {product.features.map((feature, index) => (
+              <div
+                key={index}
+                className="group relative glass-effect rounded-2xl p-8 hover:bg-white/10 transition-all duration-500 transform hover:scale-105"
+              >
+                <div className="text-5xl mb-6 filter drop-shadow-lg transform group-hover:scale-110 transition-transform">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-display font-bold text-white mb-4 group-hover:text-gradient transition-all">
+                  {feature.title}
+                </h3>
+                <p className="text-concrete-300 font-technical leading-relaxed">
+                  {feature.description}
+                </p>
+
+                {/* Hover effect corner */}
+                <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-electric-500/0 group-hover:border-electric-500/50 transition-all rounded-br-lg" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Applications Section */}
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl sm:text-6xl font-display font-black text-white mb-4">
+              Ideal <span className="text-gradient">Applications</span>
+            </h2>
+            <p className="text-xl text-concrete-300 font-technical max-w-3xl mx-auto">
+              Versatile solutions for diverse infrastructure needs
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {product.applications.map((application, index) => (
+              <div
+                key={index}
+                className="group flex items-center space-x-4 glass-effect rounded-xl p-6 hover:bg-white/10 transition-all duration-300 border border-electric-500/20 hover:border-electric-500/50"
+              >
+                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${product.heroGradient} flex items-center justify-center flex-shrink-0`}>
+                  <svg className="w-6 h-6 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span className="font-technical text-lg text-concrete-200 group-hover:text-white transition-colors">
+                  {application}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery Section */}
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent via-slate-900/30 to-transparent">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl sm:text-6xl font-display font-black text-white mb-4">
+              Project <span className="text-gradient">Gallery</span>
+            </h2>
+            <p className="text-xl text-concrete-300 font-technical max-w-3xl mx-auto">
+              See our products in action
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {product.gallery.map((image, index) => (
+              <div
+                key={index}
+                className="group relative aspect-video overflow-hidden rounded-2xl tech-border"
+              >
+                <img
+                  src={image}
+                  alt={`${product.title} application ${index + 1}`}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                <div className={`absolute inset-0 bg-gradient-to-br ${product.heroGradient} opacity-0 group-hover:opacity-20 transition-opacity mix-blend-overlay`} />
+
+                {/* View indicator */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="w-16 h-16 rounded-full bg-electric-500/20 backdrop-blur-sm border border-electric-500 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-electric-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="relative glass-effect rounded-3xl p-12 tech-border overflow-hidden">
+            {/* Background pattern */}
+            <div className="absolute inset-0 blueprint-line opacity-5" />
+
+            <div className="relative z-10 text-center">
+              <h2 className="text-4xl sm:text-5xl font-display font-black text-white mb-6">
+                Ready to Start Your <span className="text-gradient">Project?</span>
+              </h2>
+              <p className="text-xl text-concrete-300 font-technical mb-10 max-w-2xl mx-auto">
+                Our engineering team is ready to provide custom solutions tailored to your specific requirements.
+              </p>
+
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <a
+                  href="#contact"
+                  className={`px-10 py-5 bg-gradient-to-r ${product.heroGradient} text-slate-950 font-technical font-bold text-lg rounded-xl hover:shadow-2xl hover:shadow-electric-500/50 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2`}
+                >
+                  <span>Request a Quote</span>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+                <button
+                  onClick={() => window.open('tel:+15551234567')}
+                  className="px-10 py-5 glass-effect text-electric-400 font-technical font-bold text-lg rounded-xl hover:bg-white/10 transition-all duration-300 transform hover:scale-105 border border-electric-500/30 flex items-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  <span>Call Us Now</span>
+                </button>
+              </div>
+
+              {/* Contact info */}
+              <div className="mt-10 pt-10 border-t border-electric-500/20">
+                <p className="text-concrete-400 font-technical">
+                  Email: <a href="mailto:info@dsinetiles.com" className="text-electric-400 hover:text-electric-300">info@dsinetiles.com</a>
+                  {' '} | {' '}
+                  Phone: <a href="tel:+15551234567" className="text-electric-400 hover:text-electric-300">+1 (555) 123-4567</a>
+                </p>
+              </div>
+            </div>
+
+            {/* Decorative corners */}
+            <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-electric-500/30" />
+            <div className="absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-electric-500/30" />
+          </div>
+        </div>
+      </section>
+
+      {/* Related Products */}
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 border-t border-electric-500/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-display font-black text-white mb-4">
+              Explore Other <span className="text-gradient">Products</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Object.values(productsData)
+              .filter(p => p.id !== product.id)
+              .map((relatedProduct) => (
+                <button
+                  key={relatedProduct.id}
+                  onClick={() => navigate(`/products/${relatedProduct.id}`)}
+                  className="group relative glass-effect rounded-xl overflow-hidden hover:bg-white/10 transition-all duration-500 transform hover:scale-105 tech-border text-left"
+                >
+                  <div className="aspect-video overflow-hidden">
+                    <img
+                      src={relatedProduct.image}
+                      alt={relatedProduct.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-display font-bold text-white group-hover:text-gradient transition-all mb-2">
+                      {relatedProduct.title}
+                    </h3>
+                    <p className="text-sm text-concrete-400 font-technical">
+                      {relatedProduct.subtitle}
+                    </p>
+                  </div>
+
+                  {/* Arrow indicator */}
+                  <div className="absolute bottom-6 right-6 w-8 h-8 rounded-full bg-electric-500/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg className="w-4 h-4 text-electric-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </button>
+              ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
