@@ -32,8 +32,8 @@ export default function Contact() {
         </svg>
       ),
       title: 'Phone',
-      details: '+1 (555) 123-4567',
-      link: 'tel:+15551234567',
+      details: '+91 7008049913',
+      link: 'tel:+917008049913',
     },
     {
       icon: (
@@ -42,8 +42,8 @@ export default function Contact() {
         </svg>
       ),
       title: 'Email',
-      details: 'info@dsinetiles.com',
-      link: 'mailto:info@dsinetiles.com',
+      details: 'sunita4dsinetiles@gmail.com',
+      link: 'mailto:sunita4dsinetiles@gmail.com',
     },
     {
       icon: (
@@ -53,7 +53,7 @@ export default function Contact() {
         </svg>
       ),
       title: 'Location',
-      details: 'Industrial District, City',
+      details: 'Baripada, Odisha, India',
       link: '#',
     },
     {
@@ -63,7 +63,7 @@ export default function Contact() {
         </svg>
       ),
       title: 'Hours',
-      details: 'Mon-Fri: 8AM - 6PM',
+      details: 'Open 24/7 - All Day',
       link: '#',
     },
   ]
@@ -256,7 +256,7 @@ export default function Contact() {
                 Our team is ready to help with your project requirements
               </p>
               <a
-                href="tel:+15551234567"
+                href="tel:+917008049913"
                 className="inline-flex items-center space-x-2 px-6 py-3 bg-black text-white font-body font-semibold rounded-sm hover:bg-neutral-900 transform hover:scale-105 transition-all duration-300 shadow-sm"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

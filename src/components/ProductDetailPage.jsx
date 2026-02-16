@@ -578,7 +578,7 @@ export default function ProductDetailPage() {
                   </svg>
                 </a>
                 <button
-                  onClick={() => window.open('tel:+15551234567')}
+                  onClick={() => window.open('tel:+917008049913')}
                   className="px-10 py-5 bg-white border border-neutral-300 text-neutral-700 font-technical font-bold text-lg rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -591,9 +591,9 @@ export default function ProductDetailPage() {
               {/* Contact info */}
               <div className="mt-10 pt-10 border-t border-neutral-200">
                 <p className="text-neutral-600 font-technical">
-                  Email: <a href="mailto:info@dsinetiles.com" className="text-neutral-700 hover:text-neutral-900">info@dsinetiles.com</a>
+                  Email: <a href="mailto:sunita4dsinetiles@gmail.com" className="text-neutral-700 hover:text-neutral-900">sunita4dsinetiles@gmail.com</a>
                   {' '} | {' '}
-                  Phone: <a href="tel:+15551234567" className="text-neutral-700 hover:text-neutral-900">+1 (555) 123-4567</a>
+                  Phone: <a href="tel:+917008049913" className="text-neutral-700 hover:text-neutral-900">+91 7008049913</a>
                 </p>
               </div>
             </div>
