@@ -69,30 +69,30 @@ export default function Contact() {
   ]
 
   return (
-    <section id="contact" className="relative py-24 px-4 sm:px-6 lg:px-8">
+    <section id="contact" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
           <div className="inline-block mb-4">
-            <span className="px-4 py-2 bg-electric-500/10 border border-electric-500/30 rounded-full text-electric-400 font-technical text-sm tracking-widest uppercase">
+            <span className="px-6 py-3 bg-stone-50 border border-stone-200 rounded-sm text-neutral-700 font-body text-xs tracking-[0.25em] uppercase font-medium">
               Get In Touch
             </span>
           </div>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-black text-white mb-6">
-            Start Your <span className="text-gradient">Project Today</span>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-neutral-900 mb-6">
+            Start Your <span className="italic">Project Today</span>
           </h2>
-          <p className="text-xl text-concrete-300 font-technical max-w-3xl mx-auto">
+          <p className="text-xl text-neutral-600 font-body max-w-3xl mx-auto leading-relaxed">
             Let's discuss how our precast solutions can bring your vision to life
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
-          <div className="glass-effect rounded-2xl p-8 tech-border">
+          <div className="bg-stone-50 border border-stone-200 rounded-sm p-8 shadow-sm">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-electric-400 font-technical font-semibold mb-2">
+                  <label className="block text-neutral-700 font-body font-semibold mb-2">
                     Full Name *
                   </label>
                   <input
@@ -101,12 +101,12 @@ export default function Contact() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-slate-900/50 border border-electric-500/30 rounded-lg text-white font-technical focus:outline-none focus:border-electric-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors"
                     placeholder="John Doe"
                   />
                 </div>
                 <div>
-                  <label className="block text-electric-400 font-technical font-semibold mb-2">
+                  <label className="block text-neutral-700 font-body font-semibold mb-2">
                     Email *
                   </label>
                   <input
@@ -115,7 +115,7 @@ export default function Contact() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-slate-900/50 border border-electric-500/30 rounded-lg text-white font-technical focus:outline-none focus:border-electric-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -123,7 +123,7 @@ export default function Contact() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-electric-400 font-technical font-semibold mb-2">
+                  <label className="block text-neutral-700 font-body font-semibold mb-2">
                     Phone
                   </label>
                   <input
@@ -131,12 +131,12 @@ export default function Contact() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-slate-900/50 border border-electric-500/30 rounded-lg text-white font-technical focus:outline-none focus:border-electric-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors"
                     placeholder="+1 (555) 000-0000"
                   />
                 </div>
                 <div>
-                  <label className="block text-electric-400 font-technical font-semibold mb-2">
+                  <label className="block text-neutral-700 font-body font-semibold mb-2">
                     Company
                   </label>
                   <input
@@ -144,21 +144,21 @@ export default function Contact() {
                     name="company"
                     value={formData.company}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-slate-900/50 border border-electric-500/30 rounded-lg text-white font-technical focus:outline-none focus:border-electric-500 transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors"
                     placeholder="Your Company"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-electric-400 font-technical font-semibold mb-2">
+                <label className="block text-neutral-700 font-body font-semibold mb-2">
                   Project Type
                 </label>
                 <select
                   name="project"
                   value={formData.project}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-electric-500/30 rounded-lg text-white font-technical focus:outline-none focus:border-electric-500 transition-colors"
+                  className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors"
                 >
                   <option value="">Select a product</option>
                   <option value="pavers">Precast Pavers</option>
@@ -170,7 +170,7 @@ export default function Contact() {
               </div>
 
               <div>
-                <label className="block text-electric-400 font-technical font-semibold mb-2">
+                <label className="block text-neutral-700 font-body font-semibold mb-2">
                   Project Details *
                 </label>
                 <textarea
@@ -179,14 +179,14 @@ export default function Contact() {
                   onChange={handleChange}
                   required
                   rows={5}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-electric-500/30 rounded-lg text-white font-technical focus:outline-none focus:border-electric-500 transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors resize-none"
                   placeholder="Tell us about your project requirements..."
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-electric-500 to-electric-600 text-slate-950 font-technical font-bold text-lg rounded-lg hover:shadow-2xl hover:shadow-electric-500/50 transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+                className="w-full py-4 bg-black text-white font-body font-semibold text-lg rounded-sm hover:bg-neutral-900 transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm"
               >
                 <span>Send Message</span>
                 <svg
@@ -214,15 +214,15 @@ export default function Contact() {
                 <a
                   key={index}
                   href={info.link}
-                  className="glass-effect rounded-xl p-6 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 group"
+                  className="bg-white border border-stone-200 rounded-sm p-6 hover:shadow-md transition-all duration-300 transform hover:scale-105 group"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-br from-electric-500 to-electric-600 rounded-lg flex items-center justify-center text-slate-950 mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-black rounded-sm flex items-center justify-center text-white mb-4 group-hover:bg-neutral-900 transition-all duration-300">
                     {info.icon}
                   </div>
-                  <h3 className="text-lg font-display font-bold text-white mb-2">
+                  <h3 className="text-lg font-display font-bold text-neutral-900 mb-2">
                     {info.title}
                   </h3>
-                  <p className="text-concrete-300 font-technical">
+                  <p className="text-neutral-600 font-body">
                     {info.details}
                   </p>
                 </a>
@@ -230,34 +230,34 @@ export default function Contact() {
             </div>
 
             {/* Map Placeholder */}
-            <div className="glass-effect rounded-2xl p-6 h-64 tech-border flex items-center justify-center">
+            <div className="bg-stone-50 border border-stone-200 rounded-sm p-6 h-64 flex items-center justify-center">
               <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-electric-500 to-electric-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-display font-bold text-white mb-2">
+                <h3 className="text-xl font-display font-bold text-neutral-900 mb-2">
                   Visit Our Facility
                 </h3>
-                <p className="text-concrete-300 font-technical">
+                <p className="text-neutral-600 font-body">
                   Schedule a tour to see our manufacturing process
                 </p>
               </div>
             </div>
 
             {/* CTA Box */}
-            <div className="glass-effect rounded-2xl p-8 tech-border text-center">
-              <h3 className="text-2xl font-display font-bold text-gradient mb-4">
+            <div className="bg-white border border-stone-200 rounded-sm p-8 text-center shadow-sm">
+              <h3 className="text-2xl font-display font-bold text-neutral-900 mb-4">
                 Need Immediate Assistance?
               </h3>
-              <p className="text-concrete-300 font-technical mb-6">
+              <p className="text-neutral-600 font-body mb-6 leading-relaxed">
                 Our team is ready to help with your project requirements
               </p>
               <a
                 href="tel:+15551234567"
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-electric-500 to-electric-600 text-slate-950 font-technical font-bold rounded-lg hover:shadow-lg hover:shadow-electric-500/50 transform hover:scale-105 transition-all duration-300"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-black text-white font-body font-semibold rounded-sm hover:bg-neutral-900 transform hover:scale-105 transition-all duration-300 shadow-sm"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />

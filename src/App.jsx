@@ -4,15 +4,9 @@ import ProductDetailPage from './components/ProductDetailPage'
 
 function App() {
   return (
-    <div className="relative bg-slate-950">
-      {/* Animated background grid */}
-      <div className="fixed inset-0 blueprint-line opacity-20 pointer-events-none" />
-
-      {/* Gradient overlay */}
-      <div className="fixed inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950 pointer-events-none" />
-
+    <div className="relative bg-white min-h-screen">
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/products/:productId" element={<ProductDetailPage />} />

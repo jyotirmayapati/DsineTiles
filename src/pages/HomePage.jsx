@@ -64,14 +64,14 @@ export default function HomePage() {
           <div className="text-center mb-20">
             <div className="ornamental-line mx-auto mb-6" />
             <div className="inline-block mb-6">
-              <span className="px-5 py-2 bg-bronze-50 border border-bronze-200 rounded-sm text-bronze-700 font-body text-xs tracking-widest uppercase">
+              <span className="px-5 py-2 bg-stone-50 border border-stone-200 rounded-sm text-neutral-700 font-body text-xs tracking-widest uppercase font-medium">
                 Our Collection
               </span>
             </div>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-semibold text-charcoal-800 mb-6 leading-tight">
-              Premium <span className="text-gradient italic">Precast Products</span>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-neutral-900 mb-6 leading-tight">
+              Premium <span className="italic">Precast Products</span>
             </h2>
-            <p className="text-lg text-charcoal-600 font-body max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-neutral-600 font-body max-w-2xl mx-auto leading-relaxed">
               Exceptional concrete solutions crafted with precision for enduring quality and architectural beauty
             </p>
           </div>
@@ -93,19 +93,19 @@ export default function HomePage() {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900 via-charcoal-900/40 to-transparent" />
-                  <div className="absolute top-6 right-6 px-4 py-2 bg-white/95 backdrop-blur-sm rounded-sm shadow-lg">
-                    <span className="text-bronze-700 font-body font-semibold text-sm tracking-wide">Premium Quality</span>
+                  <div className="absolute top-6 right-6 px-4 py-2 bg-white/95 backdrop-blur-sm rounded-sm shadow-md border border-stone-200">
+                    <span className="text-neutral-700 font-body font-semibold text-sm tracking-wide">Premium Quality</span>
                   </div>
                 </div>
 
                 <div className="p-8">
                   {/* Product Title */}
-                  <h3 className="text-2xl font-display font-semibold text-charcoal-800 mb-4 group-hover:text-bronze-600 transition-all duration-300">
+                  <h3 className="text-2xl font-display font-bold text-neutral-900 mb-4 group-hover:text-neutral-700 transition-all duration-300">
                     {product.title}
                   </h3>
 
                   {/* Product Description */}
-                  <p className="text-charcoal-600 font-body leading-relaxed mb-6">
+                  <p className="text-neutral-600 font-body leading-relaxed mb-6">
                     {product.description}
                   </p>
 
@@ -117,7 +117,7 @@ export default function HomePage() {
                         className="flex items-center space-x-2 text-sm text-stone-700 font-body"
                       >
                         <svg
-                          className="w-5 h-5 text-bronze-600 flex-shrink-0"
+                          className="w-5 h-5 text-neutral-600 flex-shrink-0"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -135,7 +135,7 @@ export default function HomePage() {
                   </div>
 
                   {/* View Details Button */}
-                  <button className="w-full py-3 bg-stone-100 border border-stone-300 text-charcoal-700 font-body font-semibold rounded-sm hover:bg-bronze-600 hover:text-white hover:border-bronze-600 transition-all duration-300 flex items-center justify-center space-x-2 group">
+                  <button className="w-full py-3 bg-stone-50 border border-stone-300 text-neutral-700 font-body font-semibold rounded-sm hover:bg-black hover:text-white hover:border-black transition-all duration-300 flex items-center justify-center space-x-2 group">
                     <span>View Details</span>
                     <svg
                       className="w-5 h-5 group-hover:translate-x-1 transition-transform"
@@ -154,8 +154,8 @@ export default function HomePage() {
                 </div>
 
                 {/* Decorative corner accents */}
-                <div className="absolute top-4 left-4 w-10 h-10 border-t border-l border-bronze-400/40" />
-                <div className="absolute bottom-4 right-4 w-10 h-10 border-b border-r border-bronze-400/40" />
+                <div className="absolute top-4 left-4 w-10 h-10 border-t border-l border-stone-300/60" />
+                <div className="absolute bottom-4 right-4 w-10 h-10 border-b border-r border-stone-300/60" />
               </div>
             ))}
           </div>
@@ -165,7 +165,7 @@ export default function HomePage() {
             <div className="ornamental-line mx-auto mb-8" />
             <a
               href="#contact"
-              className="inline-flex items-center space-x-2 px-8 py-4 bg-white border-2 border-bronze-600 text-bronze-700 font-body font-semibold text-base rounded-sm hover:bg-bronze-600 hover:text-white transform hover:scale-105 transition-all duration-300 shadow-md"
+              className="inline-flex items-center space-x-2 px-8 py-4 bg-white border-2 border-black text-neutral-800 font-body font-semibold text-base rounded-sm hover:bg-black hover:text-white transform hover:scale-105 transition-all duration-300 shadow-sm"
             >
               <span>Request Custom Solution</span>
               <svg
@@ -190,37 +190,37 @@ export default function HomePage() {
       <Contact />
 
       {/* Footer */}
-      <footer className="relative border-t border-stone-300 bg-charcoal-800">
+      <footer className="relative border-t border-stone-200 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div>
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-bronze-600 to-bronze-500 rounded-sm flex items-center justify-center shadow-md">
-                  <span className="text-white font-accent font-bold text-lg">D</span>
+                <div className="w-10 h-10 bg-black rounded-sm flex items-center justify-center">
+                  <span className="text-white font-display font-bold text-lg">D</span>
                 </div>
                 <div className="flex flex-col">
-                  <h3 className="text-xl font-accent font-semibold text-white tracking-wide leading-none">
+                  <h3 className="text-xl font-display font-bold text-neutral-900 tracking-wide leading-none">
                     DsineTiles
                   </h3>
-                  <span className="text-xs font-body text-stone-400 tracking-widest uppercase">
+                  <span className="text-xs font-body text-neutral-500 tracking-widest uppercase">
                     Precast Excellence
                   </span>
                 </div>
               </div>
-              <p className="text-stone-400 font-body text-sm leading-relaxed">
+              <p className="text-neutral-600 font-body text-sm leading-relaxed">
                 Leading manufacturer of premium precast concrete solutions for modern infrastructure
               </p>
             </div>
             <div>
-              <h4 className="text-base font-display font-semibold text-bronze-400 mb-4 tracking-wide">
+              <h4 className="text-base font-display font-bold text-neutral-900 mb-4 tracking-wide">
                 Products
               </h4>
-              <ul className="space-y-2 text-stone-400 font-body text-sm">
+              <ul className="space-y-2 text-neutral-600 font-body text-sm">
                 {products.map((product) => (
                   <li key={product.id}>
                     <button
                       onClick={() => navigate(`/products/${product.id}`)}
-                      className="hover:text-bronze-400 transition-colors"
+                      className="hover:text-neutral-900 transition-colors"
                     >
                       {product.title}
                     </button>
@@ -229,24 +229,24 @@ export default function HomePage() {
               </ul>
             </div>
             <div>
-              <h4 className="text-base font-display font-semibold text-bronze-400 mb-4 tracking-wide">
+              <h4 className="text-base font-display font-bold text-neutral-900 mb-4 tracking-wide">
                 Connect
               </h4>
-              <ul className="space-y-3 text-stone-400 font-body text-sm">
+              <ul className="space-y-3 text-neutral-600 font-body text-sm">
                 <li className="flex items-start space-x-2">
-                  <svg className="w-5 h-5 text-bronze-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 text-neutral-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   <span>info@dsinetiles.com</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <svg className="w-5 h-5 text-bronze-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 text-neutral-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                   <span>+1 (555) 123-4567</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <svg className="w-5 h-5 text-bronze-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 text-neutral-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
@@ -255,9 +255,9 @@ export default function HomePage() {
               </ul>
             </div>
           </div>
-          <div className="pt-8 border-t border-stone-700">
-            <div className="ornamental-line mx-auto mb-6 opacity-50" />
-            <p className="text-stone-500 font-body text-sm text-center">
+          <div className="pt-8 border-t border-stone-300">
+            <div className="ornamental-line mx-auto mb-6" />
+            <p className="text-neutral-500 font-body text-sm text-center">
               © 2026 DsineTiles. All rights reserved. Building the future with precision and elegance.
             </p>
           </div>

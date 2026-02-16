@@ -65,19 +65,19 @@ export default function Features() {
   ]
 
   return (
-    <section id="features" className="relative py-24 px-4 sm:px-6 lg:px-8">
+    <section id="features" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-stone-50">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
           <div className="inline-block mb-4">
-            <span className="px-4 py-2 bg-electric-500/10 border border-electric-500/30 rounded-full text-electric-400 font-technical text-sm tracking-widest uppercase">
+            <span className="px-6 py-3 bg-white border border-stone-200 rounded-sm text-neutral-700 font-body text-xs tracking-[0.25em] uppercase font-medium">
               Why Choose Us
             </span>
           </div>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-black text-white mb-6">
-            Engineered for <span className="text-gradient">Excellence</span>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-neutral-900 mb-6">
+            Engineered for <span className="italic">Excellence</span>
           </h2>
-          <p className="text-xl text-concrete-300 font-technical max-w-3xl mx-auto">
+          <p className="text-xl text-neutral-600 font-body max-w-3xl mx-auto leading-relaxed">
             Industry-leading capabilities backed by decades of expertise and innovation
           </p>
         </div>
@@ -87,15 +87,15 @@ export default function Features() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group glass-effect rounded-xl p-6 hover:bg-white/10 transition-all duration-500 transform hover:scale-105 cursor-pointer"
+              className="group bg-white border border-stone-200 rounded-sm p-8 hover:shadow-md transition-all duration-500 transform hover:scale-105 cursor-pointer"
             >
-              <div className="w-14 h-14 bg-gradient-to-br from-electric-500 to-electric-600 rounded-lg flex items-center justify-center text-slate-950 mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+              <div className="w-14 h-14 bg-black rounded-sm flex items-center justify-center text-white mb-4 group-hover:bg-neutral-900 transition-all duration-300">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-display font-bold text-white mb-3 group-hover:text-gradient transition-all duration-300">
+              <h3 className="text-xl font-display font-bold text-neutral-900 mb-3">
                 {feature.title}
               </h3>
-              <p className="text-concrete-300 font-technical leading-relaxed">
+              <p className="text-neutral-600 font-body leading-relaxed">
                 {feature.description}
               </p>
             </div>
@@ -103,17 +103,17 @@ export default function Features() {
         </div>
 
         {/* Benefits Bar */}
-        <div className="glass-effect rounded-2xl p-8 tech-border">
-          <h3 className="text-2xl font-display font-bold text-center text-white mb-8">
+        <div className="bg-white border border-stone-200 rounded-sm p-8 shadow-sm">
+          <h3 className="text-2xl font-display font-bold text-center text-neutral-900 mb-8">
             Measurable Impact
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {benefits.map((benefit, index) => (
               <div key={index} className="text-center">
-                <div className="text-4xl md:text-5xl font-display font-black text-gradient mb-2">
+                <div className="text-4xl md:text-5xl font-display font-bold text-neutral-900 mb-2">
                   {benefit.value}
                 </div>
-                <div className="text-concrete-400 font-technical text-sm uppercase tracking-wide">
+                <div className="text-neutral-600 font-body text-sm uppercase tracking-wide">
                   {benefit.label}
                 </div>
               </div>
@@ -123,8 +123,8 @@ export default function Features() {
 
         {/* Process Timeline */}
         <div className="mt-20">
-          <h3 className="text-3xl font-display font-bold text-center text-white mb-12">
-            Our <span className="text-gradient">Process</span>
+          <h3 className="text-3xl font-display font-bold text-center text-neutral-900 mb-12">
+            Our <span className="italic">Process</span>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
@@ -134,20 +134,20 @@ export default function Features() {
               { step: '04', title: 'Installation', desc: 'Expert deployment' },
             ].map((phase, index) => (
               <div key={index} className="relative group">
-                <div className="glass-effect rounded-xl p-6 hover:bg-white/10 transition-all duration-300">
-                  <div className="text-5xl font-display font-black text-electric-500/30 mb-2">
+                <div className="bg-white border border-stone-200 rounded-sm p-6 hover:shadow-md transition-all duration-300">
+                  <div className="text-5xl font-display font-bold text-stone-200 mb-2">
                     {phase.step}
                   </div>
-                  <h4 className="text-xl font-display font-bold text-white mb-2 group-hover:text-gradient transition-all duration-300">
+                  <h4 className="text-xl font-display font-bold text-neutral-900 mb-2">
                     {phase.title}
                   </h4>
-                  <p className="text-concrete-400 font-technical text-sm">
+                  <p className="text-neutral-600 font-body text-sm">
                     {phase.desc}
                   </p>
                 </div>
                 {index < 3 && (
                   <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
-                    <svg className="w-6 h-6 text-electric-500" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-6 h-6 text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>

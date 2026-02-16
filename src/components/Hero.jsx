@@ -10,15 +10,8 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-white"
     >
-      {/* Animated geometric shapes */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-electric-500/10 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-electric-500/20 rounded-full animate-pulse" />
-      </div>
-
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div
           className={`transition-all duration-1000 ${
@@ -26,20 +19,20 @@ export default function Hero() {
           }`}
         >
           {/* Tagline */}
-          <div className="mb-6">
-            <span className="inline-block px-4 py-2 bg-electric-500/10 border border-electric-500/30 rounded-full text-electric-400 font-technical text-sm tracking-widest uppercase">
+          <div className="mb-8">
+            <span className="inline-block px-6 py-3 bg-stone-50 border border-stone-200 rounded-sm text-neutral-600 font-body text-xs tracking-[0.25em] uppercase font-medium">
               Precision Engineering • Future Ready
             </span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-black mb-6 leading-tight">
-            <span className="block text-white mb-2">Building Tomorrow's</span>
-            <span className="block text-gradient glow-text">Infrastructure</span>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-tight text-neutral-900">
+            <span className="block mb-2">Building Tomorrow's</span>
+            <span className="block italic">Infrastructure</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl sm:text-2xl md:text-3xl text-concrete-300 font-technical font-light max-w-4xl mx-auto mb-12 leading-relaxed">
+          <p className="text-xl sm:text-2xl md:text-3xl text-neutral-600 font-body font-light max-w-4xl mx-auto mb-12 leading-relaxed">
             Advanced precast concrete solutions engineered for durability, precision, and sustainable construction
           </p>
 
@@ -47,7 +40,7 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
             <a
               href="#products"
-              className="group px-8 py-4 bg-gradient-to-r from-electric-500 to-electric-600 text-slate-950 font-technical font-bold text-lg rounded-lg hover:shadow-2xl hover:shadow-electric-500/50 transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
+              className="group px-10 py-4 bg-black text-white font-body font-semibold text-lg rounded-sm hover:bg-neutral-900 transform hover:scale-105 transition-all duration-300 flex items-center space-x-2 shadow-md"
             >
               <span>Explore Products</span>
               <svg
@@ -67,7 +60,7 @@ export default function Hero() {
 
             <a
               href="#contact"
-              className="group px-8 py-4 glass-effect text-electric-400 font-technical font-bold text-lg rounded-lg hover:bg-white/10 transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
+              className="group px-10 py-4 bg-white border-2 border-black text-neutral-800 font-body font-semibold text-lg rounded-sm hover:bg-stone-50 transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
             >
               <span>Request Consultation</span>
               <svg
@@ -100,12 +93,12 @@ export default function Hero() {
             ].map((stat, index) => (
               <div
                 key={index}
-                className="glass-effect rounded-lg p-6 tech-border hover:bg-white/10 transition-all duration-300"
+                className="bg-stone-50 border border-stone-200 rounded-sm p-6 hover:shadow-md transition-all duration-300"
               >
-                <div className="text-4xl font-display font-bold text-gradient mb-2">
+                <div className="text-4xl font-display font-bold text-neutral-900 mb-2">
                   {stat.value}
                 </div>
-                <div className="text-concrete-400 font-technical text-sm uppercase tracking-wide">
+                <div className="text-neutral-600 font-body text-sm uppercase tracking-wide">
                   {stat.label}
                 </div>
               </div>
@@ -117,7 +110,7 @@ export default function Hero() {
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
         <svg
-          className="w-6 h-6 text-electric-400"
+          className="w-6 h-6 text-neutral-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
