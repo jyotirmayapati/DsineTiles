@@ -163,25 +163,46 @@ export default function HomePage() {
           {/* Bottom CTA */}
           <div className="mt-20 text-center">
             <div className="ornamental-line mx-auto mb-8" />
-            <a
-              href="#contact"
-              className="inline-flex items-center space-x-2 px-8 py-4 bg-white border-2 border-black text-neutral-800 font-body font-semibold text-base rounded-sm hover:bg-black hover:text-white transform hover:scale-105 transition-all duration-300 shadow-sm"
-            >
-              <span>Request Custom Solution</span>
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <button
+                onClick={() => navigate('/products')}
+                className="inline-flex items-center space-x-2 px-8 py-4 bg-black text-white font-body font-semibold text-base rounded-sm hover:bg-neutral-800 transform hover:scale-105 transition-all duration-300 shadow-md"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
-              </svg>
-            </a>
+                <span>View All Products</span>
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                  />
+                </svg>
+              </button>
+              <a
+                href="#contact"
+                className="inline-flex items-center space-x-2 px-8 py-4 bg-white border-2 border-black text-neutral-800 font-body font-semibold text-base rounded-sm hover:bg-black hover:text-white transform hover:scale-105 transition-all duration-300 shadow-sm"
+              >
+                <span>Request Custom Solution</span>
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                  />
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
       </section>

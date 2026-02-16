@@ -1,13 +1,41 @@
 import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 export default function Navigation({ scrolled }) {
   const [isOpen, setIsOpen] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const handleNavigation = (path, hash = '') => {
+    if (location.pathname === '/' && hash) {
+      // If we're already on home page, just scroll to section
+      const element = document.querySelector(hash)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' })
+      }
+    } else if (path === '/') {
+      // Navigate to home page, then scroll to section
+      navigate('/')
+      if (hash) {
+        setTimeout(() => {
+          const element = document.querySelector(hash)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' })
+          }
+        }, 100)
+      }
+    } else {
+      // Navigate to other pages
+      navigate(path)
+    }
+    setIsOpen(false)
+  }
 
   const navLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'Products', href: '#products' },
-    { name: 'Features', href: '#features' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'Home', path: '/', hash: '' },
+    { name: 'Products', path: '/products', hash: '' },
+    { name: 'Features', path: '/', hash: '#features' },
+    { name: 'Contact', path: '/', hash: '#contact' },
   ]
 
   return (
@@ -22,35 +50,38 @@ export default function Navigation({ scrolled }) {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <a href="#home" className="flex items-center space-x-3 group">
+            <button
+              onClick={() => handleNavigation('/')}
+              className="flex items-center space-x-3 group"
+            >
               <div className="w-10 h-10 bg-black rounded-sm flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
                 <span className="text-white font-display font-bold text-xl">D</span>
               </div>
               <span className="text-2xl font-display font-bold text-neutral-900 tracking-tight">
                 DsineTiles
               </span>
-            </a>
+            </button>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-8">
               {navLinks.map((link) => (
-                <a
+                <button
                   key={link.name}
-                  href={link.href}
+                  onClick={() => handleNavigation(link.path, link.hash)}
                   className="text-neutral-600 hover:text-neutral-900 font-body font-medium text-base tracking-wide transition-all duration-300 relative group"
                 >
                   {link.name}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-neutral-900 group-hover:w-full transition-all duration-300" />
-                </a>
+                </button>
               ))}
-              <a
-                href="#contact"
+              <button
+                onClick={() => handleNavigation('/', '#contact')}
                 className="px-6 py-2.5 bg-black text-white font-body font-semibold rounded-sm hover:bg-neutral-900 transform hover:scale-105 transition-all duration-300 shadow-sm"
               >
                 Get Quote
-              </a>
+              </button>
             </div>
           </div>
 
@@ -95,22 +126,20 @@ export default function Navigation({ scrolled }) {
       >
         <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-stone-200">
           {navLinks.map((link) => (
-            <a
+            <button
               key={link.name}
-              href={link.href}
-              className="block px-3 py-2 text-neutral-600 hover:text-neutral-900 hover:bg-stone-50 font-body font-medium text-base rounded-sm transition-colors duration-200"
-              onClick={() => setIsOpen(false)}
+              onClick={() => handleNavigation(link.path, link.hash)}
+              className="w-full text-left block px-3 py-2 text-neutral-600 hover:text-neutral-900 hover:bg-stone-50 font-body font-medium text-base rounded-sm transition-colors duration-200"
             >
               {link.name}
-            </a>
+            </button>
           ))}
-          <a
-            href="#contact"
-            className="block px-3 py-2 bg-black text-white font-body font-semibold rounded-sm text-center"
-            onClick={() => setIsOpen(false)}
+          <button
+            onClick={() => handleNavigation('/', '#contact')}
+            className="w-full block px-3 py-2 bg-black text-white font-body font-semibold rounded-sm text-center"
           >
             Get Quote
-          </a>
+          </button>
         </div>
       </div>
     </nav>

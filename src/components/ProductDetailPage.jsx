@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { productsData as allProducts } from '../data/products'
 
-const productsData = {
+// Detailed product data for featured products
+const detailedProductsData = {
   'precast-pavers': {
     id: 'precast-pavers',
     title: 'Precast Pavers',
     subtitle: 'Industrial-Grade Concrete Paving Systems',
     description: 'Engineered for maximum durability and aesthetic versatility, our precast pavers combine superior load-bearing capacity with refined surface finishes. Perfect for high-traffic pedestrian zones, commercial driveways, and premium landscaping applications.',
     image: '/images/products/precast-pavers.jpg',
-    heroGradient: 'from-charcoal-700 via-charcoal-800 to-charcoal-900',
     specifications: [
       { label: 'Compressive Strength', value: '50-65 MPa', unit: 'megapascals' },
       { label: 'Water Absorption', value: '< 5%', unit: 'percentage' },
@@ -24,36 +25,12 @@ const productsData = {
       'Custom sizes available'
     ],
     features: [
-      {
-        icon: '🔩',
-        title: 'Interlocking Design',
-        description: 'Precision-engineered edges ensure perfect alignment and structural integrity'
-      },
-      {
-        icon: '💧',
-        title: 'Permeable Options',
-        description: 'Advanced drainage systems for sustainable water management'
-      },
-      {
-        icon: '🎨',
-        title: 'Aesthetic Versatility',
-        description: 'Multiple colors, textures, and patterns to match any design vision'
-      },
-      {
-        icon: '⚡',
-        title: 'Rapid Installation',
-        description: 'Modular system enables quick deployment with minimal site disruption'
-      },
-      {
-        icon: '🛡️',
-        title: 'Weather Resistant',
-        description: 'Engineered to withstand extreme temperatures and environmental stress'
-      },
-      {
-        icon: '♻️',
-        title: 'Sustainable',
-        description: 'Made with eco-friendly materials and recyclable components'
-      }
+      { icon: '🔩', title: 'Interlocking Design', description: 'Precision-engineered edges ensure perfect alignment and structural integrity' },
+      { icon: '💧', title: 'Permeable Options', description: 'Advanced drainage systems for sustainable water management' },
+      { icon: '🎨', title: 'Aesthetic Versatility', description: 'Multiple colors, textures, and patterns to match any design vision' },
+      { icon: '⚡', title: 'Rapid Installation', description: 'Modular system enables quick deployment with minimal site disruption' },
+      { icon: '🛡️', title: 'Weather Resistant', description: 'Engineered to withstand extreme temperatures and environmental stress' },
+      { icon: '♻️', title: 'Sustainable', description: 'Made with eco-friendly materials and recyclable components' }
     ],
     applications: [
       'Pedestrian plazas and walkways',
@@ -76,7 +53,6 @@ const productsData = {
     subtitle: 'Precision-Engineered Drainage Solutions',
     description: 'High-performance U-shaped drainage channels designed for optimal water flow management. Our precast U drains provide reliable, maintenance-free drainage for roads, highways, and urban infrastructure with exceptional durability.',
     image: '/images/products/u-drains.jpg',
-    heroGradient: 'from-charcoal-700 via-charcoal-800 to-charcoal-900',
     specifications: [
       { label: 'Flow Capacity', value: '200-500 L/s', unit: 'liters per second' },
       { label: 'Compressive Strength', value: '45+ MPa', unit: 'megapascals' },
@@ -92,36 +68,12 @@ const productsData = {
       'Custom specifications'
     ],
     features: [
-      {
-        icon: '🌊',
-        title: 'Hydraulic Efficiency',
-        description: 'Smooth interior surfaces maximize flow rate and minimize debris accumulation'
-      },
-      {
-        icon: '🏗️',
-        title: 'Modular System',
-        description: 'Interlocking units enable flexible configuration for any project scale'
-      },
-      {
-        icon: '⚙️',
-        title: 'Corrosion Resistant',
-        description: 'Advanced concrete mix withstands chemical exposure and harsh conditions'
-      },
-      {
-        icon: '🔧',
-        title: 'Easy Maintenance',
-        description: 'Accessible design allows simple inspection and cleaning operations'
-      },
-      {
-        icon: '📐',
-        title: 'Precision Manufacturing',
-        description: 'Tight tolerances ensure perfect fit and seamless installation'
-      },
-      {
-        icon: '🎯',
-        title: 'Load Rated',
-        description: 'Certified for heavy traffic applications including highways'
-      }
+      { icon: '🌊', title: 'Hydraulic Efficiency', description: 'Smooth interior surfaces maximize flow rate and minimize debris accumulation' },
+      { icon: '🏗️', title: 'Modular System', description: 'Interlocking units enable flexible configuration for any project scale' },
+      { icon: '⚙️', title: 'Corrosion Resistant', description: 'Advanced concrete mix withstands chemical exposure and harsh conditions' },
+      { icon: '🔧', title: 'Easy Maintenance', description: 'Accessible design allows simple inspection and cleaning operations' },
+      { icon: '📐', title: 'Precision Manufacturing', description: 'Tight tolerances ensure perfect fit and seamless installation' },
+      { icon: '🎯', title: 'Load Rated', description: 'Certified for heavy traffic applications including highways' }
     ],
     applications: [
       'Highway and roadway drainage',
@@ -144,7 +96,6 @@ const productsData = {
     subtitle: 'Heavy-Duty Underground Infrastructure',
     description: 'Reinforced concrete box culverts engineered for maximum structural performance in demanding applications. Our precast solutions deliver unmatched strength for waterway crossings, underground passages, and high-load scenarios.',
     image: '/images/products/box-culverts.jpg',
-    heroGradient: 'from-charcoal-700 via-charcoal-800 to-charcoal-900',
     specifications: [
       { label: 'Load Capacity', value: 'HS20-HS25', unit: 'AASHTO rating' },
       { label: 'Compressive Strength', value: '35-50 MPa', unit: 'megapascals' },
@@ -160,36 +111,12 @@ const productsData = {
       'Engineered custom sizes'
     ],
     features: [
-      {
-        icon: '💪',
-        title: 'Superior Strength',
-        description: 'Reinforced concrete design handles extreme loading conditions'
-      },
-      {
-        icon: '⚡',
-        title: 'Rapid Deployment',
-        description: 'Precast sections enable fast installation with minimal excavation time'
-      },
-      {
-        icon: '💰',
-        title: 'Cost Effective',
-        description: 'Reduced labor and equipment costs compared to cast-in-place alternatives'
-      },
-      {
-        icon: '🔒',
-        title: 'Watertight Joints',
-        description: 'Advanced sealing systems prevent infiltration and exfiltration'
-      },
-      {
-        icon: '📏',
-        title: 'Quality Controlled',
-        description: 'Factory production ensures consistent quality and dimensional accuracy'
-      },
-      {
-        icon: '🌍',
-        title: 'Environmentally Sound',
-        description: 'Long service life and minimal maintenance reduce environmental impact'
-      }
+      { icon: '💪', title: 'Superior Strength', description: 'Reinforced concrete design handles extreme loading conditions' },
+      { icon: '⚡', title: 'Rapid Deployment', description: 'Precast sections enable fast installation with minimal excavation time' },
+      { icon: '💰', title: 'Cost Effective', description: 'Reduced labor and equipment costs compared to cast-in-place alternatives' },
+      { icon: '🔒', title: 'Watertight Joints', description: 'Advanced sealing systems prevent infiltration and exfiltration' },
+      { icon: '📏', title: 'Quality Controlled', description: 'Factory production ensures consistent quality and dimensional accuracy' },
+      { icon: '🌍', title: 'Environmentally Sound', description: 'Long service life and minimal maintenance reduce environmental impact' }
     ],
     applications: [
       'Stream and river crossings',
@@ -212,7 +139,6 @@ const productsData = {
     subtitle: 'Structural Earth Retention Systems',
     description: 'Advanced precast retaining wall systems combining structural integrity with architectural excellence. Our engineered solutions provide reliable slope stabilization and soil retention with customizable aesthetic options.',
     image: '/images/products/retaining-walls.jpg',
-    heroGradient: 'from-charcoal-700 via-charcoal-800 to-charcoal-900',
     specifications: [
       { label: 'Wall Height', value: '1m - 8m', unit: 'maximum height' },
       { label: 'Design Load', value: '15+ kN/m²', unit: 'lateral pressure' },
@@ -228,36 +154,12 @@ const productsData = {
       'Project-specific designs'
     ],
     features: [
-      {
-        icon: '🏛️',
-        title: 'Architectural Beauty',
-        description: 'Multiple finish options from smooth to textured stone appearance'
-      },
-      {
-        icon: '🏗️',
-        title: 'Quick Assembly',
-        description: 'Precision-fit panels stack rapidly with minimal equipment'
-      },
-      {
-        icon: '🔩',
-        title: 'Structural Integrity',
-        description: 'Engineered for maximum lateral earth pressure resistance'
-      },
-      {
-        icon: '🎨',
-        title: 'Customizable',
-        description: 'Choose from various colors, textures, and architectural patterns'
-      },
-      {
-        icon: '🛠️',
-        title: 'Minimal Maintenance',
-        description: 'Durable concrete requires no painting or ongoing treatment'
-      },
-      {
-        icon: '📐',
-        title: 'Geogrid Compatible',
-        description: 'Designed to integrate with reinforced soil systems for tall walls'
-      }
+      { icon: '🏛️', title: 'Architectural Beauty', description: 'Multiple finish options from smooth to textured stone appearance' },
+      { icon: '🏗️', title: 'Quick Assembly', description: 'Precision-fit panels stack rapidly with minimal equipment' },
+      { icon: '🔩', title: 'Structural Integrity', description: 'Engineered for maximum lateral earth pressure resistance' },
+      { icon: '🎨', title: 'Customizable', description: 'Choose from various colors, textures, and architectural patterns' },
+      { icon: '🛠️', title: 'Minimal Maintenance', description: 'Durable concrete requires no painting or ongoing treatment' },
+      { icon: '📐', title: 'Geogrid Compatible', description: 'Designed to integrate with reinforced soil systems for tall walls' }
     ],
     applications: [
       'Highway embankment support',
@@ -276,13 +178,72 @@ const productsData = {
   }
 }
 
+// Function to generate detailed data from basic product info
+function generateDetailedProduct(basicProduct) {
+  // Use detailed data if available, otherwise create from basic data
+  if (detailedProductsData[basicProduct.id]) {
+    return detailedProductsData[basicProduct.id]
+  }
+
+  // Generate specifications based on available data
+  const specifications = []
+  if (basicProduct.dimensions) {
+    specifications.push({ label: 'Dimensions', value: basicProduct.dimensions, unit: 'standard size' })
+  }
+  if (basicProduct.thickness) {
+    specifications.push({ label: 'Thickness', value: basicProduct.thickness, unit: 'millimeters' })
+  }
+  if (basicProduct.type) {
+    specifications.push({ label: 'Type', value: basicProduct.type, unit: 'configuration' })
+  }
+
+  // Add standard specs for all products
+  specifications.push(
+    { label: 'Compressive Strength', value: '35-50 MPa', unit: 'megapascals' },
+    { label: 'Quality Standard', value: 'IS Certified', unit: 'compliance' },
+    { label: 'Durability', value: 'High', unit: 'long-lasting' }
+  )
+
+  // Generate feature objects with icons
+  const featureIcons = ['🏗️', '💪', '⚡', '🛡️', '✓', '📐']
+  const features = (basicProduct.features || []).map((feature, idx) => ({
+    icon: featureIcons[idx % featureIcons.length],
+    title: feature,
+    description: `Premium ${basicProduct.category.toLowerCase()} featuring ${feature.toLowerCase()} for superior performance and reliability.`
+  }))
+
+  // Generate applications
+  const applications = [
+    `Commercial ${basicProduct.category.toLowerCase()} applications`,
+    `Residential construction projects`,
+    `Industrial infrastructure development`,
+    `Urban development and landscaping`,
+    `Government and public works`,
+    `Private sector construction`
+  ]
+
+  // Generate gallery (use same image 4 times)
+  const gallery = Array(4).fill(basicProduct.image)
+
+  return {
+    ...basicProduct,
+    subtitle: `Professional ${basicProduct.category} Solutions`,
+    specifications,
+    dimensions: basicProduct.dimensions ? [basicProduct.dimensions, 'Custom sizes available'] : ['Standard sizes', 'Custom sizes available'],
+    features,
+    applications,
+    gallery
+  }
+}
+
 export default function ProductDetailPage() {
   const { productId } = useParams()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('specifications')
   const [scrollProgress, setScrollProgress] = useState(0)
 
-  const product = productsData[productId]
+  // Get product data
+  const basicProduct = allProducts.find(p => p.id === productId)
+  const product = basicProduct ? generateDetailedProduct(basicProduct) : null
 
   useEffect(() => {
     const handleScroll = () => {
@@ -307,10 +268,10 @@ export default function ProductDetailPage() {
         <div className="text-center">
           <h1 className="text-4xl font-display text-neutral-900 mb-4">Product Not Found</h1>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/products')}
             className="px-6 py-3 bg-black text-white font-technical font-bold rounded-lg hover:bg-neutral-800 transition-colors"
           >
-            Return Home
+            Back to Products
           </button>
         </div>
       </div>
@@ -329,13 +290,13 @@ export default function ProductDetailPage() {
 
       {/* Back Navigation */}
       <button
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/products')}
         className="fixed top-6 left-6 z-40 flex items-center space-x-2 px-4 py-2 bg-white border border-neutral-300 rounded-lg text-neutral-700 font-technical hover:bg-gray-50 transition-all group"
       >
         <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        <span>Back</span>
+        <span>Back to Products</span>
       </button>
 
       {/* Hero Section */}
@@ -346,6 +307,9 @@ export default function ProductDetailPage() {
             src={product.image}
             alt={product.title}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/1920x1080/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white" />
         </div>
@@ -357,7 +321,7 @@ export default function ProductDetailPage() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="mb-6 animate-[slideUp_0.8s_ease-out]">
             <span className="px-6 py-2 bg-white border border-neutral-300 rounded-full text-neutral-700 font-technical text-sm tracking-[0.3em] uppercase">
-              Premium Engineering
+              {product.category || 'Premium Engineering'}
             </span>
           </div>
 
@@ -394,7 +358,7 @@ export default function ProductDetailPage() {
               View Specifications
             </a>
             <a
-              href="#contact"
+              href="/#contact"
               className="px-8 py-4 bg-white border border-neutral-300 text-neutral-700 font-technical font-bold text-lg rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
             >
               Request Quote
@@ -568,6 +532,9 @@ export default function ProductDetailPage() {
                   src={image}
                   alt={`${product.title} application ${index + 1}`}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/800x600/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
@@ -602,7 +569,7 @@ export default function ProductDetailPage() {
 
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <a
-                  href="#contact"
+                  href="/#contact"
                   className="px-10 py-5 bg-black text-white font-technical font-bold text-lg rounded-xl hover:bg-neutral-800 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                 >
                   <span>Request a Quote</span>
@@ -648,8 +615,9 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Object.values(productsData)
-              .filter(p => p.id !== product.id)
+            {allProducts
+              .filter(p => p.category === product.category && p.id !== product.id)
+              .slice(0, 4)
               .map((relatedProduct) => (
                 <button
                   key={relatedProduct.id}
@@ -661,14 +629,17 @@ export default function ProductDetailPage() {
                       src={relatedProduct.image}
                       alt={relatedProduct.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/400x300/e7e5e4/78716c?text=' + encodeURIComponent(relatedProduct.title)
+                      }}
                     />
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-display font-bold text-neutral-900 transition-all mb-2">
                       {relatedProduct.title}
                     </h3>
-                    <p className="text-sm text-neutral-600 font-technical">
-                      {relatedProduct.subtitle}
+                    <p className="text-sm text-neutral-600 font-technical line-clamp-2">
+                      {relatedProduct.description}
                     </p>
                   </div>
 
@@ -680,6 +651,18 @@ export default function ProductDetailPage() {
                   </div>
                 </button>
               ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <button
+              onClick={() => navigate('/products')}
+              className="inline-flex items-center space-x-2 px-8 py-4 bg-black text-white font-technical font-bold rounded-xl hover:bg-neutral-800 transition-all duration-300 transform hover:scale-105"
+            >
+              <span>View All {allProducts.length} Products</span>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         </div>
       </section>
