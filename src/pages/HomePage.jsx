@@ -4,6 +4,10 @@ import Hero from '../components/Hero'
 import Features from '../components/Features'
 import Contact from '../components/Contact'
 import Navigation from '../components/Navigation'
+import Calculator from '../components/Calculator'
+import ExpandableCards from '../components/ExpandableCards'
+import InfiniteScroller from '../components/InfiniteScroller'
+import HeroCarousel from '../components/HeroCarousel'
 
 export default function HomePage() {
   const [scrolled, setScrolled] = useState(false)
@@ -207,8 +211,11 @@ export default function HomePage() {
         </div>
       </section>
 
+      <ExpandableCards />
+      <Calculator />
       <Features />
       <Contact />
+      <InfiniteScroller />
 
       {/* Footer */}
       <footer className="relative border-t border-stone-200 bg-stone-50">

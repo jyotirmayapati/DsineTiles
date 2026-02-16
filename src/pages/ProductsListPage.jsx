@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navigation from '../components/Navigation'
 import { productsData, categories } from '../data/products'
@@ -7,6 +7,11 @@ export default function ProductsListPage() {
   const [selectedCategory, setSelectedCategory] = useState('All Products')
   const [scrolled, setScrolled] = useState(false)
   const navigate = useNavigate()
+
+  // Scroll to top when page loads
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   const filteredProducts = selectedCategory === 'All Products'
     ? productsData
