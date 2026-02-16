@@ -74,25 +74,25 @@ export default function Contact() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <div className="inline-block mb-4">
-            <span className="px-6 py-3 bg-stone-50 border border-stone-200 rounded-sm text-neutral-700 font-body text-xs tracking-[0.25em] uppercase font-medium">
+            <span className="px-6 py-3 bg-stone-50 border border-stone-200 rounded-sm text-neutral-700 font-body elegant-caps animate-fade-in">
               Get In Touch
             </span>
           </div>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-neutral-900 mb-6">
-            Start Your <span className="italic">Project Today</span>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-neutral-900 mb-6 refined-heading text-depth animate-fade-up stagger-1">
+            Start Your <span className="elegant-italic">Project Today</span>
           </h2>
-          <p className="text-xl text-neutral-600 font-body max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-neutral-600 font-body max-w-3xl mx-auto elegant-body animate-fade-up stagger-2">
             Let's discuss how our precast solutions can bring your vision to life
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
-          <div className="bg-stone-50 border border-stone-200 rounded-sm p-8 shadow-sm">
+          <div className="bg-stone-50 border border-stone-200 rounded-sm p-8 shadow-sm animate-slide-in-left stagger-3">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-neutral-700 font-body font-semibold mb-2">
+                  <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
                     Full Name *
                   </label>
                   <input
@@ -106,7 +106,7 @@ export default function Contact() {
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-700 font-body font-semibold mb-2">
+                  <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
                     Email *
                   </label>
                   <input
@@ -123,7 +123,7 @@ export default function Contact() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-neutral-700 font-body font-semibold mb-2">
+                  <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
                     Phone
                   </label>
                   <input
@@ -136,7 +136,7 @@ export default function Contact() {
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-700 font-body font-semibold mb-2">
+                  <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
                     Company
                   </label>
                   <input
@@ -151,7 +151,7 @@ export default function Contact() {
               </div>
 
               <div>
-                <label className="block text-neutral-700 font-body font-semibold mb-2">
+                <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
                   Project Type
                 </label>
                 <select
@@ -170,7 +170,7 @@ export default function Contact() {
               </div>
 
               <div>
-                <label className="block text-neutral-700 font-body font-semibold mb-2">
+                <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
                   Project Details *
                 </label>
                 <textarea
@@ -207,7 +207,7 @@ export default function Contact() {
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-8">
+          <div className="space-y-8 animate-slide-in-right stagger-3">
             {/* Contact Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {contactInfo.map((info, index) => (
@@ -219,10 +219,10 @@ export default function Contact() {
                   <div className="w-12 h-12 bg-black rounded-sm flex items-center justify-center text-white mb-4 group-hover:bg-neutral-900 transition-all duration-300">
                     {info.icon}
                   </div>
-                  <h3 className="text-lg font-display font-bold text-neutral-900 mb-2">
+                  <h3 className="text-lg font-display font-bold text-neutral-900 mb-2 elegant-text text-crisp">
                     {info.title}
                   </h3>
-                  <p className="text-neutral-600 font-body">
+                  <p className="text-neutral-600 font-body elegant-body">
                     {info.details}
                   </p>
                 </a>
@@ -238,10 +238,10 @@ export default function Contact() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-display font-bold text-neutral-900 mb-2">
+                <h3 className="text-xl font-display font-bold text-neutral-900 mb-2 elegant-text text-crisp">
                   Visit Our Facility
                 </h3>
-                <p className="text-neutral-600 font-body">
+                <p className="text-neutral-600 font-body elegant-body">
                   Schedule a tour to see our manufacturing process
                 </p>
               </div>
@@ -249,10 +249,10 @@ export default function Contact() {
 
             {/* CTA Box */}
             <div className="bg-white border border-stone-200 rounded-sm p-8 text-center shadow-sm">
-              <h3 className="text-2xl font-display font-bold text-neutral-900 mb-4">
+              <h3 className="text-2xl font-display font-bold text-neutral-900 mb-4 elegant-text text-crisp">
                 Need Immediate Assistance?
               </h3>
-              <p className="text-neutral-600 font-body mb-6 leading-relaxed">
+              <p className="text-neutral-600 font-body mb-6 elegant-body">
                 Our team is ready to help with your project requirements
               </p>
               <a

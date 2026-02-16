@@ -70,14 +70,14 @@ export default function Features() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <div className="inline-block mb-4">
-            <span className="px-6 py-3 bg-white border border-stone-200 rounded-sm text-neutral-700 font-body text-xs tracking-[0.25em] uppercase font-medium">
+            <span className="px-6 py-3 bg-white border border-stone-200 rounded-sm text-neutral-700 font-body elegant-caps animate-fade-in">
               Why Choose Us
             </span>
           </div>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-neutral-900 mb-6">
-            Engineered for <span className="italic">Excellence</span>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-neutral-900 mb-6 refined-heading text-depth animate-fade-up stagger-1">
+            Engineered for <span className="elegant-italic">Excellence</span>
           </h2>
-          <p className="text-xl text-neutral-600 font-body max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-neutral-600 font-body max-w-3xl mx-auto elegant-body animate-fade-up stagger-2">
             Industry-leading capabilities backed by decades of expertise and innovation
           </p>
         </div>
@@ -87,15 +87,15 @@ export default function Features() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group bg-white border border-stone-200 rounded-sm p-8 hover:shadow-md transition-all duration-500 transform hover:scale-105 cursor-pointer"
+              className={`group bg-white border border-stone-200 rounded-sm p-8 hover:shadow-md transition-all duration-500 transform hover:scale-105 cursor-pointer animate-fade-up stagger-${Math.min(index + 1, 6)}`}
             >
               <div className="w-14 h-14 bg-black rounded-sm flex items-center justify-center text-white mb-4 group-hover:bg-neutral-900 transition-all duration-300">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-display font-bold text-neutral-900 mb-3">
+              <h3 className="text-xl font-display font-bold text-neutral-900 mb-3 elegant-text text-crisp">
                 {feature.title}
               </h3>
-              <p className="text-neutral-600 font-body leading-relaxed">
+              <p className="text-neutral-600 font-body elegant-body">
                 {feature.description}
               </p>
             </div>
@@ -104,16 +104,16 @@ export default function Features() {
 
         {/* Benefits Bar */}
         <div className="bg-white border border-stone-200 rounded-sm p-8 shadow-sm">
-          <h3 className="text-2xl font-display font-bold text-center text-neutral-900 mb-8">
+          <h3 className="text-2xl font-display font-bold text-center text-neutral-900 mb-8 elegant-text text-crisp">
             Measurable Impact
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {benefits.map((benefit, index) => (
               <div key={index} className="text-center">
-                <div className="text-4xl md:text-5xl font-display font-bold text-neutral-900 mb-2">
+                <div className="text-4xl md:text-5xl font-display font-bold text-neutral-900 mb-2 refined-number text-lifted">
                   {benefit.value}
                 </div>
-                <div className="text-neutral-600 font-body text-sm uppercase tracking-wide">
+                <div className="text-neutral-600 font-body elegant-caps">
                   {benefit.label}
                 </div>
               </div>
@@ -123,8 +123,8 @@ export default function Features() {
 
         {/* Process Timeline */}
         <div className="mt-20">
-          <h3 className="text-3xl font-display font-bold text-center text-neutral-900 mb-12">
-            Our <span className="italic">Process</span>
+          <h3 className="text-3xl font-display font-bold text-center text-neutral-900 mb-12 refined-heading text-depth">
+            Our <span className="elegant-italic">Process</span>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
@@ -135,13 +135,13 @@ export default function Features() {
             ].map((phase, index) => (
               <div key={index} className="relative group">
                 <div className="bg-white border border-stone-200 rounded-sm p-6 hover:shadow-md transition-all duration-300">
-                  <div className="text-5xl font-display font-bold text-stone-200 mb-2">
+                  <div className="text-5xl font-display font-bold text-stone-200 mb-2 refined-number">
                     {phase.step}
                   </div>
-                  <h4 className="text-xl font-display font-bold text-neutral-900 mb-2">
+                  <h4 className="text-xl font-display font-bold text-neutral-900 mb-2 elegant-text text-crisp">
                     {phase.title}
                   </h4>
-                  <p className="text-neutral-600 font-body text-sm">
+                  <p className="text-neutral-600 font-body text-sm elegant-body">
                     {phase.desc}
                   </p>
                 </div>

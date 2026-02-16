@@ -57,7 +57,7 @@ export default function Navigation({ scrolled }) {
               <div className="w-10 h-10 bg-black rounded-sm flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
                 <span className="text-white font-display font-bold text-xl">D</span>
               </div>
-              <span className="text-2xl font-display font-bold text-neutral-900 tracking-tight">
+              <span className="text-2xl font-display font-bold text-neutral-900 elegant-text text-crisp">
                 DsineTiles
               </span>
             </button>
@@ -70,7 +70,7 @@ export default function Navigation({ scrolled }) {
                 <button
                   key={link.name}
                   onClick={() => handleNavigation(link.path, link.hash)}
-                  className="text-neutral-600 hover:text-neutral-900 font-body font-medium text-base tracking-wide transition-all duration-300 relative group"
+                  className="text-neutral-600 hover:text-neutral-900 font-body font-medium text-base elegant-text transition-all duration-300 relative group"
                 >
                   {link.name}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-neutral-900 group-hover:w-full transition-all duration-300" />

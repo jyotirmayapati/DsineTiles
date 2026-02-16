@@ -20,19 +20,19 @@ export default function Hero() {
         >
           {/* Tagline */}
           <div className="mb-8">
-            <span className="inline-block px-6 py-3 bg-stone-50 border border-stone-200 rounded-sm text-neutral-600 font-body text-xs tracking-[0.25em] uppercase font-medium">
+            <span className="inline-block px-6 py-3 bg-stone-50 border border-stone-200 rounded-sm text-neutral-600 font-body elegant-caps animate-fade-in">
               Precision Engineering • Future Ready
             </span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-tight text-neutral-900">
-            <span className="block mb-2">Building Tomorrow's</span>
-            <span className="block italic">Infrastructure</span>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 text-neutral-900 refined-heading text-depth">
+            <span className="block mb-2 elegant-text animate-fade-up stagger-1">Building Tomorrow's</span>
+            <span className="block elegant-italic animate-fade-up stagger-2">Infrastructure</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl sm:text-2xl md:text-3xl text-neutral-600 font-body font-light max-w-4xl mx-auto mb-12 leading-relaxed">
+          <p className="text-xl sm:text-2xl md:text-3xl text-neutral-600 font-body max-w-4xl mx-auto mb-12 elegant-subtitle animate-fade-up stagger-3">
             Advanced precast concrete solutions engineered for durability, precision, and sustainable construction
           </p>
 
@@ -40,7 +40,7 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
             <a
               href="#products"
-              className="group px-10 py-4 bg-black text-white font-body font-semibold text-lg rounded-sm hover:bg-neutral-900 transform hover:scale-105 transition-all duration-300 flex items-center space-x-2 shadow-md"
+              className="group px-10 py-4 bg-black text-white font-body font-semibold text-lg rounded-sm hover:bg-neutral-900 transform hover:scale-105 transition-all duration-300 flex items-center space-x-2 shadow-md animate-scale-in stagger-4"
             >
               <span>Explore Products</span>
               <svg
@@ -60,7 +60,7 @@ export default function Hero() {
 
             <a
               href="#contact"
-              className="group px-10 py-4 bg-white border-2 border-black text-neutral-800 font-body font-semibold text-lg rounded-sm hover:bg-stone-50 transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
+              className="group px-10 py-4 bg-white border-2 border-black text-neutral-800 font-body font-semibold text-lg rounded-sm hover:bg-stone-50 transform hover:scale-105 transition-all duration-300 flex items-center space-x-2 animate-scale-in stagger-5"
             >
               <span>Request Consultation</span>
               <svg
@@ -95,10 +95,10 @@ export default function Hero() {
                 key={index}
                 className="bg-stone-50 border border-stone-200 rounded-sm p-6 hover:shadow-md transition-all duration-300"
               >
-                <div className="text-4xl font-display font-bold text-neutral-900 mb-2">
+                <div className="text-4xl font-display font-bold text-neutral-900 mb-2 refined-number text-lifted">
                   {stat.value}
                 </div>
-                <div className="text-neutral-600 font-body text-sm uppercase tracking-wide">
+                <div className="text-neutral-600 font-body elegant-caps">
                   {stat.label}
                 </div>
               </div>

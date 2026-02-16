@@ -406,9 +406,6 @@ export default function ProductDetailPage() {
                       {spec.value}
                     </p>
                   </div>
-                  <div className="w-12 h-12 rounded-lg bg-neutral-100 flex items-center justify-center">
-                    <div className="w-6 h-6 rounded-full bg-neutral-300 animate-pulse" />
-                  </div>
                 </div>
                 <p className="text-sm font-technical text-neutral-500 uppercase tracking-wider">
                   {spec.unit}
