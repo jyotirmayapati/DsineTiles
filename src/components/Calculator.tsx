@@ -209,12 +209,12 @@ export default function Calculator() {
         <div className="rounded-2xl shadow-2xl px-6 sm:px-10 lg:px-14 py-10 sm:py-12 lg:py-14 bg-white border border-stone-200">
 
           {/* Header */}
-          <div className="w-full mb-10">
-            <div className="ornamental-line mb-6" />
+          <div className="w-full mb-10 text-center">
+            <div className="ornamental-line mb-6 mx-auto" />
             <h2 className="text-4xl md:text-5xl font-display font-bold text-neutral-900 mb-4">
               Carbon Impact <span className="italic">Calculator</span>
             </h2>
-            <p className="font-body text-lg text-neutral-600 max-w-3xl">
+            <p className="font-body text-lg text-neutral-600 max-w-3xl mx-auto">
               Compare traditional concrete with our eco-friendly precast products and see the environmental savings for your project
             </p>
           </div>
