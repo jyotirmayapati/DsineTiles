@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 
 export default function InfiniteScroller() {
-  const scrollerRef = useRef(null)
+  const scrollerRef = useRef<HTMLDivElement | null>(null)
 
   const logos = [
     { name: 'Company 1', logo: '🏢' },
@@ -17,11 +17,11 @@ export default function InfiniteScroller() {
     if (!scrollerRef.current) return
 
     const scroller = scrollerRef.current
-    const items = Array.from(scroller.children)
+    const items = Array.from(scroller.children) as HTMLElement[]
 
     // Clone items for infinite scroll
     items.forEach(item => {
-      const clone = item.cloneNode(true)
+      const clone = item.cloneNode(true) as HTMLElement
       scroller.appendChild(clone)
     })
 

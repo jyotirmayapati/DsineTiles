@@ -186,7 +186,7 @@ function generateDetailedProduct(basicProduct) {
   }
 
   // Generate specifications based on available data
-  const specifications = []
+  const specifications: Array<{ label: string; value: string; unit: string }> = []
   if (basicProduct.dimensions) {
     specifications.push({ label: 'Dimensions', value: basicProduct.dimensions, unit: 'standard size' })
   }
@@ -237,7 +237,7 @@ function generateDetailedProduct(basicProduct) {
 }
 
 export default function ProductDetailPage() {
-  const { productId } = useParams()
+  const { productId } = useParams<{ productId: string }>()
   const navigate = useNavigate()
   const [scrollProgress, setScrollProgress] = useState(0)
 
@@ -308,10 +308,10 @@ export default function ProductDetailPage() {
             alt={product.title}
             className="w-full h-full object-cover"
             onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/1920x1080/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
+              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/1920x1080/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white" />
+          <div className="absolute inset-0 bg-linear-to-b from-white/80 via-white/60 to-white" />
         </div>
 
         {/* Blueprint Grid Overlay */}
@@ -428,7 +428,7 @@ export default function ProductDetailPage() {
                   key={index}
                   className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-neutral-200 hover:border-neutral-400 transition-all"
                 >
-                  <svg className="w-6 h-6 text-neutral-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-6 h-6 text-neutral-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                   </svg>
                   <span className="font-technical text-neutral-600">{dimension}</span>
@@ -493,7 +493,7 @@ export default function ProductDetailPage() {
                 key={index}
                 className="group flex items-center space-x-4 bg-white border border-neutral-200 rounded-xl p-6 hover:border-neutral-400 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-lg bg-black flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-lg bg-black flex items-center justify-center shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -530,10 +530,10 @@ export default function ProductDetailPage() {
                   alt={`${product.title} application ${index + 1}`}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/800x600/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x600/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                <div className="absolute inset-0 bg-linear-to-t from-white via-white/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
                 {/* View indicator */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -627,7 +627,7 @@ export default function ProductDetailPage() {
                       alt={relatedProduct.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/400x300/e7e5e4/78716c?text=' + encodeURIComponent(relatedProduct.title)
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300/e7e5e4/78716c?text=' + encodeURIComponent(relatedProduct.title)
                       }}
                     />
                   </div>

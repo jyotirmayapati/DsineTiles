@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
-export default function Navigation({ scrolled }) {
+export default function Navigation({ scrolled }: { scrolled: boolean }) {
   const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
-  const handleNavigation = (path, hash = '') => {
+  const handleNavigation = (path: string, hash = '') => {
     if (location.pathname === '/' && hash) {
       // If we're already on home page, just scroll to section
       const element = document.querySelector(hash)
@@ -49,7 +49,7 @@ export default function Navigation({ scrolled }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <button
               onClick={() => handleNavigation('/')}
               className="flex items-center space-x-3 group"

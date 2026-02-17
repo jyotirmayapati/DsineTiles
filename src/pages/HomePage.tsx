@@ -96,7 +96,7 @@ export default function HomePage() {
                     alt={product.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900 via-charcoal-900/40 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-charcoal-900 via-charcoal-900/40 to-transparent" />
                   <div className="absolute top-6 right-6 px-4 py-2 bg-white/95 backdrop-blur-sm rounded-sm shadow-md border border-stone-200">
                     <span className="text-neutral-700 font-body font-semibold text-sm tracking-wide">Premium Quality</span>
                   </div>
@@ -121,7 +121,7 @@ export default function HomePage() {
                         className="flex items-center space-x-2 text-sm text-stone-700 font-body"
                       >
                         <svg
-                          className="w-5 h-5 text-neutral-600 flex-shrink-0"
+                          className="w-5 h-5 text-neutral-600 shrink-0"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"

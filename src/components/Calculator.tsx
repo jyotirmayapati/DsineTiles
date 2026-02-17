@@ -1,9 +1,18 @@
-import { useState, useEffect, useRef } from 'react'
-import gsap from 'gsap'
+import { useState, useEffect } from 'react'
+
+type ProductType = "Solid Block" | "Paver" | "Kerbstone" | "Saucer Drain" | "U Drain" | "Precast Slab" | "Boundary Wall Panel" | "Precast Road";
+type ConcreteGrade = "M7.5" | "M25" | "M30" | "M35" | "M40" | "Default";
+
+interface FormErrors {
+  quantity?: boolean;
+  dim1?: boolean;
+  dim2?: boolean;
+  thickness?: boolean;
+}
 
 export default function Calculator() {
-  const [product, setProduct] = useState('Solid Block')
-  const [grade, setGrade] = useState('Default')
+  const [product, setProduct] = useState<ProductType>('Solid Block')
+  const [grade, setGrade] = useState<ConcreteGrade>('Default')
   const [dim1, setDim1] = useState('')
   const [dim2, setDim2] = useState('')
   const [thickness, setThickness] = useState('')
@@ -20,10 +29,7 @@ export default function Calculator() {
     urbanDays: 0,
     ruralDays: 0
   })
-  const [errors, setErrors] = useState({})
-
-  const cardsRef = useRef([])
-  const activeCardRef = useRef(null)
+  const [errors, setErrors] = useState<FormErrors>({})
 
   // Configuration data
   const UI_CONFIG = {
@@ -37,11 +43,11 @@ export default function Calculator() {
     "Precast Road": { type: "area", t_label: "Thickness (mm)", t_options: [125, 150, 175, 200, 250] },
   }
 
-  const CEMENT_KG_PER_M3 = {
+  const CEMENT_KG_PER_M3: Record<Exclude<ConcreteGrade, "Default">, number> = {
     "M7.5": 220, "M25": 320, "M30": 340, "M35": 380, "M40": 400
   }
 
-  const DEFAULT_GRADE = {
+  const DEFAULT_GRADE: Record<ProductType, Exclude<ConcreteGrade, "Default">> = {
     "Solid Block": "M7.5", "Paver": "M35", "Kerbstone": "M25",
     "Saucer Drain": "M25", "U Drain": "M30", "Precast Slab": "M30",
     "Boundary Wall Panel": "M30", "Precast Road": "M40"
@@ -69,7 +75,7 @@ export default function Calculator() {
 
   // Calculate impact
   const calculateImpact = () => {
-    const newErrors = {}
+    const newErrors: FormErrors = {}
 
     if (!quantity || parseFloat(quantity) <= 0) {
       newErrors.quantity = true
@@ -189,7 +195,7 @@ export default function Calculator() {
     })
   }
 
-  const fmt = (val) => {
+  const fmt = (val: number) => {
     let decimals = val > 0 && val < 0.01 ? 4 : 2
     return val.toLocaleString('en-US', {
       minimumFractionDigits: decimals,
@@ -198,7 +204,7 @@ export default function Calculator() {
   }
 
   return (
-    <section className="py-12 px-4 lg:px-8 bg-gradient-to-br from-stone-50 to-neutral-100">
+    <section className="py-12 px-4 lg:px-8 bg-linear-to-br from-stone-50 to-neutral-100">
       <div className="max-w-7xl mx-auto">
         <div className="rounded-2xl shadow-2xl px-6 sm:px-10 lg:px-14 py-10 sm:py-12 lg:py-14 bg-white border border-stone-200">
 
@@ -227,7 +233,7 @@ export default function Calculator() {
                     </label>
                     <select
                       value={product}
-                      onChange={(e) => setProduct(e.target.value)}
+                      onChange={(e) => setProduct(e.target.value as ProductType)}
                       className="w-full border border-stone-300 rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 bg-white transition-all"
                     >
                       {Object.keys(UI_CONFIG).map((p) => (
@@ -242,7 +248,7 @@ export default function Calculator() {
                     </label>
                     <select
                       value={grade}
-                      onChange={(e) => setGrade(e.target.value)}
+                      onChange={(e) => setGrade(e.target.value as ConcreteGrade)}
                       className="w-full border border-stone-300 rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 bg-white transition-all"
                     >
                       <option value="Default">Default</option>
@@ -261,7 +267,7 @@ export default function Calculator() {
                   {config.type !== 'udrain' && (
                     <div>
                       <label className="block text-sm font-body font-semibold text-neutral-700 mb-2">
-                        {config.type === 'area' ? 'Area' : config.l_label} <span className="text-red-500">*</span>
+                        {config.type === 'area' ? 'Area' : ('l_label' in config ? config.l_label : 'Length (mm)')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="number"
@@ -295,7 +301,7 @@ export default function Calculator() {
                   {config.type === 'dims' && (
                     <div>
                       <label className="block text-sm font-body font-semibold text-neutral-700 mb-2">
-                        {config.w_label} <span className="text-red-500">*</span>
+                        {'w_label' in config ? config.w_label : 'Width (mm)'} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="number"
@@ -390,21 +396,21 @@ export default function Calculator() {
             {/* Results */}
             <div className="w-full lg:w-1/2 flex flex-col">
               <div className="grid grid-cols-1 gap-4 sm:gap-5 mb-6">
-                <div className="grid grid-cols-2 gap-2 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl py-6 px-5 text-white shadow-lg transform transition-all duration-300 hover:scale-105">
+                <div className="grid grid-cols-2 gap-2 bg-linear-to-br from-emerald-400 to-teal-500 rounded-xl py-6 px-5 text-white shadow-lg transform transition-all duration-300 hover:scale-105">
                   <span className="font-body font-semibold text-lg self-center">CO<sub>2</sub> saved</span>
                   <span className="font-display font-bold text-3xl text-right flex justify-end items-center">
                     {fmt(results.co2)}&nbsp;<span className="text-base font-body self-end mb-1">tonnes</span>
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl py-6 px-5 text-white shadow-lg transform transition-all duration-300 hover:scale-105">
+                <div className="grid grid-cols-2 gap-2 bg-linear-to-br from-blue-400 to-cyan-500 rounded-xl py-6 px-5 text-white shadow-lg transform transition-all duration-300 hover:scale-105">
                   <span className="font-body font-semibold text-lg self-center">Water saved</span>
                   <span className="font-display font-bold text-3xl text-right flex justify-end items-center">
                     {results.water.toLocaleString()}&nbsp;<span className="text-base font-body self-end mb-1">litres</span>
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl py-6 px-5 text-white shadow-lg transform transition-all duration-300 hover:scale-105">
+                <div className="grid grid-cols-2 gap-2 bg-linear-to-br from-green-500 to-emerald-600 rounded-xl py-6 px-5 text-white shadow-lg transform transition-all duration-300 hover:scale-105">
                   <span className="font-body font-semibold text-lg self-center">Industrial waste used</span>
                   <span className="font-display font-bold text-3xl text-right flex justify-end items-center">
                     {fmt(results.waste)}&nbsp;<span className="text-base font-body self-end mb-1">tonnes</span>
@@ -413,7 +419,7 @@ export default function Calculator() {
               </div>
 
               {/* Equivalents */}
-              <div className="bg-gradient-to-br from-stone-50 to-neutral-100 rounded-xl py-6 px-6 border border-stone-200 shadow-md">
+              <div className="bg-linear-to-br from-stone-50 to-neutral-100 rounded-xl py-6 px-6 border border-stone-200 shadow-md">
                 <h3 className="font-display font-bold text-xl text-neutral-900 mb-4">Environmental Impact</h3>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">

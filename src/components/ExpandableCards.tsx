@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 
 export default function ExpandableCards() {
-  const cardsRef = useRef([])
-  const containerRef = useRef(null)
-  const [activeCard, setActiveCard] = useState(null)
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([])
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const [activeCard, setActiveCard] = useState<number | null>(null)
 
   const cards = [
     {
@@ -239,12 +239,12 @@ export default function ExpandableCards() {
 
         <div
           ref={containerRef}
-          className="flex flex-col md:flex-row w-full h-[600px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl gap-3"
+          className="flex flex-col md:flex-row w-full h-150 md:h-125 rounded-2xl overflow-hidden shadow-2xl gap-3"
         >
           {cards.map((card, index) => (
             <div
               key={card.id}
-              ref={el => cardsRef.current[index] = el}
+              ref={el => { cardsRef.current[index] = el }}
               className="flex-1 relative bg-cover bg-center cursor-pointer overflow-hidden group"
               style={{
                 backgroundImage: `url(${card.image})`,
@@ -252,7 +252,7 @@ export default function ExpandableCards() {
                 backgroundPosition: 'center'
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-transparent transition-all duration-500 group-hover:from-black/70" />
+              <div className="absolute inset-0 bg-linear-to-br from-black/60 via-black/40 to-transparent transition-all duration-500 group-hover:from-black/70" />
 
               {/* Header Group: Number + Title */}
               <div className="header-group absolute flex items-center z-20">

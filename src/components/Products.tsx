@@ -63,8 +63,8 @@ export default function Products() {
                   alt={product.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
-                <div className={`absolute top-4 right-4 px-4 py-2 bg-gradient-to-r ${product.gradient} rounded-lg`}>
+                <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/50 to-transparent" />
+                <div className={`absolute top-4 right-4 px-4 py-2 bg-linear-to-r ${product.gradient} rounded-lg`}>
                   <span className="text-slate-950 font-technical font-bold text-sm">Premium Quality</span>
                 </div>
               </div>
@@ -88,7 +88,7 @@ export default function Products() {
                       className="flex items-center space-x-2 text-sm text-concrete-400 font-technical"
                     >
                       <svg
-                        className="w-5 h-5 text-electric-400 flex-shrink-0"
+                        className="w-5 h-5 text-electric-400 shrink-0"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -106,7 +106,7 @@ export default function Products() {
                 </div>
 
                 {/* Learn More Button */}
-                <button className="w-full py-3 bg-gradient-to-r from-electric-500/20 to-electric-600/20 border border-electric-500/50 text-electric-400 font-technical font-semibold rounded-lg hover:from-electric-500 hover:to-electric-600 hover:text-slate-950 transition-all duration-300 flex items-center justify-center space-x-2 group">
+                <button className="w-full py-3 bg-linear-to-r from-electric-500/20 to-electric-600/20 border border-electric-500/50 text-electric-400 font-technical font-semibold rounded-lg hover:from-electric-500 hover:to-electric-600 hover:text-slate-950 transition-all duration-300 flex items-center justify-center space-x-2 group">
                   <span>Learn More</span>
                   <svg
                     className="w-5 h-5 group-hover:translate-x-1 transition-transform"

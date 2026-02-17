@@ -1,4 +1,18 @@
-export const productsData = [
+export interface Product {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  features: string[];
+  image: string;
+  gradient: string;
+  thickness?: string;
+  sizes?: string[];
+  dimensions?: string;
+  type?: string;
+}
+
+export const productsData: Product[] = [
   // Main Featured Products (from home page)
   {
     id: 'precast-pavers',
@@ -415,7 +429,7 @@ export const productsData = [
   },
 ]
 
-export const categories = [
+export const categories: string[] = [
   'All Products',
   'Pavers',
   'Tiles',

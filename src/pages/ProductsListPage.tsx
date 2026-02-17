@@ -22,7 +22,7 @@ export default function ProductsListPage() {
       <Navigation scrolled={scrolled} />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-stone-50 to-white border-b border-stone-200">
+      <section className="relative pt-32 pb-16 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-stone-50 to-white border-b border-stone-200">
         <div className="max-w-7xl mx-auto text-center">
           <div className="ornamental-line mx-auto mb-6 animate-scale-in" />
           <div className="inline-block mb-6">
@@ -107,10 +107,10 @@ export default function ProductsListPage() {
                     alt={product.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/400x300/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/80 via-charcoal-900/20 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-charcoal-900/80 via-charcoal-900/20 to-transparent" />
 
                   {/* Category Badge */}
                   <div className="absolute top-4 right-4 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-sm shadow-md">
@@ -146,7 +146,7 @@ export default function ProductsListPage() {
                   <div className="space-y-2 mb-4">
                     {product.features.slice(0, 2).map((feature, idx) => (
                       <div key={idx} className="flex items-center space-x-2 text-xs text-neutral-600 font-body elegant-text">
-                        <svg className="w-4 h-4 text-neutral-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4 text-neutral-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                         <span>{feature}</span>

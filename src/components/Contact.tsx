@@ -10,14 +10,14 @@ export default function Contact() {
     message: '',
   })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     // Handle form submission
     console.log('Form submitted:', formData)
     alert('Thank you for your inquiry! We will contact you soon.')
   }
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,

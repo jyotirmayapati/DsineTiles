@@ -3,9 +3,9 @@ import gsap from 'gsap'
 
 export default function HeroCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const slidesRef = useRef([])
-  const navGroupsRef = useRef([])
-  const intervalRef = useRef(null)
+  const slidesRef = useRef<(HTMLDivElement | null)[]>([])
+  const navGroupsRef = useRef<(HTMLDivElement | null)[]>([])
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const slides = [
     {
@@ -20,7 +20,7 @@ export default function HeroCarousel() {
     }
   ]
 
-  const animateSlides = (oldIndex, newIndex) => {
+  const animateSlides = (oldIndex: number, newIndex: number) => {
     // Fade slides
     if (slidesRef.current[oldIndex]) {
       gsap.to(slidesRef.current[oldIndex], {
@@ -126,11 +126,11 @@ export default function HeroCarousel() {
       {slides.map((slide, index) => (
         <div
           key={index}
-          ref={el => slidesRef.current[index] = el}
+          ref={el => { slidesRef.current[index] = el }}
           className="absolute top-0 left-0 w-full h-full bg-cover bg-center"
           style={{ backgroundImage: `url(${slide.image})` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/40 to-transparent" />
           <div className="relative w-full h-full flex items-center justify-start z-20 px-6 sm:px-12 lg:px-24">
             <div className="text-left max-w-4xl">
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white mb-6 leading-tight drop-shadow-2xl">
@@ -142,12 +142,12 @@ export default function HeroCarousel() {
       ))}
 
       {/* Navigation Keywords */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-30 overflow-hidden bg-white/30 backdrop-blur-md rounded-xl shadow-2xl px-8 py-4 min-w-[300px] md:min-w-[500px]">
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-30 overflow-hidden bg-white/30 backdrop-blur-md rounded-xl shadow-2xl px-8 py-4 min-w-75 md:min-w-125">
         <div className="relative w-full h-12">
           {slides.map((slide, index) => (
             <div
               key={index}
-              ref={el => navGroupsRef.current[index] = el}
+              ref={el => { navGroupsRef.current[index] = el }}
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-around gap-4"
             >
               {slide.keywords.map((keyword, i) => (
@@ -172,7 +172,7 @@ export default function HeroCarousel() {
               if (index !== currentSlide) {
                 animateSlides(currentSlide, index)
                 setCurrentSlide(index)
-                clearInterval(intervalRef.current)
+                if (intervalRef.current) clearInterval(intervalRef.current)
                 intervalRef.current = setInterval(showNextSlide, 4000)
               }
             }}
