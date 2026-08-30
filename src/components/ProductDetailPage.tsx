@@ -19,9 +19,13 @@ const detailedProductsData = {
       { label: 'Surface Finish', value: 'Multiple', unit: 'options available' },
     ],
     dimensions: [
-      '400 × 400 × 60mm',
-      '500 × 500 × 80mm',
-      '600 × 300 × 80mm',
+      '60mm',
+      '80mm',
+      '100mm',
+      '120mm',
+      '150mm',
+      '200mm',
+      '300mm',
       'Custom sizes available'
     ],
     features: [
@@ -52,7 +56,7 @@ const detailedProductsData = {
     title: 'U Drains',
     subtitle: 'Precision-Engineered Drainage Solutions',
     description: 'High-performance U-shaped drainage channels designed for optimal water flow management. Our precast U drains provide reliable, maintenance-free drainage for roads, highways, and urban infrastructure with exceptional durability.',
-    image: '/images/products/u-drains.jpg',
+    image: '/images/products/Udrainmain.jpg',
     specifications: [
       { label: 'Flow Capacity', value: '200-500 L/s', unit: 'liters per second' },
       { label: 'Compressive Strength', value: '45+ MPa', unit: 'megapascals' },
@@ -61,11 +65,31 @@ const detailedProductsData = {
       { label: 'Load Class', value: 'D400-F900', unit: 'EN 1433' },
       { label: 'Slope Options', value: '0.5-2%', unit: 'gradient' },
     ],
-    dimensions: [
-      '1000 × 400 × 500mm',
-      '1500 × 600 × 600mm',
-      '2000 × 800 × 700mm',
-      'Custom specifications'
+    dimensionGroups: [
+      {
+        label: '6 Ton',
+        sizes: [
+          '300 × 300 × 2000mm',
+          '450 × 450 × 2000mm',
+          '600 × 600 × 2000mm',
+          '750 × 750 × 2000mm',
+          '900 × 900 × 2000mm',
+          '1200 × 1200 × 2000mm',
+          'Custom sizes available'
+        ],
+      },
+      {
+        label: '25 Ton',
+        sizes: [
+          '300 × 300 × 2000mm',
+          '450 × 450 × 2000mm',
+          '600 × 600 × 2000mm',
+          '750 × 750 × 2000mm',
+          '900 × 900 × 2000mm',
+          '1200 × 1200 × 2000mm',
+          'Custom sizes available'
+        ],
+      },
     ],
     features: [
       { icon: '🌊', title: 'Hydraulic Efficiency', description: 'Smooth interior surfaces maximize flow rate and minimize debris accumulation' },
@@ -84,10 +108,10 @@ const detailedProductsData = {
       'Sports facility perimeter drainage'
     ],
     gallery: [
-      '/images/products/u-drains.jpg',
-      '/images/products/u-drains.jpg',
-      '/images/products/u-drains.jpg',
-      '/images/products/u-drains.jpg',
+      '/images/products/Udrainmain.jpg',
+      '/images/products/udrain2.png',
+      '/images/products/udrain3.jpg',
+      '/images/products/udraun4.png',
     ]
   },
   'box-culverts': {
@@ -105,9 +129,15 @@ const detailedProductsData = {
       { label: 'Waterproofing', value: 'Integral', unit: 'system included' },
     ],
     dimensions: [
+      '600 × 600 × 2000mm',
       '1000 × 1000 × 2000mm',
-      '2000 × 2000 × 2500mm',
-      '3000 × 3000 × 3000mm',
+      '1200 × 1200 × 2000mm',
+      '1500 × 1500 × 2000mm',
+      '1500 × 1800 × 2000mm',
+      '1800 × 1800 × 2000mm',
+      '2000 × 2000 × 2000mm',
+      '2500 × 2500 × 2000mm',
+      '3000 × 3000 × 2000mm',
       'Engineered custom sizes'
     ],
     features: [
@@ -128,9 +158,9 @@ const detailedProductsData = {
     ],
     gallery: [
       '/images/products/box-culverts.jpg',
-      '/images/products/box-culverts.jpg',
-      '/images/products/box-culverts.jpg',
-      '/images/products/box-culverts.jpg',
+      '/images/products/Boxculverts2.jpg',
+      '/images/products/boxculvert3.jpeg',
+      '/images/products/boxculvert4.jpeg',
     ]
   },
   'retaining-walls': {
@@ -148,9 +178,9 @@ const detailedProductsData = {
       { label: 'Finish Options', value: '12+', unit: 'textures available' },
     ],
     dimensions: [
-      '2400 × 1000 × 200mm',
-      '3000 × 1500 × 250mm',
-      '2400 × 2000 × 200mm',
+      '60mm',
+      '100mm',
+      '150mm',
       'Project-specific designs'
     ],
     features: [
@@ -171,9 +201,9 @@ const detailedProductsData = {
     ],
     gallery: [
       '/images/products/retaining-walls.jpg',
-      '/images/products/retaining-walls.jpg',
-      '/images/products/retaining-walls.jpg',
-      '/images/products/retaining-walls.jpg',
+      '/images/products/retaining-walls2.png',
+      '/images/products/retaining-walls3.jpg',
+      '/images/products/retaining-walls4.jpg',
     ]
   }
 }
@@ -204,6 +234,13 @@ function generateDetailedProduct(basicProduct) {
     { label: 'Durability', value: 'High', unit: 'long-lasting' }
   )
 
+  // Available sizes: prefer the merged sizes list, fall back to a single dimension
+  const dimensions = basicProduct.sizes
+    ? basicProduct.sizes
+    : basicProduct.dimensions
+      ? [basicProduct.dimensions, 'Custom sizes available']
+      : ['Standard sizes', 'Custom sizes available']
+
   // Generate feature objects with icons
   const featureIcons = ['🏗️', '💪', '⚡', '🛡️', '✓', '📐']
   const features = (basicProduct.features || []).map((feature, idx) => ({
@@ -222,14 +259,16 @@ function generateDetailedProduct(basicProduct) {
     `Private sector construction`
   ]
 
-  // Generate gallery (use same image 4 times)
-  const gallery = Array(4).fill(basicProduct.image)
+  // Use the product's own gallery images if provided, otherwise repeat the main image
+  const gallery = basicProduct.gallery && basicProduct.gallery.length > 0
+    ? basicProduct.gallery
+    : Array(4).fill(basicProduct.image)
 
   return {
     ...basicProduct,
     subtitle: `Professional ${basicProduct.category} Solutions`,
     specifications,
-    dimensions: basicProduct.dimensions ? [basicProduct.dimensions, 'Custom sizes available'] : ['Standard sizes', 'Custom sizes available'],
+    dimensions,
     features,
     applications,
     gallery
@@ -240,6 +279,7 @@ export default function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>()
   const navigate = useNavigate()
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   // Get product data
   const basicProduct = allProducts.find(p => p.id === productId)
@@ -300,18 +340,30 @@ export default function ProductDetailPage() {
       </button>
 
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image */}
+      <section className={`relative h-screen flex ${product.video ? 'items-start pt-32 sm:pt-40' : 'items-center'} justify-center overflow-hidden`}>
+        {/* Background Image / Video */}
         <div className="absolute inset-0">
-          <img
-            src={product.image}
-            alt={product.title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/1920x1080/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
-            }}
-          />
-          <div className="absolute inset-0 bg-linear-to-b from-white/80 via-white/60 to-white" />
+          {product.video ? (
+            <video
+              src={product.video}
+              poster={product.image}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <img
+              src={product.image}
+              alt={product.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/1920x1080/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
+              }}
+            />
+          )}
+          <div className={`absolute inset-0 bg-linear-to-b ${product.video ? 'from-black/10 via-transparent to-white' : 'from-white/80 via-white/60 to-white'}`} />
         </div>
 
         {/* Blueprint Grid Overlay */}
@@ -332,38 +384,42 @@ export default function ProductDetailPage() {
             {product.title}
           </h1>
 
-          <p
-            className="text-2xl sm:text-3xl md:text-4xl font-technical font-light text-neutral-700 mb-8 animate-[slideUp_0.8s_ease-out_0.4s] opacity-0"
-            style={{ animationFillMode: 'forwards' }}
-          >
-            {product.subtitle}
-          </p>
+          {!product.video && (
+            <>
+              <p
+                className="text-2xl sm:text-3xl md:text-4xl font-technical font-light text-neutral-700 mb-8 animate-[slideUp_0.8s_ease-out_0.4s] opacity-0"
+                style={{ animationFillMode: 'forwards' }}
+              >
+                {product.subtitle}
+              </p>
 
-          <p
-            className="text-lg sm:text-xl text-neutral-600 font-technical max-w-4xl mx-auto leading-relaxed mb-12 animate-[slideUp_0.8s_ease-out_0.6s] opacity-0"
-            style={{ animationFillMode: 'forwards' }}
-          >
-            {product.description}
-          </p>
+              <p
+                className="text-lg sm:text-xl text-neutral-600 font-technical max-w-4xl mx-auto leading-relaxed mb-12 animate-[slideUp_0.8s_ease-out_0.6s] opacity-0"
+                style={{ animationFillMode: 'forwards' }}
+              >
+                {product.description}
+              </p>
 
-          {/* CTA Buttons */}
-          <div
-            className="flex flex-wrap items-center justify-center gap-4 animate-[slideUp_0.8s_ease-out_0.8s] opacity-0"
-            style={{ animationFillMode: 'forwards' }}
-          >
-            <a
-              href="#specifications"
-              className="px-8 py-4 bg-black text-white font-technical font-bold text-lg rounded-lg hover:bg-neutral-800 transition-all duration-300 transform hover:scale-105"
-            >
-              View Specifications
-            </a>
-            <a
-              href="/#contact"
-              className="px-8 py-4 bg-white border border-neutral-300 text-neutral-700 font-technical font-bold text-lg rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
-            >
-              Request Quote
-            </a>
-          </div>
+              {/* CTA Buttons */}
+              <div
+                className="flex flex-wrap items-center justify-center gap-4 animate-[slideUp_0.8s_ease-out_0.8s] opacity-0"
+                style={{ animationFillMode: 'forwards' }}
+              >
+                <a
+                  href="#specifications"
+                  className="px-8 py-4 bg-black text-white font-technical font-bold text-lg rounded-lg hover:bg-neutral-800 transition-all duration-300 transform hover:scale-105"
+                >
+                  View Specifications
+                </a>
+                <a
+                  href="/#contact"
+                  className="px-8 py-4 bg-white border border-neutral-300 text-neutral-700 font-technical font-bold text-lg rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
+                >
+                  Request Quote
+                </a>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Scroll Indicator */}
@@ -420,21 +476,46 @@ export default function ProductDetailPage() {
           {/* Dimensions */}
           <div className="bg-white border border-neutral-200 rounded-2xl p-8">
             <h3 className="text-2xl font-display font-bold text-neutral-900 mb-6">
-              Available <span className="text-neutral-700">Dimensions</span>
+              Available <span className="text-neutral-700">Sizes</span>
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {product.dimensions.map((dimension, index) => (
-                <div
-                  key={index}
-                  className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-neutral-200 hover:border-neutral-400 transition-all"
-                >
-                  <svg className="w-6 h-6 text-neutral-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                  </svg>
-                  <span className="font-technical text-neutral-600">{dimension}</span>
-                </div>
-              ))}
-            </div>
+            {product.dimensionGroups ? (
+              <div className="space-y-8">
+                {product.dimensionGroups.map((group, groupIndex) => (
+                  <div key={groupIndex}>
+                    <h4 className="text-sm font-technical font-semibold text-neutral-500 uppercase tracking-wider mb-4">
+                      {group.label}
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {group.sizes.map((dimension, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-neutral-200 hover:border-neutral-400 transition-all"
+                        >
+                          <svg className="w-6 h-6 text-neutral-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                          </svg>
+                          <span className="font-technical text-neutral-600">{dimension}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {product.dimensions.map((dimension, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-neutral-200 hover:border-neutral-400 transition-all"
+                  >
+                    <svg className="w-6 h-6 text-neutral-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    <span className="font-technical text-neutral-600">{dimension}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -523,7 +604,8 @@ export default function ProductDetailPage() {
             {product.gallery.map((image, index) => (
               <div
                 key={index}
-                className="group relative aspect-video overflow-hidden rounded-2xl border border-neutral-200"
+                onClick={() => setSelectedImage(image)}
+                className="group relative aspect-video overflow-hidden rounded-2xl border border-neutral-200 cursor-pointer"
               >
                 <img
                   src={image}
@@ -548,6 +630,30 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </section>
+
+      {/* Image Lightbox */}
+      {selectedImage && (
+        <div
+          onClick={() => setSelectedImage(null)}
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 sm:p-8 cursor-zoom-out animate-[fadeIn_0.2s_ease-out]"
+        >
+          <button
+            onClick={() => setSelectedImage(null)}
+            aria-label="Close"
+            className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <img
+            src={selectedImage}
+            alt={product.title}
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-full max-h-full object-contain rounded-lg cursor-default"
+          />
+        </div>
+      )}
 
       {/* CTA Section */}
       <section className="relative py-24 px-4 sm:px-6 lg:px-8">

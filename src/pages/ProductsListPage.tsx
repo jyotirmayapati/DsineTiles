@@ -1,11 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navigation from '../components/Navigation'
-import { productsData, categories } from '../data/products'
+import { productsData, brands, type Brand } from '../data/products'
+
+const brandInfo: Record<Brand, { tagline: string }> = {
+  Hiperstructure: { tagline: 'Structural precast solutions engineered for infrastructure' },
+  DsineTiles: { tagline: 'Pavers and tiles crafted for durable, aesthetic surfaces' },
+  Hiperspacers: { tagline: 'Precision cover blocks and masonry blocks for every build' },
+}
 
 export default function ProductsListPage() {
-  const [selectedCategory, setSelectedCategory] = useState('All Products')
-  const [scrolled, setScrolled] = useState(false)
   const navigate = useNavigate()
 
   // Scroll to top when page loads
@@ -13,13 +17,9 @@ export default function ProductsListPage() {
     window.scrollTo(0, 0)
   }, [])
 
-  const filteredProducts = selectedCategory === 'All Products'
-    ? productsData
-    : productsData.filter(product => product.category === selectedCategory)
-
   return (
     <div className="relative bg-white min-h-screen">
-      <Navigation scrolled={scrolled} />
+      <Navigation scrolled={false} />
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-16 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-stone-50 to-white border-b border-stone-200">
@@ -49,150 +49,110 @@ export default function ProductsListPage() {
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>
-              <span className="refined-number">{categories.length - 1} Categories</span>
+              <span className="refined-number">{brands.length} Brands</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Category Filter */}
-      <section className="sticky top-0 z-40 bg-white border-b border-stone-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center space-x-3 overflow-x-auto scrollbar-hide">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`
-                  px-5 py-2.5 rounded-sm font-body text-sm font-medium whitespace-nowrap transition-all duration-300 elegant-text
-                  ${selectedCategory === category
-                    ? 'bg-black text-white shadow-md'
-                    : 'bg-stone-50 text-neutral-700 border border-stone-200 hover:bg-stone-100'
-                  }
-                `}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Brand Sections */}
+      {brands.map((brand) => {
+        const brandProducts = productsData.filter((product) => product.brand === brand)
+        return (
+          <section key={brand} className="py-16 px-4 sm:px-6 lg:px-8 border-b border-stone-200">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-10 text-center">
+                <div className="ornamental-line mx-auto mb-6" />
+                <h2 className="text-3xl sm:text-4xl font-display font-bold text-neutral-900 mb-3 refined-heading">
+                  {brand}
+                </h2>
+                <p className="text-neutral-600 font-body elegant-body max-w-2xl mx-auto">
+                  {brandInfo[brand].tagline}
+                </p>
+              </div>
 
-      {/* Products Grid */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Products Count */}
-          <div className="mb-8">
-            <p className="text-sm text-neutral-600 font-body elegant-text">
-              Showing <span className="font-semibold text-neutral-900 refined-number">{filteredProducts.length}</span> {filteredProducts.length === 1 ? 'product' : 'products'}
-              {selectedCategory !== 'All Products' && (
-                <span> in <span className="font-semibold text-neutral-900">{selectedCategory}</span></span>
-              )}
-            </p>
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {brandProducts.map((product, index) => (
+                  <div
+                    key={product.id}
+                    onClick={() => navigate(`/products/${product.id}`)}
+                    className="group premium-card overflow-hidden hover:elevated-shadow transition-all duration-500 transform hover:scale-[1.02] cursor-pointer"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    {/* Product Image */}
+                    <div className="relative h-56 overflow-hidden bg-stone-100">
+                      <img
+                        src={product.image}
+                        alt={product.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-linear-to-t from-charcoal-900/80 via-charcoal-900/20 to-transparent" />
 
-          {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map((product, index) => (
-              <div
-                key={product.id}
-                onClick={() => navigate(`/products/${product.id}`)}
-                className="group premium-card overflow-hidden hover:elevated-shadow transition-all duration-500 transform hover:scale-[1.02] cursor-pointer"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                {/* Product Image */}
-                <div className="relative h-56 overflow-hidden bg-stone-100">
-                  <img
-                    src={product.image}
-                    alt={product.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-charcoal-900/80 via-charcoal-900/20 to-transparent" />
-
-                  {/* Category Badge */}
-                  <div className="absolute top-4 right-4 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-sm shadow-md">
-                    <span className="text-neutral-700 font-body font-semibold text-xs elegant-caps">
-                      {product.category}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Product Info */}
-                <div className="p-6">
-                  <h3 className="text-xl font-display font-bold text-neutral-900 mb-2 group-hover:text-neutral-700 transition-colors elegant-text text-crisp">
-                    {product.title}
-                  </h3>
-
-                  {/* Specifications */}
-                  {(product.dimensions || product.thickness || product.type) && (
-                    <div className="flex items-center space-x-2 mb-3">
-                      <svg className="w-4 h-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                      <span className="text-sm text-neutral-600 font-body elegant-text">
-                        {product.dimensions || product.thickness || product.type}
-                      </span>
-                    </div>
-                  )}
-
-                  <p className="text-sm text-neutral-600 font-body elegant-body mb-4 line-clamp-2">
-                    {product.description}
-                  </p>
-
-                  {/* Features - Show first 2 */}
-                  <div className="space-y-2 mb-4">
-                    {product.features.slice(0, 2).map((feature, idx) => (
-                      <div key={idx} className="flex items-center space-x-2 text-xs text-neutral-600 font-body elegant-text">
-                        <svg className="w-4 h-4 text-neutral-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>{feature}</span>
+                      {/* Category Badge */}
+                      <div className="absolute top-4 right-4 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-sm shadow-md">
+                        <span className="text-neutral-700 font-body font-semibold text-xs elegant-caps">
+                          {product.category}
+                        </span>
                       </div>
-                    ))}
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="p-6">
+                      <h3 className="text-xl font-display font-bold text-neutral-900 mb-2 group-hover:text-neutral-700 transition-colors elegant-text text-crisp">
+                        {product.title}
+                      </h3>
+
+                      {/* Specifications */}
+                      {(product.sizes || product.dimensions || product.thickness || product.type) && (
+                        <div className="flex items-center space-x-2 mb-3">
+                          <svg className="w-4 h-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          <span className="text-sm text-neutral-600 font-body elegant-text">
+                            {product.sizes
+                              ? `${product.sizes.length} sizes available`
+                              : product.dimensions || product.thickness || product.type}
+                          </span>
+                        </div>
+                      )}
+
+                      <p className="text-sm text-neutral-600 font-body elegant-body mb-4 line-clamp-2">
+                        {product.description}
+                      </p>
+
+                      {/* Features - Show first 2 */}
+                      <div className="space-y-2 mb-4">
+                        {product.features.slice(0, 2).map((feature, idx) => (
+                          <div key={idx} className="flex items-center space-x-2 text-xs text-neutral-600 font-body elegant-text">
+                            <svg className="w-4 h-4 text-neutral-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* View Details Link */}
+                      <div className="flex items-center space-x-2 text-neutral-700 font-body font-semibold text-sm group-hover:text-black transition-colors elegant-text">
+                        <span>{product.sizes ? 'View Sizes & Details' : 'View Details'}</span>
+                        <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Decorative corner */}
+                    <div className="absolute top-4 left-4 w-8 h-8 border-t border-l border-stone-300/60" />
                   </div>
-
-                  {/* View Details Link */}
-                  <div className="flex items-center space-x-2 text-neutral-700 font-body font-semibold text-sm group-hover:text-black transition-colors elegant-text">
-                    <span>View Details</span>
-                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Decorative corner */}
-                <div className="absolute top-4 left-4 w-8 h-8 border-t border-l border-stone-300/60" />
+                ))}
               </div>
-            ))}
-          </div>
-
-          {/* Empty State */}
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-20">
-              <div className="w-20 h-20 mx-auto mb-6 bg-stone-100 rounded-full flex items-center justify-center">
-                <svg className="w-10 h-10 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-display font-bold text-neutral-900 mb-2 elegant-text text-crisp">
-                No products found
-              </h3>
-              <p className="text-neutral-600 font-body mb-6 elegant-body">
-                Try selecting a different category
-              </p>
-              <button
-                onClick={() => setSelectedCategory('All Products')}
-                className="px-6 py-3 bg-black text-white font-body font-semibold rounded-sm hover:bg-neutral-800 transition-colors"
-              >
-                View All Products
-              </button>
             </div>
-          )}
-        </div>
-      </section>
+          </section>
+        )
+      })}
 
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-stone-50 border-t border-stone-200">
@@ -207,7 +167,9 @@ export default function ProductsListPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <a
-              href="/#contact"
+              href="https://wa.me/917008049913?text=Hi,%20I'd%20like%20to%20know%20more%20about%20your%20services"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-8 py-4 bg-black text-white font-body font-semibold rounded-sm hover:bg-neutral-800 transition-all duration-300 shadow-md"
             >
               <span>Contact Us</span>

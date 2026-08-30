@@ -53,8 +53,8 @@ export default function Contact() {
         </svg>
       ),
       title: 'Location',
-      details: 'Baripada, Odisha, India',
-      link: '#',
+      details: 'Kochilapada, Pratappur Badsahi, Baripada, Odisha 757103',
+      link: 'https://maps.app.goo.gl/oyeP6iqdR1MZeN6U9',
     },
     {
       icon: (
@@ -214,6 +214,8 @@ export default function Contact() {
                 <a
                   key={index}
                   href={info.link}
+                  target={info.link.startsWith('http') ? '_blank' : undefined}
+                  rel={info.link.startsWith('http') ? 'noopener noreferrer' : undefined}
                   className="bg-white border border-stone-200 rounded-sm p-6 hover:shadow-md transition-all duration-300 transform hover:scale-105 group"
                 >
                   <div className="w-12 h-12 bg-black rounded-sm flex items-center justify-center text-white mb-4 group-hover:bg-neutral-900 transition-all duration-300">
@@ -229,10 +231,15 @@ export default function Contact() {
               ))}
             </div>
 
-            {/* Map Placeholder */}
-            <div className="bg-stone-50 border border-stone-200 rounded-sm p-6 h-64 flex items-center justify-center">
+            {/* Map Link */}
+            <a
+              href="https://maps.app.goo.gl/oyeP6iqdR1MZeN6U9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block bg-stone-50 border border-stone-200 rounded-sm p-6 h-64 flex items-center justify-center hover:shadow-md hover:border-neutral-400 transition-all duration-300 group"
+            >
               <div className="text-center">
-                <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-neutral-900 transition-all duration-300">
                   <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -241,11 +248,14 @@ export default function Contact() {
                 <h3 className="text-xl font-display font-bold text-neutral-900 mb-2 elegant-text text-crisp">
                   Visit Our Facility
                 </h3>
-                <p className="text-neutral-600 font-body elegant-body">
-                  Schedule a tour to see our manufacturing process
+                <p className="text-neutral-600 font-body elegant-body mb-1">
+                  Kochilapada, Pratappur Badsahi, Baripada, Odisha 757103
+                </p>
+                <p className="text-sm text-neutral-500 font-body elegant-text underline decoration-dotted underline-offset-4">
+                  Open in Google Maps
                 </p>
               </div>
-            </div>
+            </a>
 
             {/* CTA Box */}
             <div className="bg-white border border-stone-200 rounded-sm p-8 text-center shadow-sm">
