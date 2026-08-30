@@ -234,7 +234,7 @@ export default function ProductsListPage() {
           <div className="text-center">
             <div className="ornamental-line mx-auto mb-4" />
             <p className="text-neutral-500 font-body text-sm elegant-text">
-              © 2026 DsineTiles. All rights reserved. Building the future with precision and elegance.
+              © 2026 Hiperstructures. All rights reserved. Building the future with precision and elegance.
             </p>
           </div>
         </div>

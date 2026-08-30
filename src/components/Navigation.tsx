@@ -55,10 +55,10 @@ export default function Navigation({ scrolled }: { scrolled: boolean }) {
               className="flex items-center space-x-3 group"
             >
               <div className="w-10 h-10 bg-black rounded-sm flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
-                <span className="text-white font-display font-bold text-xl">D</span>
+                <span className="text-white font-display font-bold text-xl">H</span>
               </div>
               <span className="text-2xl font-display font-bold text-neutral-900 elegant-text text-crisp">
-                DsineTiles
+                Hiperstructures
               </span>
             </button>
           </div>

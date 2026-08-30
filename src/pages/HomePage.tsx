@@ -224,11 +224,11 @@ export default function HomePage() {
             <div className="md:max-w-md">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-10 h-10 bg-black rounded-sm flex items-center justify-center">
-                  <span className="text-white font-display font-bold text-lg">D</span>
+                  <span className="text-white font-display font-bold text-lg">H</span>
                 </div>
                 <div className="flex flex-col">
                   <h3 className="text-xl font-display font-bold text-neutral-900 tracking-wide leading-none">
-                    DsineTiles
+                    Hiperstructures
                   </h3>
                   <span className="text-xs font-body text-neutral-500 tracking-widest uppercase">
                     Precast Excellence
@@ -269,7 +269,7 @@ export default function HomePage() {
           <div className="pt-8 border-t border-stone-300">
             <div className="ornamental-line mx-auto mb-6" />
             <p className="text-neutral-500 font-body text-sm text-center">
-              © 2026 DsineTiles. All rights reserved. Building the future with precision and elegance.
+              © 2026 Hiperstructures. All rights reserved. Building the future with precision and elegance.
             </p>
           </div>
         </div>

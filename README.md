@@ -1,6 +1,6 @@
-# DsineTiles - Precast Concrete Solutions
+# Hiperstructures - Precast Concrete Solutions
 
-A futuristic, modern website for DsineTiles, a premium precast concrete manufacturing company specializing in pavers, U drains, box culverts, and retaining walls.
+A futuristic, modern website for Hiperstructures, a premium precast concrete manufacturing company specializing in pavers, U drains, box culverts, and retaining walls.
 
 ## 🚀 Features
 
@@ -78,7 +78,7 @@ To customize the content:
 
 ## 📄 License
 
-© 2026 DsineTiles. All rights reserved.
+© 2026 Hiperstructures. All rights reserved.
 
 ---
 

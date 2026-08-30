@@ -230,7 +230,7 @@ export default function ExpandableCards() {
         <div className="text-center mb-12">
           <div className="ornamental-line mx-auto mb-6" />
           <h2 className="text-4xl md:text-5xl font-display font-bold text-neutral-900 mb-4">
-            Why Choose <span className="italic">DsineTiles</span>
+            Why Choose <span className="italic">Hiperstructures</span>
           </h2>
           <p className="text-lg font-body text-neutral-600 max-w-2xl mx-auto">
             Innovative solutions that transform infrastructure development
