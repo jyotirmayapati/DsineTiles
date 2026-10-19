@@ -1,6 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense, type ComponentType } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { productsData as allProducts } from '../data/products'
+
+// Loaded on demand so three.js only ships with pages that have a 3D view
+const UDrainViewer = lazy(() => import('./UDrainViewer'))
+
+// Products that get the interactive 360° model section
+const products3D: Record<string, ComponentType> = {
+  'u-drains': UDrainViewer,
+}
 
 // Detailed product data for featured products
 const detailedProductsData = {
@@ -519,6 +527,34 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </section>
+
+      {/* Interactive 360° Model */}
+      {products3D[product.id] && (() => {
+        const Viewer = products3D[product.id]
+        return (
+          <section id="model-360" className="relative py-24 px-4 sm:px-6 lg:px-8 border-t border-neutral-200">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-16">
+                <h2 className="text-5xl sm:text-6xl font-display font-black text-neutral-900 mb-4">
+                  360° <span className="text-neutral-700">Interactive View</span>
+                </h2>
+                <p className="text-xl text-neutral-600 font-technical max-w-3xl mx-auto">
+                  Rotate, zoom and switch sizes to explore the unit from every angle
+                </p>
+              </div>
+              <Suspense
+                fallback={
+                  <div className="h-130 flex items-center justify-center bg-gray-50 border border-neutral-200 rounded-2xl font-technical text-neutral-500">
+                    Loading 3D model…
+                  </div>
+                }
+              >
+                <Viewer />
+              </Suspense>
+            </div>
+          </section>
+        )
+      })()}
 
       {/* Features Section */}
       <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
