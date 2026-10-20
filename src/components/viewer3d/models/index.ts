@@ -1,0 +1,12 @@
+import type { ModelId } from '../modelIds'
+import type { ModelDef } from '../types'
+import { dsineTilesModels } from './dsinetiles'
+import { hiperspacersModels } from './hiperspacers'
+import { hiperstructureModels } from './hiperstructure'
+
+// Typed against MODEL_IDS so a missing or misspelled model fails the type-check
+export const MODELS: Record<ModelId, ModelDef> = {
+  ...dsineTilesModels,
+  ...hiperspacersModels,
+  ...hiperstructureModels,
+}
