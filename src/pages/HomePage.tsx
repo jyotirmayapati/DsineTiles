@@ -8,6 +8,7 @@ import Calculator from '../components/Calculator'
 import ExpandableCards from '../components/ExpandableCards'
 import InfiniteScroller from '../components/InfiniteScroller'
 import HeroCarousel from '../components/HeroCarousel'
+import AssemblySection from '../components/assembly/AssemblySection'
 
 export default function HomePage() {
   const [scrolled, setScrolled] = useState(false)
@@ -60,6 +61,7 @@ export default function HomePage() {
     <>
       <Navigation scrolled={scrolled} />
       <Hero />
+      <AssemblySection />
 
       {/* Products Section */}
       <section id="products" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white">
