@@ -18,13 +18,21 @@ function rebar(m: Materials, r: number, len: number, y: number, x = 0) {
 
 const COVER_SIZES = ['20', '25', '40', '50', '75']
 
+// Footprint grows with the cover height so tall blocks stay stable
+const coverBlockWidth = (h: number) => (h <= 0.025 ? 0.05 : h <= 0.05 ? 0.06 : 0.08)
+
 const coverBlocks: ModelDef = {
   options: [{ key: 'size', label: 'Cover (mm)', default: '25', choices: COVER_SIZES.map((v) => ({ value: v, label: v })) }],
-  toggles: [{ key: 'rebar', label: 'Show Rebar', default: true }],
+  toggles: [{ key: 'rebar', label: 'Rebar', default: true }],
   readout: (p) => ({ title: `${str(p, 'size')} mm cover`, subtitle: 'Cover block with binding wire' }),
+  dims: (p) => {
+    const h = mm(num(p, 'size'))
+    const w = coverBlockWidth(h)
+    return [{ view: 'front', a: [-w / 2, 0], b: [-w / 2, h], offset: [-0.025, 0], label: str(p, 'size') }]
+  },
   build: (p, m) => {
     const h = mm(num(p, 'size'))
-    const w = h <= 0.025 ? 0.05 : h <= 0.05 ? 0.06 : 0.08
+    const w = coverBlockWidth(h)
     const r = 0.008 // seat for a 16 mm bar
     // Block with a semicircular seat across the top
     const s = new THREE.Shape()
@@ -49,7 +57,7 @@ const coverBlocks: ModelDef = {
 // ---------- Wheel spacers ----------
 
 const wheelSpacers: ModelDef = {
-  toggles: [{ key: 'rebar', label: 'Show Rebar', default: true }],
+  toggles: [{ key: 'rebar', label: 'Rebar', default: true }],
   readout: () => ({ title: 'Wheel spacer', subtitle: 'Clips onto the bar to hold cover on all sides' }),
   build: (p, m) => {
     const R = 0.04

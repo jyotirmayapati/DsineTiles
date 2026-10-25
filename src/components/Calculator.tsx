@@ -30,6 +30,7 @@ export default function Calculator() {
     ruralDays: 0
   })
   const [errors, setErrors] = useState<FormErrors>({})
+  const [calculated, setCalculated] = useState(false)
 
   // Configuration data
   const UI_CONFIG = {
@@ -95,7 +96,6 @@ export default function Calculator() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
-      alert("Please fill in all mandatory fields with valid numbers.")
       return
     }
 
@@ -163,6 +163,7 @@ export default function Calculator() {
     const phones = co2_saved_kg / EF_PHONE_CHARGE
     const waste_tonnes = (cement_mass_kg * REDUCTION_FACTOR) / 1000.0
 
+    setCalculated(true)
     setResults({
       co2: co2_saved_tonnes,
       water: Math.round(water_saved_liters),
@@ -183,6 +184,7 @@ export default function Calculator() {
     setThickness('')
     setQuantity('')
     setErrors({})
+    setCalculated(false)
     setResults({
       co2: 0,
       water: 0,
@@ -203,254 +205,132 @@ export default function Calculator() {
     })
   }
 
+  const hasErrors = Object.keys(errors).length > 0
+  const days = (v: number) => v.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+
   return (
-    <section className="py-12 px-4 lg:px-8 bg-linear-to-br from-stone-50 to-neutral-100">
-      <div className="max-w-7xl mx-auto">
-        <div className="rounded-2xl shadow-2xl px-6 sm:px-10 lg:px-14 py-10 sm:py-12 lg:py-14 bg-white border border-stone-200">
+    <section id="impact" className="py-24 sm:py-32 border-t border-formline">
+      <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
+        <div className="grid gap-6 lg:grid-cols-[1fr_1fr] items-end">
+          <h2 className="type-display text-4xl sm:text-5xl lg:text-6xl">Carbon calculator</h2>
+          <p className="text-lg text-aggregate max-w-lg lg:justify-self-end">
+            Pick a product and enter your quantities to see what our lower-carbon precast saves against conventional concrete.
+          </p>
+        </div>
 
-          {/* Header */}
-          <div className="w-full mb-10 text-center">
-            <div className="ornamental-line mb-6 mx-auto" />
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-neutral-900 mb-4">
-              Carbon Impact <span className="italic">Calculator</span>
-            </h2>
-            <p className="font-body text-lg text-neutral-600 max-w-3xl mx-auto">
-              Compare traditional concrete with our eco-friendly precast products and see the environmental savings for your project
-            </p>
-          </div>
-
-          <div className="w-full flex flex-col lg:flex-row gap-10 lg:gap-16">
-
-            {/* Form */}
-            <div className="w-full lg:w-1/2">
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-
-                {/* Product and Grade */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-body font-semibold text-neutral-700 mb-2">
-                      Product <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={product}
-                      onChange={(e) => setProduct(e.target.value as ProductType)}
-                      className="w-full border border-stone-300 rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 bg-white transition-all"
-                    >
-                      {Object.keys(UI_CONFIG).map((p) => (
-                        <option key={p} value={p}>{p}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-body font-semibold text-neutral-700 mb-2">
-                      Grade (Optional)
-                    </label>
-                    <select
-                      value={grade}
-                      onChange={(e) => setGrade(e.target.value as ConcreteGrade)}
-                      className="w-full border border-stone-300 rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 bg-white transition-all"
-                    >
-                      <option value="Default">Default</option>
-                      <option value="M7.5">M7.5</option>
-                      <option value="M25">M25</option>
-                      <option value="M30">M30</option>
-                      <option value="M35">M35</option>
-                      <option value="M40">M40</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Dimensions */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Dimension 1 */}
-                  {config.type !== 'udrain' && (
-                    <div>
-                      <label className="block text-sm font-body font-semibold text-neutral-700 mb-2">
-                        {config.type === 'area' ? 'Area' : ('l_label' in config ? config.l_label : 'Length (mm)')} <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={dim1}
-                        onChange={(e) => setDim1(e.target.value)}
-                        placeholder="0"
-                        className={`w-full border ${errors.dim1 ? 'border-red-500' : 'border-stone-300'} rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 transition-all`}
-                      />
-                    </div>
-                  )}
-
-                  {config.type === 'udrain' && (
-                    <div>
-                      <label className="block text-sm font-body font-semibold text-neutral-700 mb-2">
-                        Internal Size <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        value={uDrainSize}
-                        onChange={(e) => setUDrainSize(e.target.value)}
-                        className="w-full border border-stone-300 rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 bg-white transition-all"
-                      >
-                        <option value="300x300">300 x 300 mm</option>
-                        <option value="450x450">450 x 450 mm</option>
-                        <option value="600x600">600 x 600 mm</option>
-                      </select>
-                    </div>
-                  )}
-
-                  {/* Dimension 2 */}
-                  {config.type === 'dims' && (
-                    <div>
-                      <label className="block text-sm font-body font-semibold text-neutral-700 mb-2">
-                        {'w_label' in config ? config.w_label : 'Width (mm)'} <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={dim2}
-                        onChange={(e) => setDim2(e.target.value)}
-                        placeholder="0"
-                        className={`w-full border ${errors.dim2 ? 'border-red-500' : 'border-stone-300'} rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 transition-all`}
-                      />
-                    </div>
-                  )}
-
-                  {config.type === 'area' && (
-                    <div>
-                      <label className="block text-sm font-body font-semibold text-neutral-700 mb-2">
-                        Unit
-                      </label>
-                      <select
-                        value={areaUnit}
-                        onChange={(e) => setAreaUnit(e.target.value)}
-                        className="w-full border border-stone-300 rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 bg-white transition-all"
-                      >
-                        <option value="sqm">Square Meters (m²)</option>
-                        <option value="sqft">Square Feet (ft²)</option>
-                      </select>
-                    </div>
-                  )}
-                </div>
-
-                {/* Thickness and Quantity */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-body font-semibold text-neutral-700 mb-2">
-                      {config.t_label} <span className="text-red-500">*</span>
-                    </label>
-                    {config.t_options ? (
-                      <select
-                        value={thickness}
-                        onChange={(e) => setThickness(e.target.value)}
-                        className="w-full border border-stone-300 rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 bg-white transition-all"
-                      >
-                        <option value="">Select...</option>
-                        {config.t_options.map((opt) => (
-                          <option key={opt} value={opt}>{opt} mm</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        type="number"
-                        value={thickness}
-                        onChange={(e) => setThickness(e.target.value)}
-                        placeholder="mm"
-                        className={`w-full border ${errors.thickness ? 'border-red-500' : 'border-stone-300'} rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 transition-all`}
-                      />
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-body font-semibold text-neutral-700 mb-2">
-                      Quantity (Nos) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
-                      placeholder="1"
-                      className={`w-full border ${errors.quantity ? 'border-red-500' : 'border-stone-300'} rounded-lg py-2.5 px-3 text-base font-body text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 transition-all`}
-                    />
-                  </div>
-                </div>
-
-                {/* Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                  <button
-                    type="button"
-                    onClick={calculateImpact}
-                    className="flex-1 bg-black text-white font-body font-semibold py-3 rounded-lg hover:bg-neutral-800 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
-                  >
-                    Calculate Impact
-                  </button>
-                  <button
-                    type="button"
-                    onClick={resetCalculator}
-                    className="flex-1 bg-stone-100 border border-stone-300 text-neutral-700 font-body font-semibold py-3 rounded-lg hover:bg-stone-200 transition-all duration-300"
-                  >
-                    Reset
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* Results */}
-            <div className="w-full lg:w-1/2 flex flex-col">
-              <div className="grid grid-cols-1 gap-4 sm:gap-5 mb-6">
-                <div className="grid grid-cols-2 gap-2 bg-linear-to-br from-emerald-400 to-teal-500 rounded-xl py-6 px-5 text-white shadow-lg transform transition-all duration-300 hover:scale-105">
-                  <span className="font-body font-semibold text-lg self-center">CO<sub>2</sub> saved</span>
-                  <span className="font-display font-bold text-3xl text-right flex justify-end items-center">
-                    {fmt(results.co2)}&nbsp;<span className="text-base font-body self-end mb-1">tonnes</span>
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 bg-linear-to-br from-blue-400 to-cyan-500 rounded-xl py-6 px-5 text-white shadow-lg transform transition-all duration-300 hover:scale-105">
-                  <span className="font-body font-semibold text-lg self-center">Water saved</span>
-                  <span className="font-display font-bold text-3xl text-right flex justify-end items-center">
-                    {results.water.toLocaleString()}&nbsp;<span className="text-base font-body self-end mb-1">litres</span>
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 bg-linear-to-br from-green-500 to-emerald-600 rounded-xl py-6 px-5 text-white shadow-lg transform transition-all duration-300 hover:scale-105">
-                  <span className="font-body font-semibold text-lg self-center">Industrial waste used</span>
-                  <span className="font-display font-bold text-3xl text-right flex justify-end items-center">
-                    {fmt(results.waste)}&nbsp;<span className="text-base font-body self-end mb-1">tonnes</span>
-                  </span>
-                </div>
+        <div className="mt-14 grid gap-12 lg:grid-cols-[1fr_1fr]">
+          <form className="bg-slab border border-formline rounded-[4px] p-6 sm:p-8 space-y-6 self-start" onSubmit={(e) => { e.preventDefault(); calculateImpact() }} noValidate>
+            <div className="grid sm:grid-cols-2 gap-5">
+              <div>
+                <label htmlFor="calc-product" className="field-label">Product</label>
+                <select id="calc-product" value={product} onChange={(e) => setProduct(e.target.value as ProductType)} className="field">
+                  {Object.keys(UI_CONFIG).map((p) => <option key={p} value={p}>{p}</option>)}
+                </select>
               </div>
-
-              {/* Equivalents */}
-              <div className="bg-linear-to-br from-stone-50 to-neutral-100 rounded-xl py-6 px-6 border border-stone-200 shadow-md">
-                <h3 className="font-display font-bold text-xl text-neutral-900 mb-4">Environmental Impact</h3>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">🌳</span>
-                    <p className="font-body text-neutral-700 leading-relaxed">
-                      Equivalent to planting <span className="font-bold text-green-600">{results.trees.toLocaleString()}</span> trees per year
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">🚗</span>
-                    <p className="font-body text-neutral-700 leading-relaxed">
-                      Comparable to eliminating <span className="font-bold text-green-600">{results.cars.toLocaleString()}</span> km of car travel
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">📱</span>
-                    <p className="font-body text-neutral-700 leading-relaxed">
-                      Equal to <span className="font-bold text-green-600">{results.phones.toLocaleString()}</span> smartphone charges
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">💧</span>
-                    <p className="font-body text-neutral-700 leading-relaxed">
-                      Water for <span className="font-bold text-blue-600">{results.urbanDays.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span> days (Urban) or{' '}
-                      <span className="font-bold text-blue-600">{results.ruralDays.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span> days (Rural) households
-                    </p>
-                  </div>
-                </div>
+              <div>
+                <label htmlFor="calc-grade" className="field-label">Concrete grade <span className="font-normal text-aggregate">(optional)</span></label>
+                <select id="calc-grade" value={grade} onChange={(e) => setGrade(e.target.value as ConcreteGrade)} className="field">
+                  <option value="Default">Typical for this product</option>
+                  {['M7.5', 'M25', 'M30', 'M35', 'M40'].map((g) => <option key={g} value={g}>{g}</option>)}
+                </select>
               </div>
             </div>
 
+            <div className="grid sm:grid-cols-2 gap-5">
+              {config.type === 'udrain' ? (
+                <div>
+                  <label htmlFor="calc-udrain" className="field-label">Internal size</label>
+                  <select id="calc-udrain" value={uDrainSize} onChange={(e) => setUDrainSize(e.target.value)} className="field">
+                    <option value="300x300">300 × 300 mm</option>
+                    <option value="450x450">450 × 450 mm</option>
+                    <option value="600x600">600 × 600 mm</option>
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label htmlFor="calc-dim1" className="field-label">
+                    {config.type === 'area' ? 'Area' : ('l_label' in config ? config.l_label : 'Length (mm)')}
+                  </label>
+                  <input id="calc-dim1" type="number" inputMode="decimal" step="0.01" min="0" value={dim1} onChange={(e) => setDim1(e.target.value)} placeholder="0" aria-invalid={!!errors.dim1} className="field tabular" />
+                </div>
+              )}
+
+              {config.type === 'dims' && (
+                <div>
+                  <label htmlFor="calc-dim2" className="field-label">{'w_label' in config ? config.w_label : 'Width (mm)'}</label>
+                  <input id="calc-dim2" type="number" inputMode="decimal" step="0.01" min="0" value={dim2} onChange={(e) => setDim2(e.target.value)} placeholder="0" aria-invalid={!!errors.dim2} className="field tabular" />
+                </div>
+              )}
+
+              {config.type === 'area' && (
+                <div>
+                  <label htmlFor="calc-unit" className="field-label">Unit</label>
+                  <select id="calc-unit" value={areaUnit} onChange={(e) => setAreaUnit(e.target.value)} className="field">
+                    <option value="sqm">Square metres (m²)</option>
+                    <option value="sqft">Square feet (ft²)</option>
+                  </select>
+                </div>
+              )}
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-5">
+              <div>
+                <label htmlFor="calc-thickness" className="field-label">{config.t_label}</label>
+                {config.t_options ? (
+                  <select id="calc-thickness" value={thickness} onChange={(e) => setThickness(e.target.value)} aria-invalid={!!errors.thickness} className="field">
+                    <option value="">Choose</option>
+                    {config.t_options.map((opt) => <option key={opt} value={opt}>{opt} mm</option>)}
+                  </select>
+                ) : (
+                  <input id="calc-thickness" type="number" inputMode="decimal" min="0" value={thickness} onChange={(e) => setThickness(e.target.value)} placeholder="mm" aria-invalid={!!errors.thickness} className="field tabular" />
+                )}
+              </div>
+              <div>
+                <label htmlFor="calc-qty" className="field-label">Quantity (pieces)</label>
+                <input id="calc-qty" type="number" inputMode="numeric" min="0" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="1" aria-invalid={!!errors.quantity} className="field tabular" />
+              </div>
+            </div>
+
+            {hasErrors && (
+              <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+                Fill in the highlighted fields with numbers above zero.
+              </p>
+            )}
+
+            <div className="flex flex-wrap gap-3">
+              <button type="submit" className="btn-mark">Calculate savings</button>
+              <button type="button" onClick={resetCalculator} className="btn-line">Reset</button>
+            </div>
+          </form>
+
+          <div className={`transition-opacity duration-500 ${calculated ? '' : 'opacity-45'}`} aria-live="polite">
+            <dl className="divide-y divide-formline border-y border-formline">
+              {[
+                { label: 'CO₂ saved', value: fmt(results.co2), unit: 'tonnes' },
+                { label: 'Water saved', value: results.water.toLocaleString(), unit: 'litres' },
+                { label: 'Industrial waste put to use', value: fmt(results.waste), unit: 'tonnes' },
+              ].map((r) => (
+                <div key={r.label} className="flex items-baseline justify-between gap-6 py-6">
+                  <dt className="text-aggregate">{r.label}</dt>
+                  <dd className="text-right">
+                    <span className="type-display text-3xl sm:text-4xl tabular">{r.value}</span>
+                    <span className="ml-2 text-aggregate">{r.unit}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+
+            <h3 className="mt-10 type-wide text-xl">That is about the same as</h3>
+            <ul className="mt-4 space-y-3 text-aggregate">
+              <li><strong className="text-graphite tabular">{results.trees.toLocaleString()}</strong> trees absorbing carbon for a year</li>
+              <li><strong className="text-graphite tabular">{results.cars.toLocaleString()}</strong> km of car travel avoided</li>
+              <li><strong className="text-graphite tabular">{results.phones.toLocaleString()}</strong> smartphone charges</li>
+              <li>
+                Household water for <strong className="text-graphite tabular">{days(results.urbanDays)}</strong> days in a city
+                or <strong className="text-graphite tabular">{days(results.ruralDays)}</strong> days in a village
+              </li>
+            </ul>
+            {!calculated && <p className="mt-8 text-sm text-aggregate">Your results appear here after you calculate.</p>}
           </div>
         </div>
       </div>

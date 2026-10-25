@@ -67,17 +67,33 @@ function chamber(m: Materials, w: number, depth: number, t: number, pipeR: numbe
   return { g, top: base + depth, ow }
 }
 
+// Internal plan size of a square chamber, dimensioned outside the walls
+function chamberDims(w: number, t: number, label: string) {
+  const gap = 0.25
+  const edge = w / 2 + t
+  return [
+    { view: 'plan' as const, a: [-w / 2, edge] as [number, number], b: [w / 2, edge] as [number, number], offset: [0, gap] as [number, number], label },
+    { view: 'plan' as const, a: [edge, -w / 2] as [number, number], b: [edge, w / 2] as [number, number], offset: [gap, 0] as [number, number], label },
+  ]
+}
+
 // ---------- U drains ----------
 
 const UDRAIN_SIZES = [300, 450, 600, 750, 900, 1200]
 const UDRAIN_LENGTH = 2000
+
+// Wall/base thickness for the visual model only (metres) — heavier load class gets thicker sections
+function uDrainWall(size: number, load: string) {
+  const base = 60 + size * 0.07
+  return mm(Math.round(load === '25T' ? base * 1.35 : base))
+}
 
 const uDrains: ModelDef = {
   options: [
     { key: 'size', label: 'Size (mm)', default: '600', choices: UDRAIN_SIZES.map((s) => ({ value: String(s), label: String(s) })) },
     { key: 'load', label: 'Load class', default: '25T', choices: [{ value: '6T', label: '6 Ton' }, { value: '25T', label: '25 Ton' }] },
   ],
-  toggles: [{ key: 'cover', label: 'RCC Cover', default: false }],
+  toggles: [{ key: 'cover', label: 'RCC cover', default: false }],
   readout: (p) => ({
     title: `${str(p, 'size')} × ${str(p, 'size')} × ${UDRAIN_LENGTH} mm`,
     subtitle: str(p, 'load') === '25T' ? '25 Ton heavy duty' : '6 Ton standard',
@@ -86,9 +102,7 @@ const uDrains: ModelDef = {
     const size = num(p, 'size')
     const w = mm(size)
     const h = mm(size)
-    // Wall/base thickness for the visual model only — heavier load class gets thicker sections
-    const base = 60 + size * 0.07
-    const t = mm(Math.round(str(p, 'load') === '25T' ? base * 1.35 : base))
+    const t = uDrainWall(size, str(p, 'load'))
     const len = mm(UDRAIN_LENGTH)
     const oh = h + t
     const ow = w + 2 * t
@@ -108,6 +122,18 @@ const uDrains: ModelDef = {
     }
     return g
   },
+  dims: (p) => {
+    const size = num(p, 'size')
+    const w = mm(size)
+    const oh = w + uDrainWall(size, str(p, 'load'))
+    const len = mm(UDRAIN_LENGTH)
+    const gap = 0.12 + w * 0.08
+    return [
+      { view: 'front', a: [-w / 2, oh], b: [w / 2, oh], offset: [0, gap], label: String(size) },
+      { view: 'front', a: [0, oh - w], b: [0, oh], offset: [0, 0], label: String(size) },
+      { view: 'side', a: [-len / 2, 0], b: [len / 2, 0], offset: [0, -gap], label: String(UDRAIN_LENGTH) },
+    ]
+  },
 }
 
 // ---------- Box culverts ----------
@@ -121,7 +147,7 @@ const boxCulverts: ModelDef = {
     key: 'size', label: 'Size (mm)', default: '1200x1200',
     choices: CULVERT_SIZES.map(([w, h]) => ({ value: `${w}x${h}`, label: `${w}×${h}` })),
   }],
-  toggles: [{ key: 'run', label: '3 Units Joined', default: false }],
+  toggles: [{ key: 'run', label: '3 units joined', default: false }],
   readout: (p) => {
     const [w, h] = str(p, 'size').split('x')
     return { title: `${w} × ${h} × 2000 mm`, subtitle: on(p, 'run') ? 'Three units joined in line' : 'Single unit' }
@@ -144,6 +170,18 @@ const boxCulverts: ModelDef = {
     }
     return g
   },
+  dims: (p) => {
+    const [wmm, hmm] = str(p, 'size').split('x').map(Number)
+    const w = mm(wmm)
+    const h = mm(hmm)
+    const t = 0.1 + 0.065 * w
+    const gap = 0.15 + w * 0.06
+    return [
+      { view: 'front', a: [-w / 2, t + h * 0.62], b: [w / 2, t + h * 0.62], offset: [0, 0], label: String(wmm) },
+      { view: 'front', a: [-w * 0.22, t], b: [-w * 0.22, t + h], offset: [0, 0], label: String(hmm) },
+      { view: 'side', a: [-1, 0], b: [1, 0], offset: [0, -gap], label: '2000' },
+    ]
+  },
 }
 
 // ---------- Retaining walls ----------
@@ -158,7 +196,7 @@ const retainingWalls: ModelDef = {
     RW_TYPE,
     { key: 'height', label: 'Height (m)', default: '2', choices: ['1', '2', '3', '4'].map((v) => ({ value: v, label: `${v} m` })) },
   ],
-  toggles: [{ key: 'backfill', label: 'Show Backfill', default: false }],
+  toggles: [{ key: 'backfill', label: 'Backfill', default: false }],
   readout: (p) => ({ title: `${choiceLabel(RW_TYPE, p)} · ${str(p, 'height')} m high`, subtitle: '2.4 m wide panel' }),
   build: (p, m) => {
     const H = num(p, 'height')
@@ -193,6 +231,7 @@ const catchBasins: ModelDef = {
     { key: 'cutaway', label: 'Cutaway', default: false },
   ],
   readout: () => ({ title: '900 × 900 mm', subtitle: 'Stormwater catch basin with inlet / outlet' }),
+  dims: () => chamberDims(0.9, 0.1, '900'),
   build: (p, m) => {
     const w = 0.9
     const { g, top, ow } = chamber(m, w, 0.9, 0.1, 0.15, on(p, 'cutaway'))
@@ -211,10 +250,11 @@ const catchBasins: ModelDef = {
 
 const manhole: ModelDef = {
   toggles: [
-    { key: 'lid', label: 'Cover Lid', default: true },
+    { key: 'lid', label: 'Cover lid', default: true },
     { key: 'cutaway', label: 'Cutaway', default: false },
   ],
   readout: () => ({ title: '1200 × 1200 mm', subtitle: 'Precast manhole chamber' }),
+  dims: () => chamberDims(1.2, 0.15, '1200'),
   build: (p, m) => {
     const w = 1.2
     const t = 0.15
@@ -286,7 +326,7 @@ const compoundWallPanels: ModelDef = {
 }
 
 const compoundWallPosts: ModelDef = {
-  toggles: [{ key: 'panels', label: 'Show Panels', default: false }],
+  toggles: [{ key: 'panels', label: 'Panels', default: false }],
   readout: () => ({ title: 'H-section post', subtitle: 'Grooved to receive wall panels' }),
   build: (p, m) => (on(p, 'panels') ? compoundWall(m, 1, 6, false, true) : compoundWall(m, 0, 6, false, false)),
 }
@@ -358,7 +398,7 @@ function beamProfile(type: string) {
 
 const precastBeams: ModelDef = {
   options: [BEAM_TYPE],
-  toggles: [{ key: 'strands', label: 'Prestressing Strands', default: true }],
+  toggles: [{ key: 'strands', label: 'Prestressing strands', default: true }],
   readout: (p) => ({ title: `${choiceLabel(BEAM_TYPE, p)} beam`, subtitle: 'Pre-stressed / reinforced concrete' }),
   build: (p, m) => {
     const len = 6
@@ -427,7 +467,7 @@ function insulator(m: Materials) {
 
 const electricPoles: ModelDef = {
   options: [{ key: 'height', label: 'Height', default: '9', choices: ['8', '9'].map((v) => ({ value: v, label: `${v} m` })) }],
-  toggles: [{ key: 'fittings', label: 'Cross-arm & Insulators', default: true }],
+  toggles: [{ key: 'fittings', label: 'Cross-arm and insulators', default: true }],
   readout: (p) => ({ title: `${str(p, 'height')} m pole`, subtitle: 'Precast concrete distribution pole' }),
   build: (p, m) => {
     const H = num(p, 'height')
@@ -457,7 +497,7 @@ const LIGHT_STYLE: OptionDef = {
 
 const lightPoles: ModelDef = {
   options: [LIGHT_STYLE],
-  toggles: [{ key: 'lit', label: 'Lamp On', default: true }],
+  toggles: [{ key: 'lit', label: 'Lamp on', default: true }],
   readout: (p) => ({ title: choiceLabel(LIGHT_STYLE, p), subtitle: 'Decorative concrete light pole' }),
   build: (p, m) => {
     const H = 6

@@ -70,6 +70,9 @@ const precastPavers: ModelDef = {
     COLOR,
   ],
   readout: (p) => ({ title: `${choiceLabel(PAVER_SHAPE, p)} paver · ${str(p, 'thickness')} mm`, subtitle: `${choiceLabel(COLOR, p)} finish` }),
+  dims: (p, box) => [
+    { view: 'front', a: [box.max.x, 0], b: [box.max.x, num(p, 'thickness') / 1000], offset: [0.08, 0], label: str(p, 'thickness') },
+  ],
   build: (p, m) => {
     const t = num(p, 'thickness') / 1000
     const zig = str(p, 'shape') === 'zigzag'
@@ -140,8 +143,13 @@ function kerbProfile(type: string, w: number, h: number) {
 
 const kerbStones: ModelDef = {
   options: [KERB_PROFILE],
-  toggles: [{ key: 'painted', label: 'Black & Yellow Paint', default: false }],
+  toggles: [{ key: 'painted', label: 'Black and yellow paint', default: false }],
   readout: (p) => ({ title: '300 × 150 × 600 mm', subtitle: `${choiceLabel(KERB_PROFILE, p)} kerb${on(p, 'painted') ? ' · painted' : ''}` }),
+  dims: () => [
+    { view: 'front', a: [-0.075, 0], b: [0.075, 0], offset: [0, -0.07], label: '150' },
+    { view: 'front', a: [0.075, 0], b: [0.075, 0.3], offset: [0.07, 0], label: '300' },
+    { view: 'side', a: [-0.3, 0], b: [0.3, 0], offset: [0, -0.07], label: '600' },
+  ],
   build: (p, m) => {
     const len = 0.6
     const geo = extrudeZ(kerbProfile(str(p, 'profile'), 0.15, 0.3), len, 0.004)
@@ -159,6 +167,13 @@ const kerbStones: ModelDef = {
 const saucerDrains: ModelDef = {
   toggles: [{ key: 'run', label: 'Run of 4', default: true }],
   readout: (p) => ({ title: '300 × 300 mm', subtitle: on(p, 'run') ? 'Run of four units' : 'Single unit' }),
+  dims: (p) => {
+    const first = -((on(p, 'run') ? 4 : 1) - 1) / 2 * 0.304
+    return [
+      { view: 'front', a: [-0.15, 0], b: [0.15, 0], offset: [0, -0.06], label: '300' },
+      { view: 'side', a: [first - 0.15, 0], b: [first + 0.15, 0], offset: [0, -0.06], label: '300' },
+    ]
+  },
   build: (p, m) => {
     const s = new THREE.Shape()
     s.moveTo(-0.15, 0)
@@ -199,12 +214,16 @@ function masonry(m: Materials, thicknessMm: number, hollow: boolean, wall: boole
 function blockModel(hollow: boolean, sizes: string[]): ModelDef {
   return {
     options: [{ key: 'size', label: 'Thickness', default: sizes[0], choices: sizes.map((v) => ({ value: v, label: `${v} inch` })) }],
-    toggles: [{ key: 'wall', label: 'Wall Layout', default: false }],
+    toggles: [{ key: 'wall', label: 'Wall layout', default: false }],
     readout: (p) => ({
       title: `${str(p, 'size')} inch ${hollow ? 'hollow' : 'solid'} block`,
       subtitle: `${INCH_MM[str(p, 'size')]} mm thick${on(p, 'wall') ? ' · laid in stretcher bond' : ''}`,
     }),
     build: (p, m) => masonry(m, INCH_MM[str(p, 'size')], hollow, on(p, 'wall')),
+    dims: (p, box) => {
+      const d = INCH_MM[str(p, 'size')] / 1000
+      return [{ view: 'plan', a: [box.max.x, -d / 2], b: [box.max.x, d / 2], offset: [0.07, 0], label: String(INCH_MM[str(p, 'size')]) }]
+    },
   }
 }
 
@@ -257,7 +276,7 @@ const pavers: ModelDef = {
 // ---------- Grass pavers ----------
 
 const grassPavers: ModelDef = {
-  toggles: [{ key: 'grass', label: 'Grass Filled', default: true }],
+  toggles: [{ key: 'grass', label: 'Grass', default: true }],
   readout: (p) => ({ title: 'Grass paver', subtitle: on(p, 'grass') ? 'Cells filled with soil and grass' : 'Empty cells' }),
   build: (p, m) => {
     const size = 0.4
@@ -367,7 +386,7 @@ const flagstones: ModelDef = {
 // ---------- Water channels ----------
 
 const waterChannels: ModelDef = {
-  toggles: [{ key: 'grating', label: 'Steel Grating', default: true }],
+  toggles: [{ key: 'grating', label: 'Steel grating', default: true }],
   readout: (p) => ({ title: 'Water channel', subtitle: on(p, 'grating') ? 'With steel grating' : 'Open channel' }),
   build: (p, m) => {
     const s = new THREE.Shape()

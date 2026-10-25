@@ -6,16 +6,13 @@ import ScrollToTop from './components/ScrollToTop'
 
 function App() {
   return (
-    <div className="relative bg-white min-h-screen">
+    <div className="relative min-h-screen">
       <ScrollToTop />
-      {/* Content */}
-      <div className="relative">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/products" element={<ProductsListPage />} />
-          <Route path="/products/:productId" element={<ProductDetailPage />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/products" element={<ProductsListPage />} />
+        <Route path="/products/:productId" element={<ProductDetailPage />} />
+      </Routes>
     </div>
   )
 }

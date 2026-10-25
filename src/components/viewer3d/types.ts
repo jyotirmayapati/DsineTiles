@@ -16,6 +16,18 @@ export interface ToggleDef {
   default: boolean
 }
 
+// Drawing views: front (x, y), side seen from the left (z, y), plan from above (x, z; z points down the page)
+export type DrawingView = 'front' | 'side' | 'plan'
+
+// A dimension between points a and b in a view's coordinates (metres), drawn shifted by `offset`
+export interface Dim {
+  view: DrawingView
+  a: [number, number]
+  b: [number, number]
+  offset: [number, number]
+  label: string
+}
+
 export interface ModelDef {
   options?: OptionDef[]
   toggles?: ToggleDef[]
@@ -23,6 +35,8 @@ export interface ModelDef {
   readout: (p: Params) => { title: string; subtitle?: string }
   // Returns the model in metres, sitting on y = 0
   build: (p: Params, m: Materials) => THREE.Object3D
+  // Dimensions for the drawing view. Only sizes that come from product data are labelled.
+  dims?: (p: Params, box: THREE.Box3) => Dim[]
 }
 
 export const str = (p: Params, key: string) => String(p[key])

@@ -1,7 +1,13 @@
-import { useState, useEffect, lazy, Suspense } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useState, lazy, Suspense } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { productsData as allProducts } from '../data/products'
 import { hasModel3D } from './viewer3d/modelIds'
+import { photosFor, renderFor } from '../data/media'
+import { whatsappLink } from '../data/contact'
+import Navigation from './Navigation'
+import Footer from './Footer'
+import WhatsAppButton from './WhatsAppButton'
+import { ProductTile } from './Catalogue'
 
 // Loaded on demand so three.js only ships when a 3D view is shown
 const ProductViewer = lazy(() => import('./viewer3d/ProductViewer'))
@@ -250,7 +256,7 @@ function generateDetailedProduct(basicProduct) {
   const features = (basicProduct.features || []).map((feature, idx) => ({
     icon: featureIcons[idx % featureIcons.length],
     title: feature,
-    description: `Premium ${basicProduct.category.toLowerCase()} featuring ${feature.toLowerCase()} for superior performance and reliability.`
+    description: '',
   }))
 
   // Generate applications
@@ -279,525 +285,204 @@ function generateDetailedProduct(basicProduct) {
   }
 }
 
+interface Spec { label: string; value: string; unit: string }
+interface Feature { title: string; description: string }
+
 export default function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>()
   const navigate = useNavigate()
-  const [scrollProgress, setScrollProgress] = useState(0)
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [lightbox, setLightbox] = useState<string | null>(null)
 
-  // Get product data
-  const basicProduct = allProducts.find(p => p.id === productId)
+  const basicProduct = allProducts.find((p) => p.id === productId)
   const product = basicProduct ? generateDetailedProduct(basicProduct) : null
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const windowHeight = window.innerHeight
-      const documentHeight = document.documentElement.scrollHeight
-      const scrollTop = window.scrollY
-      const progress = (scrollTop / (documentHeight - windowHeight)) * 100
-      setScrollProgress(progress)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [productId])
-
-  if (!product) {
+  if (!basicProduct || !product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <h1 className="text-4xl font-display text-neutral-900 mb-4">Product Not Found</h1>
-          <button
-            onClick={() => navigate('/products')}
-            className="px-6 py-3 bg-black text-white font-technical font-bold rounded-lg hover:bg-neutral-800 transition-colors"
-          >
-            Back to Products
-          </button>
-        </div>
-      </div>
+      <>
+        <Navigation />
+        <main className="min-h-screen grid place-items-center px-5">
+          <div className="text-center">
+            <h1 className="type-display text-4xl sm:text-5xl">Product not found</h1>
+            <p className="mt-4 text-aggregate">The link may be out of date. Every product we make is in the catalogue.</p>
+            <button onClick={() => navigate('/products')} className="btn-mark mt-8">Open the catalogue</button>
+          </div>
+        </main>
+      </>
     )
   }
 
+  const photos = photosFor(basicProduct.id)
+  const heroImage = photos[0]
+  const gallery = photos.slice(1)
+  const specs: Spec[] = product.specifications
+  const features: Feature[] = product.features
+  const groups: { label: string; sizes: string[] }[] = product.dimensionGroups ?? [{ label: '', sizes: product.dimensions }]
+  const related = allProducts.filter((p) => p.brand === basicProduct.brand && p.id !== basicProduct.id).slice(0, 4)
+  const quote = whatsappLink(`Hi, I'd like a quote for ${basicProduct.title}.`)
+
   return (
-    <div className="relative bg-white min-h-screen">
-      {/* Progress Bar */}
-      <div className="fixed top-0 left-0 w-full h-1 bg-gray-100 z-50">
-        <div
-          className="h-full bg-black transition-all duration-300"
-          style={{ width: `${scrollProgress}%` }}
-        />
-      </div>
-
-      {/* Back Navigation */}
-      <button
-        onClick={() => navigate('/products')}
-        className="fixed top-6 left-6 z-40 flex items-center space-x-2 px-4 py-2 bg-white border border-neutral-300 rounded-lg text-neutral-700 font-technical hover:bg-gray-50 transition-all group"
-      >
-        <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-        <span>Back to Products</span>
-      </button>
-
-      {/* Hero Section */}
-      <section className={`relative h-screen flex ${product.video ? 'items-start pt-32 sm:pt-40' : 'items-center'} justify-center overflow-hidden`}>
-        {/* Background Image / Video */}
-        <div className="absolute inset-0">
-          {product.video ? (
-            <video
-              src={product.video}
-              poster={product.image}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <img
-              src={product.image}
-              alt={product.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/1920x1080/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
-              }}
-            />
-          )}
-          <div className={`absolute inset-0 bg-linear-to-b ${product.video ? 'from-black/10 via-transparent to-white' : 'from-white/80 via-white/60 to-white'}`} />
-        </div>
-
-        {/* Blueprint Grid Overlay */}
-        <div className="absolute inset-0 blueprint-line opacity-10" />
-
-        {/* Hero Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mb-6 animate-[slideUp_0.8s_ease-out]">
-            <span className="px-6 py-2 bg-white border border-neutral-300 rounded-full text-neutral-700 font-technical text-sm tracking-[0.3em] uppercase">
-              {product.category || 'Premium Engineering'}
-            </span>
-          </div>
-
-          <h1
-            className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-black text-neutral-900 mb-6 animate-[slideUp_0.8s_ease-out_0.2s] opacity-0"
-            style={{ animationFillMode: 'forwards' }}
-          >
-            {product.title}
-          </h1>
-
-          {!product.video && (
-            <>
-              <p
-                className="text-2xl sm:text-3xl md:text-4xl font-technical font-light text-neutral-700 mb-8 animate-[slideUp_0.8s_ease-out_0.4s] opacity-0"
-                style={{ animationFillMode: 'forwards' }}
-              >
-                {product.subtitle}
-              </p>
-
-              <p
-                className="text-lg sm:text-xl text-neutral-600 font-technical max-w-4xl mx-auto leading-relaxed mb-12 animate-[slideUp_0.8s_ease-out_0.6s] opacity-0"
-                style={{ animationFillMode: 'forwards' }}
-              >
-                {product.description}
-              </p>
-
-              {/* CTA Buttons */}
-              <div
-                className="flex flex-wrap items-center justify-center gap-4 animate-[slideUp_0.8s_ease-out_0.8s] opacity-0"
-                style={{ animationFillMode: 'forwards' }}
-              >
-                <a
-                  href="#specifications"
-                  className="px-8 py-4 bg-black text-white font-technical font-bold text-lg rounded-lg hover:bg-neutral-800 transition-all duration-300 transform hover:scale-105"
-                >
-                  View Specifications
-                </a>
-                <a
-                  href="/#contact"
-                  className="px-8 py-4 bg-white border border-neutral-300 text-neutral-700 font-technical font-bold text-lg rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
-                >
-                  Request Quote
-                </a>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-neutral-600 rounded-full flex items-start justify-center p-2">
-            <div className="w-1.5 h-3 bg-neutral-600 rounded-full animate-pulse" />
-          </div>
-        </div>
-
-        {/* Decorative Elements */}
-        <div className="absolute top-20 left-20 w-32 h-32 border-t-2 border-l-2 border-neutral-300" />
-        <div className="absolute bottom-20 right-20 w-32 h-32 border-b-2 border-r-2 border-neutral-300" />
-      </section>
-
-      {/* Specifications Section */}
-      <section id="specifications" className="relative py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Title */}
-          <div className="text-center mb-16">
-            <h2 className="text-5xl sm:text-6xl font-display font-black text-neutral-900 mb-4">
-              Technical <span className="text-neutral-700">Specifications</span>
-            </h2>
-            <div className="w-24 h-1 bg-neutral-600 mx-auto" />
-          </div>
-
-          {/* Specs Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {product.specifications.map((spec, index) => (
-              <div
-                key={index}
-                className="group relative bg-white border border-neutral-200 rounded-xl p-6 hover:border-neutral-400 transition-all duration-500"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-technical font-semibold text-neutral-600 mb-2">
-                      {spec.label}
-                    </h3>
-                    <p className="text-3xl font-display font-bold text-neutral-900 transition-all">
-                      {spec.value}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-sm font-technical text-neutral-500 uppercase tracking-wider">
-                  {spec.unit}
-                </p>
-
-                {/* Decorative corner */}
-                <div className="absolute top-3 right-3 w-8 h-8 border-t-2 border-r-2 border-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            ))}
-          </div>
-
-          {/* Dimensions */}
-          <div className="bg-white border border-neutral-200 rounded-2xl p-8">
-            <h3 className="text-2xl font-display font-bold text-neutral-900 mb-6">
-              Available <span className="text-neutral-700">Sizes</span>
-            </h3>
-            {product.dimensionGroups ? (
-              <div className="space-y-8">
-                {product.dimensionGroups.map((group, groupIndex) => (
-                  <div key={groupIndex}>
-                    <h4 className="text-sm font-technical font-semibold text-neutral-500 uppercase tracking-wider mb-4">
-                      {group.label}
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {group.sizes.map((dimension, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-neutral-200 hover:border-neutral-400 transition-all"
-                        >
-                          <svg className="w-6 h-6 text-neutral-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                          </svg>
-                          <span className="font-technical text-neutral-600">{dimension}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {product.dimensions.map((dimension, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-neutral-200 hover:border-neutral-400 transition-all"
-                  >
-                    <svg className="w-6 h-6 text-neutral-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                    </svg>
-                    <span className="font-technical text-neutral-600">{dimension}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive 360° Model */}
-      {hasModel3D(product.id) && (
-        <section id="model-360" className="relative py-24 px-4 sm:px-6 lg:px-8 border-t border-neutral-200">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-5xl sm:text-6xl font-display font-black text-neutral-900 mb-4">
-                360° <span className="text-neutral-700">Interactive View</span>
-              </h2>
-              <p className="text-xl text-neutral-600 font-technical max-w-3xl mx-auto">
-                Rotate, zoom and switch sizes to explore the unit from every angle
-              </p>
+    <>
+      <Navigation />
+      <main className="pt-16">
+        {/* Hero */}
+        <section className="mx-auto max-w-[88rem] px-5 sm:px-8 pt-10 sm:pt-16 pb-16 grid gap-12 lg:grid-cols-[1fr_1.1fr] items-center">
+          <div>
+            <nav aria-label="Breadcrumb" className="text-sm text-aggregate">
+              <Link to="/products" className="hover:text-graphite">Products</Link>
+              <span className="mx-2">/</span>
+              <Link to={`/products?brand=${basicProduct.brand}`} className="hover:text-graphite">{basicProduct.brand}</Link>
+            </nav>
+            <h1 className="mt-6 type-display text-4xl sm:text-5xl xl:text-6xl">{product.title}</h1>
+            <p className="mt-6 max-w-xl text-lg text-aggregate">{product.description}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a href={quote} target="_blank" rel="noopener noreferrer" className="btn-mark">Get a quote</a>
+              <a href="#specifications" className="btn-line">Sizes and specifications</a>
             </div>
-            <Suspense
-              fallback={
-                <div className="h-130 flex items-center justify-center bg-gray-50 border border-neutral-200 rounded-2xl font-technical text-neutral-500">
-                  Loading 3D model…
+          </div>
+
+          <figure className="relative aspect-[4/3] rounded-[4px] overflow-hidden bg-slab border border-formline">
+            {basicProduct.video ? (
+              <video src={basicProduct.video} poster={renderFor(basicProduct.id)} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+            ) : heroImage ? (
+              <img src={heroImage} alt={product.title} className="w-full h-full object-cover" />
+            ) : (
+              <img src={renderFor(basicProduct.id)} alt={`${product.title}, studio render`} className="w-full h-full object-contain" />
+            )}
+          </figure>
+        </section>
+
+        {/* Interactive 3D model */}
+        {hasModel3D(basicProduct.id) && (
+          <section id="model-360" className="border-t border-formline py-20">
+            <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
+              <div className="grid gap-4 lg:grid-cols-[1fr_1fr] items-end mb-10">
+                <h2 className="type-display text-3xl sm:text-4xl lg:text-5xl">Turn it around</h2>
+                <p className="text-aggregate max-w-md lg:justify-self-end">Drag to rotate, scroll to zoom, and switch sizes and options below the model.</p>
+              </div>
+              <Suspense fallback={<div className="h-105 sm:h-130 rounded-[4px] border border-formline bg-slab" />}>
+                <ProductViewer key={basicProduct.id} productId={basicProduct.id} />
+              </Suspense>
+            </div>
+          </section>
+        )}
+
+        {/* Specifications and sizes */}
+        <section id="specifications" className="border-t border-formline py-20 bg-slab">
+          <div className="mx-auto max-w-[88rem] px-5 sm:px-8 grid gap-14 lg:grid-cols-2">
+            <div>
+              <h2 className="type-display text-3xl sm:text-4xl">Specifications</h2>
+              <dl className="mt-8 border-t border-formline">
+                {specs.map((spec) => (
+                  <div key={spec.label} className="grid grid-cols-[1fr_auto] gap-4 py-4 border-b border-formline">
+                    <dt className="text-aggregate">{spec.label}</dt>
+                    <dd className="text-right">
+                      <span className="font-semibold tabular">{spec.value}</span>
+                      <span className="block text-sm text-aggregate">{spec.unit}</span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+            <div>
+              <h2 className="type-display text-3xl sm:text-4xl">Sizes</h2>
+              {groups.map((g) => (
+                <div key={g.label} className="mt-8">
+                  {g.label && <h3 className="type-wide text-lg mb-3">{g.label}</h3>}
+                  <ul className="border-t border-formline">
+                    {g.sizes.map((size) => (
+                      <li key={size} className={`py-3 border-b border-formline tabular ${/custom|various|order/i.test(size) ? 'text-aggregate' : 'font-semibold'}`}>
+                        {size}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              }
-            >
-              <ProductViewer key={product.id} productId={product.id} />
-            </Suspense>
+              ))}
+            </div>
           </div>
         </section>
-      )}
 
-      {/* Features Section */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl sm:text-6xl font-display font-black text-neutral-900 mb-4">
-              Product <span className="text-neutral-700">Features</span>
-            </h2>
-            <p className="text-xl text-neutral-600 font-technical max-w-3xl mx-auto">
-              Engineered excellence in every detail
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {product.features.map((feature, index) => (
-              <div
-                key={index}
-                className="group relative bg-white border border-neutral-200 rounded-2xl p-8 hover:border-neutral-400 transition-all duration-500 transform hover:scale-105"
-              >
-                <div className="text-5xl mb-6 filter drop-shadow-lg transform group-hover:scale-110 transition-transform">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-display font-bold text-neutral-900 mb-4 transition-all">
-                  {feature.title}
-                </h3>
-                <p className="text-neutral-600 font-technical leading-relaxed">
-                  {feature.description}
-                </p>
-
-                {/* Hover effect corner */}
-                <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-neutral-200 group-hover:border-neutral-400 transition-all rounded-br-lg" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Applications Section */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl sm:text-6xl font-display font-black text-neutral-900 mb-4">
-              Ideal <span className="text-neutral-700">Applications</span>
-            </h2>
-            <p className="text-xl text-neutral-600 font-technical max-w-3xl mx-auto">
-              Versatile solutions for diverse infrastructure needs
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {product.applications.map((application, index) => (
-              <div
-                key={index}
-                className="group flex items-center space-x-4 bg-white border border-neutral-200 rounded-xl p-6 hover:border-neutral-400 transition-all duration-300"
-              >
-                <div className="w-12 h-12 rounded-lg bg-black flex items-center justify-center shrink-0">
-                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <span className="font-technical text-lg text-neutral-700 group-hover:text-neutral-900 transition-colors">
-                  {application}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Gallery Section */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl sm:text-6xl font-display font-black text-neutral-900 mb-4">
-              Project <span className="text-neutral-700">Gallery</span>
-            </h2>
-            <p className="text-xl text-neutral-600 font-technical max-w-3xl mx-auto">
-              See our products in action
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {product.gallery.map((image, index) => (
-              <div
-                key={index}
-                onClick={() => setSelectedImage(image)}
-                className="group relative aspect-video overflow-hidden rounded-2xl border border-neutral-200 cursor-pointer"
-              >
-                <img
-                  src={image}
-                  alt={`${product.title} application ${index + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x600/e7e5e4/78716c?text=' + encodeURIComponent(product.title)
-                  }}
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-white via-white/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-
-                {/* View indicator */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="w-16 h-16 rounded-full bg-white/90 border border-neutral-300 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-neutral-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                    </svg>
+        {/* Features and applications */}
+        <section className="border-t border-formline py-20">
+          <div className="mx-auto max-w-[88rem] px-5 sm:px-8 grid gap-14 lg:grid-cols-[1.3fr_1fr]">
+            <div>
+              <h2 className="type-display text-3xl sm:text-4xl">Features</h2>
+              <dl className="mt-8 grid sm:grid-cols-2 gap-x-10 gap-y-8">
+                {features.map((f) => (
+                  <div key={f.title} className="border-t border-formline pt-4">
+                    <dt className="font-semibold">{f.title}</dt>
+                    {f.description && <dd className="mt-1 text-aggregate">{f.description}</dd>}
                   </div>
-                </div>
-              </div>
-            ))}
+                ))}
+              </dl>
+            </div>
+            <div>
+              <h2 className="type-display text-3xl sm:text-4xl">Where it's used</h2>
+              <ul className="mt-8 border-t border-formline">
+                {product.applications.map((a: string) => (
+                  <li key={a} className="py-3 border-b border-formline">{a}</li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Image Lightbox */}
-      {selectedImage && (
-        <div
-          onClick={() => setSelectedImage(null)}
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 sm:p-8 cursor-zoom-out animate-[fadeIn_0.2s_ease-out]"
-        >
-          <button
-            onClick={() => setSelectedImage(null)}
-            aria-label="Close"
-            className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <img
-            src={selectedImage}
-            alt={product.title}
-            onClick={(e) => e.stopPropagation()}
-            className="max-w-full max-h-full object-contain rounded-lg cursor-default"
-          />
-        </div>
-      )}
-
-      {/* CTA Section */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="relative bg-white border border-neutral-200 rounded-3xl p-12 overflow-hidden">
-            {/* Background pattern */}
-            <div className="absolute inset-0 blueprint-line opacity-5" />
-
-            <div className="relative z-10 text-center">
-              <h2 className="text-4xl sm:text-5xl font-display font-black text-neutral-900 mb-6">
-                Ready to Start Your <span className="text-neutral-700">Project?</span>
-              </h2>
-              <p className="text-xl text-neutral-600 font-technical mb-10 max-w-2xl mx-auto">
-                Our engineering team is ready to provide custom solutions tailored to your specific requirements.
-              </p>
-
-              <div className="flex flex-wrap items-center justify-center gap-4">
-                <a
-                  href="/#contact"
-                  className="px-10 py-5 bg-black text-white font-technical font-bold text-lg rounded-xl hover:bg-neutral-800 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
-                >
-                  <span>Request a Quote</span>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </a>
-                <button
-                  onClick={() => window.open('tel:+917008049913')}
-                  className="px-10 py-5 bg-white border border-neutral-300 text-neutral-700 font-technical font-bold text-lg rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  <span>Call Us Now</span>
-                </button>
-              </div>
-
-              {/* Contact info */}
-              <div className="mt-10 pt-10 border-t border-neutral-200">
-                <p className="text-neutral-600 font-technical">
-                  Email: <a href="mailto:sunita4dsinetiles@gmail.com" className="text-neutral-700 hover:text-neutral-900">sunita4dsinetiles@gmail.com</a>
-                  {' '} | {' '}
-                  Phone: <a href="tel:+917008049913" className="text-neutral-700 hover:text-neutral-900">+91 7008049913</a>
-                </p>
+        {/* Photos from site, when we have them */}
+        {gallery.length > 0 && (
+          <section className="border-t border-formline py-20 bg-slab">
+            <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
+              <h2 className="type-display text-3xl sm:text-4xl">On site</h2>
+              <div className="mt-8 grid grid-cols-2 lg:grid-cols-3 gap-3">
+                {gallery.map((src, i) => (
+                  <button key={src} onClick={() => setLightbox(src)} className="aspect-[4/3] overflow-hidden rounded-[4px] group" aria-label={`Enlarge photo ${i + 2} of ${product.title}`}>
+                    <img src={src} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+                  </button>
+                ))}
               </div>
             </div>
+          </section>
+        )}
 
-            {/* Decorative corners */}
-            <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-neutral-300" />
-            <div className="absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-neutral-300" />
-          </div>
-        </div>
-      </section>
-
-      {/* Related Products */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 border-t border-neutral-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-display font-black text-neutral-900 mb-4">
-              Explore Other <span className="text-neutral-700">Products</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {allProducts
-              .filter(p => p.category === product.category && p.id !== product.id)
-              .slice(0, 4)
-              .map((relatedProduct) => (
-                <button
-                  key={relatedProduct.id}
-                  onClick={() => navigate(`/products/${relatedProduct.id}`)}
-                  className="group relative bg-white border border-neutral-200 rounded-xl overflow-hidden hover:border-neutral-400 transition-all duration-500 transform hover:scale-105 text-left"
-                >
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={relatedProduct.image}
-                      alt={relatedProduct.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300/e7e5e4/78716c?text=' + encodeURIComponent(relatedProduct.title)
-                      }}
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-display font-bold text-neutral-900 transition-all mb-2">
-                      {relatedProduct.title}
-                    </h3>
-                    <p className="text-sm text-neutral-600 font-technical line-clamp-2">
-                      {relatedProduct.description}
-                    </p>
-                  </div>
-
-                  {/* Arrow indicator */}
-                  <div className="absolute bottom-6 right-6 w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg className="w-4 h-4 text-neutral-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </button>
-              ))}
-          </div>
-
-          <div className="mt-12 text-center">
-            <button
-              onClick={() => navigate('/products')}
-              className="inline-flex items-center space-x-2 px-8 py-4 bg-black text-white font-technical font-bold rounded-xl hover:bg-neutral-800 transition-all duration-300 transform hover:scale-105"
-            >
-              <span>View All {allProducts.length} Products</span>
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+        {lightbox && (
+          <div onClick={() => setLightbox(null)} className="fixed inset-0 z-[100] bg-black/90 grid place-items-center p-4 sm:p-10 cursor-zoom-out" role="dialog" aria-label="Photo">
+            <button onClick={() => setLightbox(null)} aria-label="Close photo" className="absolute top-5 right-5 w-11 h-11 grid place-items-center rounded-full bg-white/10 text-white hover:bg-white/20">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
+            <img src={lightbox} alt={product.title} onClick={(e) => e.stopPropagation()} className="max-w-full max-h-full object-contain rounded-[4px] cursor-default" />
           </div>
-        </div>
-      </section>
-    </div>
+        )}
+
+        {/* Quote */}
+        <section className="border-t border-formline">
+          <div className="mx-auto max-w-[88rem] px-5 sm:px-8 py-20 grid gap-8 lg:grid-cols-[1fr_auto] items-end">
+            <div>
+              <h2 className="type-display text-3xl sm:text-4xl lg:text-5xl">Price this for your site</h2>
+              <p className="mt-4 max-w-xl text-lg text-aggregate">Send the size and quantity you need. We reply with a price and lead time.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <a href={quote} target="_blank" rel="noopener noreferrer" className="btn-mark">Get a quote on WhatsApp</a>
+              <a href="/#contact" className="btn-line">Send an enquiry</a>
+            </div>
+          </div>
+        </section>
+
+        {related.length > 0 && (
+          <section className="border-t border-formline py-20 bg-slab">
+            <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
+              <div className="flex flex-wrap items-baseline justify-between gap-4">
+                <h2 className="type-wide text-2xl">More from {basicProduct.brand}</h2>
+                <Link to={`/products?brand=${basicProduct.brand}`} className="font-semibold underline decoration-marking decoration-2 underline-offset-4">
+                  All {basicProduct.brand} products
+                </Link>
+              </div>
+              <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
+                {related.map((p) => <ProductTile key={p.id} product={p} />)}
+              </div>
+            </div>
+          </section>
+        )}
+      </main>
+      <Footer />
+      <WhatsAppButton />
+    </>
   )
 }

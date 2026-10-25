@@ -1,36 +1,54 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTheme } from '../../theme'
+import { productsData } from '../../data/products'
 import { STAGES } from './stages'
 
-// three.js is only fetched once the home page renders this section
+// three.js is fetched as soon as the home page renders, while the hero copy animates in
 const AssemblyScene = lazy(() => import('./AssemblyScene'))
 
-const pad = (n: number) => String(n).padStart(2, '0')
+// Viewport line that drives progress; lower on mobile, where the model fills the top of the screen
+const triggerLine = () => window.innerHeight * (window.innerWidth < 1024 ? 0.8 : 0.55)
 
-// Viewport line that drives progress; lower on mobile, where the sticky model covers the top half
-const triggerLine = () => window.innerHeight * (window.innerWidth < 1024 ? 0.75 : 0.55)
+// On load the frame goes up by itself, so the first screen already shows something being built
+const INTRO_PROGRESS = 0.98
+const INTRO_MS = 2600
 
 export default function AssemblySection() {
   const navigate = useNavigate()
+  const { theme } = useTheme()
   const stepsRef = useRef<HTMLDivElement>(null)
-  // Continuous progress 0…STAGES.length, written on scroll and read by the 3D scene every frame
+  // Continuous progress 0…STAGES.length, read by the 3D scene every frame
   const progressRef = useRef(0)
-  const [active, setActive] = useState(0)
+  const [active, setActive] = useState(-1)
 
   useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const start = performance.now()
+    let intro = reduced ? INTRO_PROGRESS : 0
+    let frame = 0
+
     const update = () => {
       const steps = stepsRef.current
       if (!steps) return
       const rect = steps.getBoundingClientRect()
-      const line = triggerLine()
-      const p = Math.min(Math.max((line - rect.top) / rect.height, 0), 0.999) * STAGES.length
-      progressRef.current = p
-      setActive(Math.floor(p))
+      const scrolled = Math.min(Math.max((triggerLine() - rect.top) / rect.height, 0), 0.999) * STAGES.length
+      progressRef.current = Math.max(scrolled, intro)
+      setActive(rect.top > triggerLine() ? -1 : Math.floor(scrolled))
     }
+    const tick = () => {
+      intro = Math.min((performance.now() - start) / INTRO_MS, 1) * INTRO_PROGRESS
+      update()
+      if (intro < INTRO_PROGRESS) frame = requestAnimationFrame(tick)
+    }
+    // Let the hero copy land before the columns start dropping
+    const delay = window.setTimeout(() => { frame = requestAnimationFrame(tick) }, reduced ? 0 : 500)
     update()
     window.addEventListener('scroll', update, { passive: true })
     window.addEventListener('resize', update)
     return () => {
+      clearTimeout(delay)
+      cancelAnimationFrame(frame)
       window.removeEventListener('scroll', update)
       window.removeEventListener('resize', update)
     }
@@ -45,109 +63,100 @@ export default function AssemblySection() {
     window.scrollTo({ top, behavior: 'smooth' })
   }
 
+  const current = STAGES[Math.max(active, 0)]
+
   return (
-    <section id="assembly" className="relative bg-stone-50 border-y border-stone-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:grid lg:grid-cols-[5fr_7fr] lg:gap-12">
-        {/* Sticky model panel (on top for mobile, right column on desktop) */}
-        <div className="sticky top-16 lg:top-24 z-10 h-[46vh] lg:h-[calc(100vh-8rem)] lg:order-2 pt-4 lg:pt-0 bg-stone-50 lg:bg-transparent">
-          <div className="relative h-full bg-white border border-stone-200 rounded-sm overflow-hidden">
-            <div className="absolute top-0 inset-x-0 z-10 flex items-center justify-between px-4 py-3 border-b border-stone-200 bg-white/90 backdrop-blur-sm">
-              <span className="flex items-center gap-2 text-[11px] font-body font-semibold tracking-widest uppercase text-neutral-700">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Precast site · live model
-              </span>
-              <span className="text-[11px] font-body tracking-widest text-neutral-500">
-                STAGE {pad(active + 1)} / {pad(STAGES.length)}
-              </span>
-            </div>
-
-            <Suspense
-              fallback={
-                <div className="absolute inset-0 flex items-center justify-center text-sm font-body text-neutral-500">
-                  Loading model…
-                </div>
-              }
-            >
-              <AssemblyScene progressRef={progressRef} />
+    <section id="top" className="relative">
+      {/* Sticky 3D stage: right of the copy on desktop. On mobile it sits above the copy,
+          which slides underneath it, so text never covers the model. */}
+      <div className="sticky top-0 h-[100svh] overflow-hidden z-20 lg:z-auto pointer-events-none lg:pointer-events-auto">
+        <div className="absolute inset-x-0 top-0 h-[calc(52svh+4rem)] pt-16 bg-concrete pointer-events-auto lg:bg-transparent lg:pt-0 lg:h-auto lg:bottom-0 lg:left-[34%]">
+          <div className="relative h-full">
+            <Suspense fallback={null}>
+              <AssemblyScene progressRef={progressRef} theme={theme} onSelect={(id) => navigate(`/products/${id}`)} />
             </Suspense>
-            <div className="absolute inset-0 blueprint-line opacity-10 pointer-events-none" />
-
-            <div className="absolute bottom-0 inset-x-0 z-10 flex items-center justify-between px-4 py-3 border-t border-stone-200 bg-white/90 backdrop-blur-sm text-[11px] font-body tracking-widest uppercase">
-              <span className="font-semibold text-neutral-800">{STAGES[active].part}</span>
-              <span className="hidden sm:inline text-neutral-500">Schematic · not to scale</span>
-            </div>
-
-            {/* Stage rail */}
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-1.5" role="group" aria-label="Jump to assembly stage">
-              {STAGES.map((s, i) => (
-                <button
-                  key={s.tag}
-                  onClick={() => goTo(i)}
-                  aria-label={`Show stage ${i + 1}: ${s.tag}`}
-                  className={`w-8 h-8 rounded-sm text-[11px] font-body font-semibold border transition-all ${
-                    i === active
-                      ? 'bg-black text-white border-black'
-                      : i < active
-                        ? 'bg-white text-neutral-800 border-neutral-400'
-                        : 'bg-white/80 text-neutral-400 border-stone-200 hover:border-neutral-400'
-                  }`}
-                >
-                  {pad(i + 1)}
-                </button>
-              ))}
-            </div>
+            {/* Mobile: soft lower edge where the copy slides under the model */}
+            <div className="lg:hidden absolute inset-x-0 bottom-0 h-16 bg-linear-to-b from-transparent to-concrete pointer-events-none" />
           </div>
         </div>
+        {/* Soft edge so the model melts into the copy column */}
+        <div className="hidden lg:block absolute inset-y-0 left-[34%] w-40 bg-linear-to-r from-concrete to-transparent pointer-events-none" />
 
-        {/* Story */}
-        <div className="lg:order-1 relative">
-          <div className="pt-16 lg:pt-28 pb-8">
-            <div className="ornamental-line mb-6" />
-            <span className="px-5 py-2 bg-white border border-stone-200 rounded-sm text-neutral-700 font-body text-xs tracking-widest uppercase font-medium">
-              From frame to finish
-            </span>
-            <h2 className="mt-6 text-4xl sm:text-5xl font-display font-bold text-neutral-900 leading-tight">
-              Watch a site <span className="italic">assemble</span>
-            </h2>
-            <p className="mt-4 text-lg text-neutral-600 font-body leading-relaxed">
-              Scroll to build a complete precast project, element by element.
+        <div className="hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 flex-col gap-1.5" role="group" aria-label="Jump to a build stage">
+          {STAGES.map((s, i) => (
+            <button
+              key={s.title}
+              onClick={() => goTo(i)}
+              aria-label={`Stage ${i + 1}: ${s.title}`}
+              aria-current={i === active ? 'step' : undefined}
+              className={`w-9 h-9 rounded-[3px] text-sm tabular font-semibold border transition-colors ${
+                i === active
+                  ? 'bg-marking text-marking-ink border-marking'
+                  : i < active
+                    ? 'border-graphite/60 text-graphite'
+                    : 'border-formline text-aggregate hover:border-graphite'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+
+        <p className="hidden lg:block absolute left-[calc(34%+2rem)] bottom-6 text-sm text-aggregate" aria-live="polite">
+          <span className="block type-wide text-base text-graphite">{active >= 0 ? current.part : 'Footings and columns'}</span>
+          Schematic model, not to scale
+        </p>
+      </div>
+
+      {/* Copy column, scrolling over the stage */}
+      <div className="relative z-10 -mt-[100svh] mx-auto max-w-[88rem] px-5 sm:px-8 pointer-events-none">
+        <div className="lg:w-[34%] lg:pr-8 pointer-events-auto">
+          <div className="min-h-[100svh] flex flex-col justify-end lg:justify-center pb-10 lg:pb-0 pt-[56svh] lg:pt-16">
+            <h1 className="type-display text-[2.5rem] sm:text-6xl xl:text-[4rem] rise">
+              Precast, from footing to finish.
+            </h1>
+            <p className="mt-6 max-w-md text-lg text-aggregate rise rise-2">
+              We cast drains, culverts, beams, slabs, walls, pavers and blocks in Baripada, Odisha. Scroll to watch a site go up from them.
             </p>
+            <div className="mt-8 flex flex-wrap gap-3 rise rise-3">
+              <a href="#contact" className="btn-mark">Get a quote</a>
+              <button onClick={() => navigate('/products')} className="btn-line">
+                Browse {productsData.length} products
+              </button>
+            </div>
           </div>
 
           <div ref={stepsRef}>
             {STAGES.map((s, i) => (
-              <div
-                key={s.tag}
-                className={`min-h-[75vh] lg:min-h-[85vh] flex flex-col justify-center py-12 transition-opacity duration-500 ${
-                  i === active ? 'opacity-100' : 'opacity-35'
+              <article
+                key={s.title}
+                className={`min-h-[75svh] lg:min-h-[85svh] flex flex-col justify-end lg:justify-center pb-10 lg:pb-0 transition-opacity duration-500 ${
+                  i === active ? 'opacity-100' : 'lg:opacity-40'
                 }`}
               >
-                <div className="text-sm font-body font-semibold tracking-widest text-neutral-500">
-                  {pad(i + 1)} <span className="text-neutral-400">/ {pad(STAGES.length)}</span>
+                <div className="border-t border-formline pt-6 lg:border-0 lg:pt-0">
+                  <p className="text-sm tabular text-aggregate">Stage {i + 1} of {STAGES.length}</p>
+                  <h2 className="mt-2 type-display text-3xl sm:text-4xl lg:text-5xl">{s.title}</h2>
+                  <p className="mt-4 max-w-md text-aggregate">{s.body}</p>
+                  {s.links && (
+                    <p className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+                      {s.links.map((l) => (
+                        <button
+                          key={l.productId}
+                          onClick={() => navigate(`/products/${l.productId}`)}
+                          className="font-semibold underline decoration-marking decoration-2 underline-offset-4 hover:decoration-graphite"
+                        >
+                          {l.label}
+                        </button>
+                      ))}
+                    </p>
+                  )}
                 </div>
-                <h3 className="mt-3 text-3xl sm:text-4xl font-display font-bold text-neutral-900 leading-tight">{s.title}</h3>
-                <p className="mt-4 text-base sm:text-lg text-neutral-600 font-body leading-relaxed max-w-md">{s.body}</p>
-                <span className="mt-6 text-xs font-body tracking-widest uppercase text-neutral-500">
-                  {pad(i + 1)} — {s.tag}
-                </span>
-                {s.links && (
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {s.links.map((l) => (
-                      <button
-                        key={l.productId}
-                        onClick={() => navigate(`/products/${l.productId}`)}
-                        className="px-3 py-1.5 bg-white border border-stone-300 rounded-sm text-sm font-body text-neutral-700 hover:bg-black hover:text-white hover:border-black transition-colors"
-                      >
-                        {l.label} ↗
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              </article>
             ))}
           </div>
-          {/* Room for the last stage to finish before the sticky panel scrolls away */}
-          <div className="h-[20vh] lg:h-[50vh]" />
+          {/* Room for the last stage to finish before the stage scrolls away */}
+          <div className="h-[30svh] lg:h-[45svh]" />
         </div>
       </div>
     </section>

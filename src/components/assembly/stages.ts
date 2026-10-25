@@ -1,6 +1,5 @@
 // Story steps for the scroll-driven site assembly. Index = stage number in AssemblyScene.
 export interface Stage {
-  tag: string
   title: string
   body: string
   part: string
@@ -9,51 +8,73 @@ export interface Stage {
 
 export const STAGES: Stage[] = [
   {
-    tag: 'Structural frame',
-    title: 'It starts with the grid.',
-    body: 'Precast columns are set on prepared footings, fixing the structural grid that every later element depends on.',
+    title: 'Set the grid',
+    body: 'Columns land on prepared footings and fix the structural grid. Everything that follows depends on getting this right.',
     part: 'Columns on footings',
   },
   {
-    tag: 'Beams & connections',
-    title: 'Elements that lock together.',
-    body: 'Pre-stressed beams tie the columns into a rigid frame, with connections designed and checked before casting.',
+    title: 'Lock the frame',
+    body: 'Pre-stressed beams tie the columns into a rigid frame. Inside every beam, our cover blocks and wheel spacers hold the steel at the right cover.',
     part: 'Precast beams',
-    links: [{ label: 'Precast Beams', productId: 'precast-beams' }],
-  },
-  {
-    tag: 'Slabs & floors',
-    title: 'Floors in hours, not weeks.',
-    body: 'Hollow-core slabs span between beams and are ready for the next trade as soon as they are placed.',
-    part: 'Hollow-core slabs',
-    links: [{ label: 'Precast Slabs', productId: 'precast-slabs' }],
-  },
-  {
-    tag: 'Enclosure',
-    title: 'Closed in, factory finished.',
-    body: 'Wall panels arrive with openings already cast in, closing the building envelope without on-site formwork.',
-    part: 'Wall panels',
-  },
-  {
-    tag: 'Drainage',
-    title: 'Water handled from day one.',
-    body: 'U drains line the road and box culverts carry stormwater off site, laid unit by unit with groove joints.',
-    part: 'U drains & box culverts',
     links: [
-      { label: 'U Drains', productId: 'u-drains' },
-      { label: 'Box Culverts', productId: 'box-culverts' },
+      { label: 'Precast beams', productId: 'precast-beams' },
+      { label: 'Cover blocks', productId: 'cover-blocks' },
+      { label: 'Wheel spacers', productId: 'wheel-spacers' },
     ],
   },
   {
-    tag: 'Site works',
-    title: 'Finished, all precast.',
-    body: 'Kerbs, paving, compound walls and light poles complete the site, each one a precast product made to the same standard.',
-    part: 'Kerbs, paving, walls & lighting',
+    title: 'Lay the floors',
+    body: 'Hollow-core slabs span from beam to beam and can be walked on the day they are placed.',
+    part: 'Hollow-core slabs',
+    links: [{ label: 'Precast slabs', productId: 'precast-slabs' }],
+  },
+  {
+    title: 'Close it in',
+    body: 'Wall panels arrive with the window openings already cast. At the gate, a guard house goes up course by course in hollow blocks under a precast roof slab.',
+    part: 'Wall panels and block walls',
     links: [
-      { label: 'Kerb Stones', productId: 'kerb-stones' },
-      { label: 'Paving Tiles', productId: 'paving-tiles' },
-      { label: 'Compound Walls', productId: 'compound-wall-panels' },
-      { label: 'Light Poles', productId: 'light-poles' },
+      { label: 'Hollow blocks', productId: 'hollow-blocks' },
+      { label: 'Solid blocks', productId: 'solid-blocks' },
+    ],
+  },
+  {
+    title: 'Drain the site',
+    body: 'U drains line the road, box culverts carry stormwater away, and catch basins, manholes, water channels and a cable trench go in flush with the ground.',
+    part: 'Drainage and services',
+    links: [
+      { label: 'U drains', productId: 'u-drains' },
+      { label: 'Box culverts', productId: 'box-culverts' },
+      { label: 'Catch basins', productId: 'catch-basins' },
+      { label: 'Manholes', productId: 'manhole-1200x1200' },
+      { label: 'Water channels', productId: 'water-channels' },
+      { label: 'Cable trench', productId: 'cable-trays' },
+    ],
+  },
+  {
+    title: 'Pave the ground',
+    body: 'Kerbs edge the road. Tiles for the forecourt, pavers for the driveway, grass pavers for parking and a chequered walkway to the gate.',
+    part: 'Kerbs, tiles and pavers',
+    links: [
+      { label: 'Kerb stones', productId: 'kerb-stones' },
+      { label: 'Paving tiles', productId: 'paving-tiles' },
+      { label: 'Pavers', productId: 'pavers' },
+      { label: 'Grass pavers', productId: 'grass-pavers' },
+      { label: 'Chequered tiles', productId: 'chequered-tiles' },
+      { label: 'Saucer drains', productId: 'saucer-drains' },
+    ],
+  },
+  {
+    title: 'Edge and finish',
+    body: 'Retaining walls hold a raised garden with flagstone paths and benches. Compound walls and fencing close the boundary, and street and power poles light it up.',
+    part: 'Walls, poles and garden',
+    links: [
+      { label: 'Retaining walls', productId: 'retaining-walls' },
+      { label: 'Compound walls', productId: 'compound-wall-panels' },
+      { label: 'Fencing', productId: 'walls-and-fencing' },
+      { label: 'Light poles', productId: 'light-poles' },
+      { label: 'Electric poles', productId: 'electric-poles' },
+      { label: 'Furniture', productId: 'furniture-and-decor' },
+      { label: 'Flagstones', productId: 'flagstones' },
     ],
   },
 ]
