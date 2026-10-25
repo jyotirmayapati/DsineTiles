@@ -1,282 +1,133 @@
 import { useState } from 'react'
+import { productsData } from '../data/products'
+import { CONTACT, whatsappLink } from '../data/contact'
+
+type Channel = 'whatsapp' | 'email'
 
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    project: '',
-    message: '',
-  })
+  const [form, setForm] = useState({ name: '', phone: '', company: '', product: '', message: '' })
+  const [sent, setSent] = useState<Channel | null>(null)
+  const [missing, setMissing] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    // Handle form submission
-    console.log('Form submitted:', formData)
-    alert('Thank you for your inquiry! We will contact you soon.')
+  const set = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
+
+  // The enquiry goes out through WhatsApp or email, already written, so nothing is lost
+  const compose = () => {
+    const lines = [`Hi, I'm ${form.name}${form.company ? ` from ${form.company}` : ''}.`]
+    if (form.product) lines.push(`Product: ${form.product}`)
+    if (form.phone) lines.push(`Phone: ${form.phone}`)
+    return [...lines, '', form.message].join('\n')
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
+  const send = (channel: Channel) => {
+    if (!form.name.trim() || !form.message.trim()) {
+      setMissing(true)
+      return
+    }
+    setMissing(false)
+    const url = channel === 'whatsapp'
+      ? whatsappLink(compose())
+      : `mailto:${CONTACT.email}?subject=${encodeURIComponent(`Enquiry${form.product ? `: ${form.product}` : ''}`)}&body=${encodeURIComponent(compose())}`
+    window.open(url, channel === 'whatsapp' ? '_blank' : '_self')
+    setSent(channel)
   }
 
-  const contactInfo = [
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-        </svg>
-      ),
-      title: 'Phone',
-      details: '+91 7008049913',
-      link: 'tel:+917008049913',
-    },
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      ),
-      title: 'Email',
-      details: 'sunita4dsinetiles@gmail.com',
-      link: 'mailto:sunita4dsinetiles@gmail.com',
-    },
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      ),
-      title: 'Location',
-      details: 'Kochilapada, Pratappur Badsahi, Baripada, Odisha 757103',
-      link: 'https://maps.app.goo.gl/oyeP6iqdR1MZeN6U9',
-    },
-    {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      title: 'Hours',
-      details: 'Open 24/7 - All Day',
-      link: '#',
-    },
+  const lines = [
+    { label: 'Call', value: CONTACT.phone, href: `tel:${CONTACT.phoneHref}` },
+    { label: 'WhatsApp', value: CONTACT.phone, href: whatsappLink('Hi, I have a question about your products.') },
+    { label: 'Email', value: CONTACT.email, href: `mailto:${CONTACT.email}` },
+    { label: 'Visit the yard', value: CONTACT.address, href: CONTACT.mapUrl },
+    { label: 'Hours', value: CONTACT.hours },
   ]
 
   return (
-    <section id="contact" className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <div className="inline-block mb-4">
-            <span className="px-6 py-3 bg-stone-50 border border-stone-200 rounded-sm text-neutral-700 font-body elegant-caps animate-fade-in">
-              Get In Touch
-            </span>
-          </div>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-neutral-900 mb-6 refined-heading text-depth animate-fade-up stagger-1">
-            Start Your <span className="elegant-italic">Project Today</span>
-          </h2>
-          <p className="text-xl text-neutral-600 font-body max-w-3xl mx-auto elegant-body animate-fade-up stagger-2">
-            Let's discuss how our precast solutions can bring your vision to life
+    <section id="contact" className="py-24 sm:py-32 bg-slab border-t border-formline">
+      <div className="mx-auto max-w-[88rem] px-5 sm:px-8 grid gap-14 lg:grid-cols-[1fr_1.1fr]">
+        <div>
+          <h2 className="type-display text-4xl sm:text-5xl lg:text-6xl max-w-xl">Tell us what you're building</h2>
+          <p className="mt-6 max-w-md text-lg text-aggregate">
+            Send the site, the products and rough quantities. We reply with sizes, lead times and a price.
           </p>
+
+          <dl className="mt-12 border-t border-formline">
+            {lines.map((l) => (
+              <div key={l.label} className="grid grid-cols-[7rem_minmax(0,1fr)] sm:grid-cols-[8rem_minmax(0,1fr)] gap-4 py-4 border-b border-formline">
+                <dt className="text-aggregate">{l.label}</dt>
+                <dd className="min-w-0">
+                  {l.href ? (
+                    <a
+                      href={l.href}
+                      target={l.href.startsWith('http') ? '_blank' : undefined}
+                      rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      className="font-semibold underline decoration-formline decoration-2 underline-offset-4 hover:decoration-marking [overflow-wrap:anywhere]"
+                    >
+                      {l.value}
+                    </a>
+                  ) : (
+                    <span className="font-semibold">{l.value}</span>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
-          <div className="bg-stone-50 border border-stone-200 rounded-sm p-8 shadow-sm animate-slide-in-left stagger-3">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors"
-                    placeholder="John Doe"
-                  />
-                </div>
-                <div>
-                  <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors"
-                    placeholder="john@example.com"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors"
-                    placeholder="+1 (555) 000-0000"
-                  />
-                </div>
-                <div>
-                  <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
-                    Company
-                  </label>
-                  <input
-                    type="text"
-                    name="company"
-                    value={formData.company}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors"
-                    placeholder="Your Company"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
-                  Project Type
-                </label>
-                <select
-                  name="project"
-                  value={formData.project}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors"
-                >
-                  <option value="">Select a product</option>
-                  <option value="pavers">Precast Pavers</option>
-                  <option value="udrains">U Drains</option>
-                  <option value="culverts">Box Culverts</option>
-                  <option value="walls">Retaining Walls</option>
-                  <option value="custom">Custom Solution</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-neutral-700 font-body font-semibold mb-2 elegant-text">
-                  Project Details *
-                </label>
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  rows={5}
-                  className="w-full px-4 py-3 bg-white border border-stone-300 rounded-sm text-neutral-900 font-body focus:outline-none focus:border-neutral-600 transition-colors resize-none"
-                  placeholder="Tell us about your project requirements..."
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-4 bg-black text-white font-body font-semibold text-lg rounded-sm hover:bg-neutral-900 transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm"
-              >
-                <span>Send Message</span>
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  />
-                </svg>
-              </button>
-            </form>
-          </div>
-
-          {/* Contact Information */}
-          <div className="space-y-8 animate-slide-in-right stagger-3">
-            {/* Contact Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {contactInfo.map((info, index) => (
-                <a
-                  key={index}
-                  href={info.link}
-                  target={info.link.startsWith('http') ? '_blank' : undefined}
-                  rel={info.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="bg-white border border-stone-200 rounded-sm p-6 hover:shadow-md transition-all duration-300 transform hover:scale-105 group"
-                >
-                  <div className="w-12 h-12 bg-black rounded-sm flex items-center justify-center text-white mb-4 group-hover:bg-neutral-900 transition-all duration-300">
-                    {info.icon}
-                  </div>
-                  <h3 className="text-lg font-display font-bold text-neutral-900 mb-2 elegant-text text-crisp">
-                    {info.title}
-                  </h3>
-                  <p className="text-neutral-600 font-body elegant-body">
-                    {info.details}
-                  </p>
-                </a>
-              ))}
+        <form
+          onSubmit={(e) => { e.preventDefault(); send('whatsapp') }}
+          className="bg-concrete border border-formline rounded-[4px] p-6 sm:p-8 space-y-5 self-start"
+          noValidate
+        >
+          <div className="grid sm:grid-cols-2 gap-5">
+            <div>
+              <label htmlFor="c-name" className="field-label">Your name</label>
+              <input id="c-name" name="name" value={form.name} onChange={set} autoComplete="name" aria-invalid={missing && !form.name.trim()} className="field" />
             </div>
-
-            {/* Map Link */}
-            <a
-              href="https://maps.app.goo.gl/oyeP6iqdR1MZeN6U9"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block bg-stone-50 border border-stone-200 rounded-sm p-6 h-64 flex items-center justify-center hover:shadow-md hover:border-neutral-400 transition-all duration-300 group"
-            >
-              <div className="text-center">
-                <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-neutral-900 transition-all duration-300">
-                  <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-display font-bold text-neutral-900 mb-2 elegant-text text-crisp">
-                  Visit Our Facility
-                </h3>
-                <p className="text-neutral-600 font-body elegant-body mb-1">
-                  Kochilapada, Pratappur Badsahi, Baripada, Odisha 757103
-                </p>
-                <p className="text-sm text-neutral-500 font-body elegant-text underline decoration-dotted underline-offset-4">
-                  Open in Google Maps
-                </p>
-              </div>
-            </a>
-
-            {/* CTA Box */}
-            <div className="bg-white border border-stone-200 rounded-sm p-8 text-center shadow-sm">
-              <h3 className="text-2xl font-display font-bold text-neutral-900 mb-4 elegant-text text-crisp">
-                Need Immediate Assistance?
-              </h3>
-              <p className="text-neutral-600 font-body mb-6 elegant-body">
-                Our team is ready to help with your project requirements
-              </p>
-              <a
-                href="tel:+917008049913"
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-black text-white font-body font-semibold rounded-sm hover:bg-neutral-900 transform hover:scale-105 transition-all duration-300 shadow-sm"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                <span>Call Now</span>
-              </a>
+            <div>
+              <label htmlFor="c-phone" className="field-label">Phone <span className="font-normal text-aggregate">(optional)</span></label>
+              <input id="c-phone" name="phone" type="tel" value={form.phone} onChange={set} autoComplete="tel" className="field" />
             </div>
           </div>
-        </div>
+          <div className="grid sm:grid-cols-2 gap-5">
+            <div>
+              <label htmlFor="c-company" className="field-label">Company <span className="font-normal text-aggregate">(optional)</span></label>
+              <input id="c-company" name="company" value={form.company} onChange={set} autoComplete="organization" className="field" />
+            </div>
+            <div>
+              <label htmlFor="c-product" className="field-label">Product</label>
+              <select id="c-product" name="product" value={form.product} onChange={set} className="field">
+                <option value="">Not sure yet</option>
+                {productsData.map((p) => <option key={p.id} value={p.title}>{p.title}</option>)}
+                <option value="Custom units">Custom units</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label htmlFor="c-message" className="field-label">About the project</label>
+            <textarea
+              id="c-message"
+              name="message"
+              rows={5}
+              value={form.message}
+              onChange={set}
+              placeholder="Location, sizes, quantities, when you need them"
+              aria-invalid={missing && !form.message.trim()}
+              className="field resize-y"
+            />
+          </div>
+
+          {missing && <p role="alert" className="text-sm text-red-600 dark:text-red-400">Add your name and a few words about the project.</p>}
+          {sent && !missing && (
+            <p role="status" className="text-sm">
+              {sent === 'whatsapp' ? 'WhatsApp opened with your message. Press send there and we will reply.' : 'Your email app opened with the message. Press send there and we will reply.'}
+            </p>
+          )}
+
+          <div className="flex flex-wrap gap-3 pt-1">
+            <button type="submit" className="btn-mark">Send on WhatsApp</button>
+            <button type="button" onClick={() => send('email')} className="btn-line">Send by email</button>
+          </div>
+        </form>
       </div>
     </section>
   )

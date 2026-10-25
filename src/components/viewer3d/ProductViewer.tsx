@@ -6,6 +6,9 @@ import { Materials } from './materials'
 import { MODELS } from './models'
 import type { ModelId } from './modelIds'
 import type { Params } from './types'
+import { LookTransition } from './sceneTheme'
+import { useTheme } from '../../theme'
+import DrawingSheet from './DrawingSheet'
 
 function disposeObject(obj: THREE.Object3D) {
   // Materials are shared via the Materials cache, so only geometries are freed here
@@ -23,7 +26,7 @@ function defaultParams(id: ModelId): Params {
 }
 
 // Camera distance that keeps every corner of `box` in view from any angle around the vertical axis
-function fitDistance(box: THREE.Box3, center: THREE.Vector3, camera: THREE.PerspectiveCamera) {
+export function fitDistance(box: THREE.Box3, center: THREE.Vector3, camera: THREE.PerspectiveCamera) {
   const tanV = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))
   const tanH = tanV * camera.aspect
   const dir = camera.position.clone().sub(center).normalize()
@@ -51,7 +54,10 @@ interface SceneContext {
   camera: THREE.PerspectiveCamera
   controls: OrbitControls
   sun: THREE.DirectionalLight
+  hemi: THREE.HemisphereLight
+  renderer: THREE.WebGLRenderer
   materials: Materials
+  look: LookTransition
   model?: THREE.Object3D
   // Pending camera move to frame the current model; cleared once reached or when the user takes over
   fit?: { target: THREE.Vector3; distance: number } | null
@@ -64,6 +70,9 @@ export default function ProductViewer({ productId }: { productId: ModelId }) {
 
   const [params, setParams] = useState<Params>(() => defaultParams(productId))
   const [autoRotate, setAutoRotate] = useState(true)
+  const [mode, setMode] = useState<'model' | 'drawing'>('model')
+  const { theme } = useTheme()
+  const themeRef = useRef(theme)
   const readout = useMemo(() => def.readout(params), [def, params])
 
   // One-time scene setup
@@ -94,7 +103,8 @@ export default function ProductViewer({ productId }: { productId: ModelId }) {
     controls.maxPolarAngle = Math.PI * 0.49
     controls.autoRotateSpeed = 1.2
 
-    scene.add(new THREE.HemisphereLight('#ffffff', '#5f5a54', 0.35))
+    const hemi = new THREE.HemisphereLight('#ffffff', '#5f5a54', 0.35)
+    scene.add(hemi)
     const sun = new THREE.DirectionalLight('#ffffff', 2.6)
     sun.castShadow = true
     sun.shadow.mapSize.set(2048, 2048)
@@ -105,7 +115,7 @@ export default function ProductViewer({ productId }: { productId: ModelId }) {
     ground.receiveShadow = true
     scene.add(ground)
 
-    const ctx: SceneContext = { scene, camera, controls, sun, materials: new Materials() }
+    const ctx: SceneContext = { scene, camera, controls, sun, hemi, renderer, materials: new Materials(), look: new LookTransition(themeRef.current) }
     sceneRef.current = ctx
     controls.addEventListener('start', () => { ctx.fit = null })
 
@@ -123,6 +133,13 @@ export default function ProductViewer({ productId }: { productId: ModelId }) {
         if (Math.abs(next - ctx.fit.distance) < 0.001 * ctx.fit.distance && controls.target.distanceTo(ctx.fit.target) < 0.001) ctx.fit = null
       }
       controls.update()
+      // Day / night lighting blends with the page theme; the sun stays bright enough to inspect the product
+      ctx.look.step()
+      const l = ctx.look.look
+      renderer.toneMappingExposure = l.exposure
+      hemi.intensity = l.hemi * 0.9
+      sun.intensity = Math.max(l.sun * 1.08, 1.8)
+      sun.color.copy(l.sunColor)
       renderer.render(scene, camera)
     }
     animate()
@@ -193,57 +210,84 @@ export default function ProductViewer({ productId }: { productId: ModelId }) {
     if (sceneRef.current) sceneRef.current.controls.autoRotate = autoRotate
   }, [autoRotate])
 
+  useEffect(() => {
+    themeRef.current = theme
+    sceneRef.current?.look.go(theme, window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  }, [theme])
+
   const set = (key: string, value: string | boolean) => setParams((p) => ({ ...p, [key]: value }))
 
   const pill = (active: boolean) =>
-    `px-4 py-2 rounded-lg font-technical text-sm border transition-all ${
-      active ? 'bg-black text-white border-black' : 'bg-white text-neutral-700 border-neutral-300 hover:border-neutral-500'
+    `px-3.5 py-2 rounded-[3px] text-[0.95rem] border transition-colors ${
+      active ? 'bg-graphite text-concrete border-graphite' : 'border-formline hover:border-graphite'
     }`
 
   return (
-    <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden">
-      <div className="relative h-105 sm:h-130 bg-linear-to-b from-gray-50 to-white">
+    <div className="relative rounded-[4px] border border-formline overflow-hidden bg-slab">
+      {/* Current configuration readout, shared by both views */}
+      <div className="absolute top-4 left-4 z-10 pointer-events-none max-w-[60%]">
+        <p className="type-wide text-xl">{readout.title}</p>
+        {readout.subtitle && <p className="text-sm text-aggregate mt-0.5">{readout.subtitle}</p>}
+      </div>
+
+      {/* 3D model / drawing switch, for products with data-backed dimensions */}
+      {def.dims && (
+        <div className="absolute top-4 right-4 z-10 flex rounded-[3px] border border-formline bg-concrete p-0.5" role="tablist" aria-label="View">
+          {(['model', 'drawing'] as const).map((m) => (
+            <button
+              key={m}
+              role="tab"
+              aria-selected={mode === m}
+              onClick={() => setMode(m)}
+              className={`px-3 py-1.5 rounded-[2px] text-sm transition-colors ${mode === m ? 'bg-graphite text-concrete' : 'text-aggregate hover:text-graphite'}`}
+            >
+              {m === 'model' ? '3D model' : 'Drawing'}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* The 3D canvas stays mounted while the drawing shows, so switching back is instant */}
+      <div className={mode === 'model' ? 'relative h-105 sm:h-130' : 'hidden'}>
         <div
           ref={mountRef}
           className="absolute inset-0 cursor-grab active:cursor-grabbing"
           onPointerDown={() => setAutoRotate(false)}
         />
-        <div className="absolute inset-0 blueprint-line opacity-10 pointer-events-none" />
-
-        {/* Current configuration readout */}
-        <div className="absolute top-4 left-4 bg-white/90 border border-neutral-200 rounded-lg px-4 py-3 pointer-events-none max-w-[70%]">
-          <p className="text-xl font-display font-bold text-neutral-900">{readout.title}</p>
-          {readout.subtitle && <p className="text-xs font-technical text-neutral-500 mt-1">{readout.subtitle}</p>}
-        </div>
-
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs font-technical text-neutral-500 bg-white/80 px-3 py-1 rounded-full pointer-events-none whitespace-nowrap">
-          Drag to rotate · Scroll / pinch to zoom
-        </div>
       </div>
 
+      {mode === 'drawing' && sceneRef.current && (
+        <div className="px-4 sm:px-8 pt-20 pb-6">
+          <DrawingSheet def={def} params={params} materials={sceneRef.current.materials} />
+          <p className="mt-4 text-sm text-aggregate">
+            Indicative drawing in first-angle projection, not for construction. Dimensions in mm; only standard product sizes are dimensioned.
+          </p>
+        </div>
+      )}
+
       {/* Controls */}
-      <div className="p-6 border-t border-neutral-200 flex flex-wrap items-start gap-6">
+      <div className="p-5 sm:p-6 border-t border-formline bg-concrete flex flex-wrap items-start gap-x-8 gap-y-5">
         {def.options?.map((option) => (
-          <div key={option.key}>
-            <p className="text-xs font-technical font-semibold text-neutral-500 uppercase tracking-wider mb-2">{option.label}</p>
+          <div key={option.key} role="group" aria-label={option.label}>
+            <p className="text-sm text-aggregate mb-2">{option.label}</p>
             <div className="flex flex-wrap gap-2">
               {option.choices.map((c) => (
-                <button key={c.value} onClick={() => set(option.key, c.value)} className={pill(params[option.key] === c.value)}>
+                <button key={c.value} onClick={() => set(option.key, c.value)} aria-pressed={params[option.key] === c.value} className={pill(params[option.key] === c.value)}>
                   {c.label}
                 </button>
               ))}
             </div>
           </div>
         ))}
-        <div>
-          <p className="text-xs font-technical font-semibold text-neutral-500 uppercase tracking-wider mb-2">View</p>
+        <div role="group" aria-label="View">
+          <p className="text-sm text-aggregate mb-2">View</p>
           <div className="flex flex-wrap gap-2">
             {def.toggles?.map((t) => (
-              <button key={t.key} onClick={() => set(t.key, !params[t.key])} className={pill(params[t.key] === true)}>
+              <button key={t.key} onClick={() => set(t.key, !params[t.key])} aria-pressed={params[t.key] === true} className={pill(params[t.key] === true)}>
                 {t.label}
               </button>
             ))}
-            <button onClick={() => setAutoRotate((v) => !v)} className={pill(autoRotate)}>
+            <button onClick={() => setAutoRotate((v) => !v)} aria-pressed={autoRotate} className={pill(autoRotate)}>
               Auto-rotate
             </button>
           </div>
