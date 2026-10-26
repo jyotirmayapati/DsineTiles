@@ -4,6 +4,7 @@ import { useTheme } from '../theme'
 
 const LINKS = [
   { name: 'Products', path: '/products', hash: '' },
+  { name: 'Railways', path: '/railways', hash: '' },
   { name: 'How we work', path: '/', hash: '#process' },
   { name: 'Carbon calculator', path: '/', hash: '#impact' },
   { name: 'Contact', path: '/', hash: '#contact' },
@@ -72,7 +73,7 @@ export default function Navigation() {
               key={l.name}
               onClick={() => go(l.path, l.hash)}
               className={`text-[0.95rem] transition-colors hover:text-graphite ${
-                location.pathname.startsWith('/products') && l.path === '/products' ? 'text-graphite font-semibold' : 'text-aggregate'
+                !l.hash && l.path !== '/' && location.pathname.startsWith(l.path) ? 'text-graphite font-semibold' : 'text-aggregate'
               }`}
             >
               {l.name}
