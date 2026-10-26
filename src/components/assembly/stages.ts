@@ -1,15 +1,15 @@
-// Story steps for the scroll-driven site assembly. Index = stage number in AssemblyScene.
-export interface Stage {
-  title: string
-  body: string
-  part: string
-  links?: { label: string; productId: string }[]
-}
+import type { Stage } from '../story/stage'
 
+// Story steps for the home page site. Index = stage number in siteStory.
 export const STAGES: Stage[] = [
   {
-    title: 'Set the grid',
-    body: 'Columns land on prepared footings and fix the structural grid. Everything that follows depends on getting this right.',
+    title: 'Start from clean ground',
+    body: 'The site is set out with string lines on the column grid, and a footing is placed at every grid point, ready to take the frame.',
+    part: 'Setting out and footings',
+  },
+  {
+    title: 'Raise the columns',
+    body: 'Columns are lowered onto the footings and set plumb. Everything that follows depends on getting this right.',
     part: 'Columns on footings',
   },
   {
