@@ -13,6 +13,8 @@ export interface Part {
   stage: number
   delay: number // 0…0.5 of the stage
   duration: number // share of a stage it takes to land
+  // Custom landing, used instead of the default fly-in (e.g. instances laid one at a time)
+  animate?: (progress: number, reduced: boolean) => void
 }
 
 // Camera stop per stage: target, azimuth°, elevation°, distance
@@ -62,7 +64,58 @@ export function createParts(root: THREE.Group) {
     root.add(obj)
     parts.push({ obj, final: obj.position.clone(), offset: new THREE.Vector3(...offset), stage, delay: Math.min(delay, 0.5), duration })
   }
-  return { parts, add }
+  // Instances land one at a time instead of all together: instance i starts at
+  // delay + spread × order[i] (order 0…1, default along x) and takes `duration` to land
+  const addEach = (
+    inst: THREE.InstancedMesh,
+    stage: number,
+    delay: number,
+    spread: number,
+    offset: [number, number, number],
+    duration = 0.08,
+    order?: number[],
+  ) => {
+    root.add(inst)
+    const finals = Array.from({ length: inst.count }, (_, i) => inst.getMatrixAt(i, new THREE.Matrix4()))
+    if (!order) {
+      const xs = finals.map((m) => m.elements[12])
+      const min = Math.min(...xs)
+      const range = Math.max(...xs) - min || 1
+      order = xs.map((x) => (x - min) / range)
+    }
+    const starts = order.map((o) => stage + delay + spread * o)
+    const lift = new THREE.Vector3(...offset)
+    const hidden = new THREE.Matrix4().makeScale(0, 0, 0)
+    const m = new THREE.Matrix4()
+    inst.frustumCulled = false // hidden instances would otherwise shrink its bounds
+    const first = Math.min(...starts)
+    const done = Math.max(...starts) + duration
+    let state = '' // 'before' or 'after' once settled there, so idle frames skip the work
+    const animate = (progress: number, reduced: boolean) => {
+      const now = progress <= first ? 'before' : progress >= done ? 'after' : ''
+      if (now && now === state) return
+      state = now
+      let any = false
+      for (let i = 0; i < inst.count; i++) {
+        const raw = clamp01((progress - starts[i]) / duration)
+        if (raw <= 0) {
+          inst.setMatrixAt(i, hidden)
+          continue
+        }
+        any = true
+        const u = reduced ? 1 : easeOut(raw)
+        m.copy(finals[i])
+        m.elements[12] += lift.x * (1 - u)
+        m.elements[13] += lift.y * (1 - u)
+        m.elements[14] += lift.z * (1 - u)
+        inst.setMatrixAt(i, m)
+      }
+      inst.visible = any
+      inst.instanceMatrix.needsUpdate = true
+    }
+    parts.push({ obj: inst, final: inst.position.clone(), offset: lift, stage, delay, duration, animate })
+  }
+  return { parts, add, addEach }
 }
 
 // Merge a model's meshes into one mesh per material to cut draw calls; large instanced meshes are kept

@@ -106,6 +106,10 @@ export default function StoryScene({ def, progressRef, theme, onSelect }: SceneP
 
       // Parts: each flies in over the first part of its stage
       for (const part of parts) {
+        if (part.animate) {
+          part.animate(current, reduced)
+          continue
+        }
         const raw = clamp01((current - part.stage - part.delay) / part.duration)
         const u = reduced ? (raw > 0 ? 1 : 0) : easeOut(raw)
         part.obj.visible = raw > 0
