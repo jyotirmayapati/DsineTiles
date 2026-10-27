@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import type { Materials } from '../viewer3d/materials'
 import { MODELS } from '../viewer3d/models'
-import { block, circleHole, extrudeZ, instances, mesh, polyShape, rectHole, rectShape } from '../viewer3d/helpers'
+import { block, circleHole, extrudeUp, extrudeZ, instances, mesh, polyShape, rectHole, rectShape } from '../viewer3d/helpers'
 import { clamp01, createParts, flatten, ownedMaterials, shade, type CameraKey, type StoryDef, type StoryLabel, type StoryWorld } from '../story/kit'
 
 // The railways page story: a station built from bare formation to an arriving train.
@@ -125,7 +125,7 @@ function person(m: Materials, own: <T extends THREE.Material>(mat: T) => T, shir
 
 function buildStation(m: Materials): StoryWorld {
   const root = new THREE.Group()
-  const { parts, add } = createParts(root)
+  const { parts, add, addEach } = createParts(root)
   const { own, dispose } = ownedMaterials()
   const concrete = m.concrete()
   const plate = own(new THREE.MeshStandardMaterial({ roughness: 0.92 }))
@@ -188,19 +188,17 @@ function buildStation(m: Materials): StoryWorld {
   }
   const sleeperGeo = new THREE.BoxGeometry(0.26, 0.2, 2.75).translate(0, 0.1, 0)
   const sleeperX = Array.from({ length: 141 }, (_, i) => -45.5 + i * 0.65)
+  // Sleepers are laid one at a time along each track
   for (const z of [T1, T2]) {
-    for (let c = 0; c < 7; c++) {
-      const items = sleeperX.slice(c * 21, c * 21 + 21).map((x) => ({ x, y: 0.3, z: 0 }))
-      const run = shade(instances(sleeperGeo, concrete, items), 400 + c + z, 0.9)
-      run.position.z = z
-      add(run, 1, 0.12 + c * 0.03 + (z === T2 ? 0.02 : 0), [0, 3, 0])
-    }
+    const run = shade(instances(sleeperGeo, concrete, sleeperX.map((x) => ({ x, y: 0.3, z: 0 }))), 400 + z, 0.9)
+    run.position.z = z
+    addEach(run, 1, 0.1 + (z === T2 ? 0.04 : 0), 0.26, [0, 3, 0], 0.06)
   }
   const railGeo = new THREE.BoxGeometry(PLATE.x * 2 / 3, 0.16, 0.07).translate(0, 0.08, 0)
   for (const z of [T1, T2]) {
     for (const side of [-1, 1]) {
       for (let s = 0; s < 3; s++) {
-        add(mesh(railGeo, m.steel, -PLATE.x + (s + 0.5) * (PLATE.x * 2 / 3), RAIL_TOP - 0.16, z + side * HALF_GAUGE), 1, 0.36 + s * 0.03, [0, 2.5, 0])
+        add(mesh(railGeo, m.steel, -PLATE.x + (s + 0.5) * (PLATE.x * 2 / 3), RAIL_TOP - 0.16, z + side * HALF_GAUGE), 1, 0.42 + s * 0.02, [0, 2.5, 0])
       }
     }
   }
@@ -248,15 +246,16 @@ function buildStation(m: Materials): StoryWorld {
   for (const [P, dir, seed] of [[P1, -1, 1], [P2, 1, 2]] as const) {
     const ry = dir < 0 ? Math.PI / 2 : -Math.PI / 2 // profile u axis points into the platform
     const at = (u: number) => P.face + dir * u
-    const delay = seed === 2 ? 0.06 : 0
-    add(shade(instances(wallGeo, concrete, Array.from({ length: 25 }, (_, k) => ({ x: -28.8 + k * 2.4, y: 0, z: 0, ry }))), 50 + seed, 0.9).translateZ(P.face), 2, delay, [0, 3, 0])
+    // Platform 2 follows just behind platform 1. Walls, coping, tactile tiles and pavers are laid one at a time along the platform.
+    const delay = seed === 2 ? 0.04 : 0
+    addEach(shade(instances(wallGeo, concrete, Array.from({ length: 25 }, (_, k) => ({ x: -28.8 + k * 2.4, y: 0, z: 0, ry }))), 50 + seed, 0.9).translateZ(P.face), 2, delay, 0.2, [0, 3, 0], 0.07)
     const depth = Math.abs(P.back - P.face) - 0.15
-    add(block(PLAT_X * 2, 0.76, depth, fill, 0, 0, at(0.15 + depth / 2)), 2, 0.08 + delay, [0, -0.8, 0])
-    add(shade(instances(copingGeo, concrete, Array.from({ length: 100 }, (_, k) => ({ x: -29.7 + k * 0.6, y: 0, z: 0, ry }))), 60 + seed, 0.9).translateZ(P.face), 2, 0.18 + delay, [0, 2, 0])
-    add(block(PLAT_X * 2, 0.004, 0.25, yellow, 0, 0.84, at(0.125)), 2, 0.24 + delay, [0, 1, 0])
+    add(block(PLAT_X * 2, 0.76, depth, fill, 0, 0, at(0.15 + depth / 2)), 2, 0.24 + delay, [0, -0.8, 0])
+    addEach(shade(instances(copingGeo, concrete, Array.from({ length: 100 }, (_, k) => ({ x: -29.7 + k * 0.6, y: 0, z: 0, ry }))), 60 + seed, 0.9).translateZ(P.face), 2, 0.24 + delay, 0.14, [0, 2, 0], 0.06)
+    add(block(PLAT_X * 2, 0.004, 0.25, yellow, 0, 0.84, at(0.125)), 2, 0.42 + delay, [0, 1, 0])
     const tiles: { x: number; y: number; z: number }[] = []
     for (let r = 0; r < 2; r++) for (let c = 0; c < 200; c++) tiles.push({ x: -29.85 + c * 0.3, y: 0.76, z: at(0.65 + r * 0.3) })
-    add(shade(instances(tactileGeo, m.concrete('#b8b3aa'), tiles), 0, 0, (i) => ((Math.floor(i / 200) + i) % 2 ? 0.84 : 1)), 2, 0.26 + delay, [0, 1.5, 0])
+    addEach(shade(instances(tactileGeo, m.concrete('#b8b3aa'), tiles), 0, 0, (i) => ((Math.floor(i / 200) + i) % 2 ? 0.84 : 1)), 2, 0.34 + delay, 0.16, [0, 1.5, 0], 0.05)
     const rows = Math.floor((depth - 0.95) / 0.2)
     for (let chunk = 0; chunk < 4; chunk++) {
       const items: { x: number; y: number; z: number }[] = []
@@ -267,7 +266,7 @@ function buildStation(m: Materials): StoryWorld {
           items.push({ x, y: 0.76, z: at(1.2 + r * 0.2) })
         }
       }
-      add(shade(instances(paverGeo, m.concrete('#aaa59d'), items), 70 + chunk + seed * 10, 0.86), 2, 0.3 + chunk * 0.04 + delay, [0, 1.5, 0])
+      addEach(shade(instances(paverGeo, m.concrete('#aaa59d'), items), 70 + chunk + seed * 10, 0.86), 2, 0.4 + chunk * 0.02 + delay, 0.12, [0, 1.5, 0], 0.05)
     }
   }
 
@@ -435,61 +434,218 @@ function buildStation(m: Materials): StoryWorld {
   })
 
   // ---------- Stage 7: the train arrives on track 1 ----------
-  // Clipped at the block's edge, so the train appears out of the end of the model rather than in mid-air
+  // A modern white-and-blue trainset: a sloped nose on the driving car and flush, sealed coaches.
+  // Clipped at the block's edge, so the train appears out of the end of the model rather than in mid-air.
   const clip = [new THREE.Plane(new THREE.Vector3(1, 0, 0), PLATE.x)]
-  const tmat = (color: string, extra: THREE.MeshStandardMaterialParameters = {}) =>
-    own(new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.1, clippingPlanes: clip, ...extra }))
-  const body = tmat('#2f4d6e')
-  const roofMat = tmat('#7c8187')
-  const cream = tmat('#e8e1cf')
-  const under = tmat('#2e2f33', { roughness: 0.7, metalness: 0.4 })
-  const windows = tmat('#3a4652', { roughness: 0.15, metalness: 0.4, emissive: '#ffe2b0', emissiveIntensity: 0 })
-  const nose = tmat('#f2b705')
-  const headlight = tmat('#fffbe8', { emissive: '#fff4d0', emissiveIntensity: 0 })
-  const bodyShape = new THREE.Shape()
-  bodyShape.moveTo(-1.5, 0)
-  bodyShape.lineTo(1.5, 0)
-  bodyShape.lineTo(1.5, 2.7)
-  bodyShape.quadraticCurveTo(0, 3.35, -1.5, 2.7)
-  bodyShape.closePath()
-  const wheelGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.12, 18).rotateX(Math.PI / 2)
-  const vehicle = (len: number, loco: boolean) => {
-    const v = new THREE.Group()
-    const shell = extrudeZ(bodyShape, len)
-    shell.rotateY(Math.PI / 2)
-    v.add(mesh(shell, body, 0, 1.5, 0))
-    v.add(mesh(new THREE.BoxGeometry(len - 0.4, 0.1, 2.4).translate(0, 0.05, 0), roofMat, 0, 4.5, 0))
-    v.add(block(len - 0.2, 0.16, 3.02, cream, 0, 2.6, 0))
-    if (loco) {
-      v.add(block(len - 6, 0.6, 3.02, windows, -1.5, 3.0, 0))
-      v.add(block(0.06, 0.9, 2.6, windows, len / 2 + 0.01, 3.1, 0)) // windscreen
-      v.add(block(0.08, 0.5, 3.02, nose, len / 2, 1.7, 0))
-      v.add(block(0.06, 0.18, 0.5, headlight, len / 2 + 0.03, 3.9, 0))
-    } else {
-      v.add(block(len - 2.6, 0.75, 3.02, windows, 0, 3.0, 0))
-      for (const s of [-1, 1]) v.add(block(0.9, 2.1, 3.03, under, s * (len / 2 - 0.9), 1.65, 0))
+  const tmat = (params: THREE.MeshStandardMaterialParameters) =>
+    own(new THREE.MeshStandardMaterial({ roughness: 0.35, metalness: 0.15, clippingPlanes: clip, ...params }))
+  const BODY_Y = 1.25 // underside of the body shell
+  const CAR = 22 // car length
+  const NOSE = 6.5 // length of the sloped nose
+
+  // Body cross-section (z across, y up from BODY_Y): flush sides, rounded shoulders, slight crown.
+  // Open at the bottom; s runs 0 → 1 round it from the bottom right to the bottom left.
+  const half: [number, number][] = [[1.56, 0], [1.62, 0.18]]
+  for (let y = 0.5; y <= 2.5; y += 0.4) half.push([1.62, y])
+  for (let a = 1; a <= 6; a++) {
+    const t = (a / 6) * (Math.PI / 2)
+    half.push([0.97 + 0.65 * Math.cos(t), 2.6 + 0.65 * Math.sin(t)])
+  }
+  half.push([0.45, 3.32], [0, 3.36])
+  const profile = [...half, ...half.slice(0, -1).reverse().map(([z, y]) => [-z, y] as [number, number])]
+  const arc = [0]
+  for (let i = 1; i < profile.length; i++) arc.push(arc[i - 1] + Math.hypot(profile[i][0] - profile[i - 1][0], profile[i][1] - profile[i - 1][1]))
+  const ARC = arc[arc.length - 1]
+  // Point on the profile at arc fraction s, for painting the livery
+  const pointAt = (s: number): [number, number] => {
+    const d = s * ARC
+    let i = 1
+    while (i < arc.length - 1 && arc[i] < d) i++
+    const f = (d - arc[i - 1]) / (arc[i] - arc[i - 1])
+    return [profile[i - 1][0] + (profile[i][0] - profile[i - 1][0]) * f, profile[i - 1][1] + (profile[i][1] - profile[i - 1][1]) * f]
+  }
+
+  // Shell lofted along +x (x0 < x1) through rings of the profile, each scaled by (w, h) about the floor line.
+  // u runs 0 → 1 along the shell, s round it, so a painted livery wraps it exactly.
+  const loft = (x0: number, x1: number, rings: number, scale: (u: number) => [number, number]) => {
+    const pos: number[] = []
+    const uv: number[] = []
+    for (let r = 0; r <= rings; r++) {
+      const u = r / rings
+      const [w, h] = scale(u)
+      profile.forEach(([z, y], i) => {
+        pos.push(x0 + (x1 - x0) * u, BODY_Y + y * h, z * w)
+        uv.push(u, arc[i] / ARC)
+      })
     }
-    v.add(block(len - 2, 0.4, 2.5, under, 0, 1.1, 0))
-    for (const s of [-1, 1]) {
-      const bx = s * (len / 2 - 2.4)
+    const n = profile.length
+    const index: number[] = []
+    for (let r = 0; r < rings; r++)
+      for (let i = 0; i < n - 1; i++) {
+        const a = r * n + i
+        const b = a + n
+        index.push(a, b, a + 1, b, b + 1, a + 1) // outward-facing for x1 > x0
+      }
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
+    geo.setIndex(index)
+    geo.computeVertexNormals()
+    return geo
+  }
+  // Flat end cap for a shell, facing +x or -x
+  const cap = (x: number, w: number, h: number, facing: 1 | -1) => {
+    const shape = new THREE.Shape(profile.map(([z, y]) => new THREE.Vector2(z * w, y * h)))
+    const geo = new THREE.ShapeGeometry(shape)
+    geo.rotateY(facing > 0 ? Math.PI / 2 : -Math.PI / 2)
+    geo.translate(x, BODY_Y, 0)
+    return geo
+  }
+
+  // Livery painted per pixel from (metres along the car, point on the profile)
+  const textures: THREE.Texture[] = []
+  const paint = (w: number, h: number, colour: (u: number, z: number, y: number) => string) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = w
+    canvas.height = h
+    const ctx = canvas.getContext('2d')!
+    const img = ctx.createImageData(w, h)
+    const rgb = new Map<string, number[]>()
+    for (let py = 0; py < h; py++) {
+      const [z, y] = pointAt(1 - (py + 0.5) / h)
+      for (let px = 0; px < w; px++) {
+        const hex = colour((px + 0.5) / w, z, y)
+        let c = rgb.get(hex)
+        if (!c) rgb.set(hex, (c = [1, 3, 5].map((k) => parseInt(hex.slice(k, k + 2), 16))))
+        img.data.set([c[0], c[1], c[2], 255], (py * w + px) * 4)
+      }
+    }
+    ctx.putImageData(img, 0, 0)
+    const tex = new THREE.CanvasTexture(canvas)
+    tex.colorSpace = THREE.SRGBColorSpace
+    tex.anisotropy = 8
+    textures.push(tex)
+    return tex
+  }
+  const WHITE = '#eef1f3'
+  const BLUE = '#1c4fa0'
+  const GLASS = '#161b21'
+  const ROOF = '#c3c8cd'
+  const SKIRT = '#565b62'
+  const WIN = [1.5, 2.25] // window band, height above BODY_Y
+  const BAND = [1.12, 1.36] // blue band below the windows
+  // Side livery for a car body `len` long. Doors near each end; the driving car has none at the cab end.
+  const sideLivery = (len: number, cab: boolean, glow: boolean) => (u: number, z: number, y: number) => {
+    const m = u * len // metres from the back of the car
+    const doors = cab ? [1.4] : [1.4, len - 1.4]
+    const door = doors.find((d) => Math.abs(m - d) < 0.55)
+    const winEnd = cab ? len - 0.8 : len - 2.3
+    if (glow) {
+      // Night: separate lit panes along the band
+      const pane = (m - 2.3) % 1.75
+      return y > WIN[0] + 0.08 && y < WIN[1] - 0.06 && m > 2.4 && m < winEnd - 0.1 && pane > 0.18 ? '#ffffff' : '#000000'
+    }
+    if (y > 2.95 || Math.abs(z) < 1.2) return ROOF
+    if (y < 0.14) return SKIRT
+    if (door !== undefined) {
+      if (Math.abs(Math.abs(m - door) - 0.53) < 0.025 && y < 2.45) return '#9aa1a8'
+      if (Math.abs(m - door) < 0.22 && y > 1.55 && y < 2.2) return GLASS
+      if (y > BAND[0] && y < BAND[1]) return BLUE
+      return WHITE
+    }
+    if (y > WIN[0] && y < WIN[1] && m > 2.3 && m < winEnd) return GLASS
+    if ((y > BAND[0] && y < BAND[1]) || (y > 0.24 && y < 0.31)) return BLUE
+    return WHITE
+  }
+  const coachTex = paint(1024, 512, sideLivery(CAR, false, false))
+  const coachGlow = paint(512, 256, sideLivery(CAR, false, true))
+  const cabBodyTex = paint(1024, 512, sideLivery(CAR - NOSE, true, false))
+  const cabBodyGlow = paint(512, 256, sideLivery(CAR - NOSE, true, true))
+  // Nose: a wraparound windscreen framed in blue, the band sweeping round below it
+  const screenEdge = (u: number) => (u < 0.22 ? 9 : u < 0.55 ? 3.4 - ((u - 0.22) / 0.33) * 1.75 : 1.65)
+  const headlamp = (u: number, z: number, y: number) => u > 0.9 && u < 0.955 && Math.abs(z) > 1.2 && y > 1.85 && y < 2.45
+  const noseGlow = paint(256, 256, (u, z, y) => (headlamp(u, z, y) ? '#ffffff' : '#000000'))
+  const noseTex = paint(512, 512, (u, z, y) => {
+    if (headlamp(u, z, y)) return '#fffbe8'
+    if (u > 0.89 && u < 0.965 && Math.abs(z) > 1.1 && y > 1.75 && y < 2.55) return GLASS // lamp surround
+    const edge = screenEdge(u)
+    if (u < 0.9 && y > edge) return GLASS
+    if (u < 0.9 && y > edge - 0.14 && u > 0.22) return BLUE
+    if (y > 2.95 || Math.abs(z) < 1.2) return u > 0.9 ? WHITE : ROOF
+    if (y < 0.14) return SKIRT
+    if ((y > BAND[0] && y < BAND[1]) || (y > 0.24 && y < 0.31)) return BLUE
+    return WHITE
+  })
+  const glowOf = (map: THREE.Texture, emissiveMap: THREE.Texture) =>
+    tmat({ color: '#ffffff', map, emissive: '#ffe2b0', emissiveMap, emissiveIntensity: 0 })
+  const coachMat = glowOf(coachTex, coachGlow)
+  const cabBodyMat = glowOf(cabBodyTex, cabBodyGlow)
+  const noseMat = tmat({ color: '#ffffff', map: noseTex, emissive: '#fff4d0', emissiveMap: noseGlow, emissiveIntensity: 0 })
+  const endMat = tmat({ color: WHITE })
+  const under = tmat({ color: '#2e2f33', roughness: 0.7, metalness: 0.4 })
+  const skirtMat = tmat({ color: SKIRT, roughness: 0.6 })
+  const bellows = tmat({ color: '#25272b', roughness: 0.9, metalness: 0 })
+  const shell = (geo: THREE.BufferGeometry, mat: THREE.Material) => {
+    const s = new THREE.Mesh(geo, mat)
+    s.castShadow = s.receiveShadow = true
+    return s
+  }
+
+  // Nose taper: narrower and lower towards the front, then rounding off into a blunt tip
+  const noseScale = (u: number): [number, number] => {
+    const k = 1 - Math.cos((u * Math.PI) / 2)
+    let w = 1 - 0.45 * Math.pow(u, 2.2)
+    let h = 1 - 0.62 * (0.45 * u + 0.55 * k)
+    if (u > 0.84) {
+      const d = Math.sqrt(Math.max(0, 1 - Math.pow((u - 0.84) / 0.16, 2)))
+      w *= 0.3 + 0.7 * d
+      h *= 0.55 + 0.45 * d
+    }
+    return [w, h]
+  }
+  const wheelGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.12, 18).rotateX(Math.PI / 2)
+  // One car with its front at x = 0, running back to x = -CAR
+  const car = (cab: boolean) => {
+    const v = new THREE.Group()
+    const front = cab ? -NOSE : 0
+    v.add(shell(loft(-CAR, front, 1, () => [1, 1]), cab ? cabBodyMat : coachMat))
+    v.add(shell(cap(-CAR, 1, 1, -1), endMat))
+    if (cab) {
+      v.add(shell(loft(-NOSE, 0, 64, noseScale), noseMat))
+      const [tw, th] = noseScale(1)
+      v.add(shell(cap(0, tw, th, 1), endMat))
+      // Fairing down towards the rails
+      const fair: [number, number][] = []
+      for (let i = 0; i <= 8; i++) fair.push([-NOSE + (NOSE - 0.15) * (i / 8), -1.5 * noseScale(i / 8)[0]])
+      for (let i = 8; i >= 0; i--) fair.push([-NOSE + (NOSE - 0.15) * (i / 8), 1.5 * noseScale(i / 8)[0]])
+      v.add(mesh(extrudeUp(polyShape(fair), 0.42), skirtMat, 0, BODY_Y - 0.42, 0))
+    } else {
+      v.add(shell(cap(0, 1, 1, 1), endMat))
+    }
+    // Underframe, skirts between the bogies, and the bogies
+    const b0 = front - 2.6
+    const b1 = -CAR + 2.6
+    v.add(block(b0 - b1 - 3.2, 0.42, 3.1, skirtMat, (b0 + b1) / 2, BODY_Y - 0.42, 0))
+    v.add(block(CAR + front - 1, 0.3, 2.4, under, (front - CAR) / 2, BODY_Y - 0.3, 0))
+    for (const bx of [b0, b1]) {
       v.add(block(2.8, 0.35, 2.3, under, bx, 0.9, 0))
       for (const ax of [-0.9, 0.9]) for (const wz of [-0.76, 0.76]) v.add(mesh(wheelGeo, under, bx + ax, RAIL_TOP + 0.42, wz))
     }
     return v
   }
   const train = new THREE.Group()
-  const consist = [{ len: 15, loco: true }, ...Array.from({ length: 4 }, () => ({ len: 13.5, loco: false }))]
-  let cursor = 0
-  for (const c of consist) {
-    const v = vehicle(c.len, c.loco)
-    v.position.x = cursor - c.len / 2
-    train.add(v)
-    cursor -= c.len + 0.8
+  const GAP = 0.35
+  for (let i = 0; i < 4; i++) {
+    const c = car(i === 0)
+    c.position.x = -i * (CAR + GAP)
+    train.add(c)
+    // Sealed gangway to the car behind
+    train.add(block(GAP + 0.3, 2.9, 2.5, bellows, -i * (CAR + GAP) - CAR - GAP / 2, BODY_Y + 0.1, 0))
   }
   const trainMerged = flatten(train)
   trainMerged.position.set(-200, 0, T1)
   root.add(trainMerged)
-  const STOP_X = 27 // front of the locomotive when stopped at the platform
+  const STOP_X = 27 // tip of the nose when stopped at the platform
 
   return {
     root,
@@ -498,8 +654,8 @@ function buildStation(m: Materials): StoryWorld {
       plate.color.copy(l.plate)
       lamp.emissiveIntensity = l.lamp
       glass.emissiveIntensity = l.lamp * 0.45
-      windows.emissiveIntensity = l.lamp * 0.55
-      headlight.emissiveIntensity = 0.6 + l.lamp
+      coachMat.emissiveIntensity = cabBodyMat.emissiveIntensity = l.lamp * 0.8
+      noseMat.emissiveIntensity = 0.6 + l.lamp
     },
     update: (progress) => {
       // The train eases in over stage 7 and stops with its nose at the far end of platform 1
@@ -508,7 +664,10 @@ function buildStation(m: Materials): StoryWorld {
       trainMerged.position.x = -130 + (STOP_X + 130) * eased
       trainMerged.visible = t > 0
     },
-    dispose,
+    dispose: () => {
+      dispose()
+      textures.forEach((t) => t.dispose())
+    },
   }
 }
 
