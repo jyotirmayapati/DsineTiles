@@ -3,8 +3,8 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { Materials } from './materials'
-import { MODELS } from './models'
-import type { ModelId } from './modelIds'
+import { VIEWER_MODELS } from './models'
+import type { ViewerModelId } from './modelIds'
 import type { Params } from './types'
 import { LookTransition } from './sceneTheme'
 import { useTheme } from '../../theme'
@@ -17,8 +17,8 @@ function disposeObject(obj: THREE.Object3D) {
   })
 }
 
-function defaultParams(id: ModelId): Params {
-  const def = MODELS[id]
+function defaultParams(id: ViewerModelId): Params {
+  const def = VIEWER_MODELS[id]
   const params: Params = {}
   def.options?.forEach((o) => (params[o.key] = o.default))
   def.toggles?.forEach((t) => (params[t.key] = t.default))
@@ -63,12 +63,20 @@ interface SceneContext {
   fit?: { target: THREE.Vector3; distance: number } | null
 }
 
-export default function ProductViewer({ productId }: { productId: ModelId }) {
-  const def = MODELS[productId]
+interface ViewerProps {
+  productId: ViewerModelId
+  // Starting configuration, over the model's defaults
+  initial?: Params
+  // Shorter canvas and tighter controls, for side panels
+  compact?: boolean
+}
+
+export default function ProductViewer({ productId, initial, compact = false }: ViewerProps) {
+  const def = VIEWER_MODELS[productId]
   const mountRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<SceneContext | null>(null)
 
-  const [params, setParams] = useState<Params>(() => defaultParams(productId))
+  const [params, setParams] = useState<Params>(() => ({ ...defaultParams(productId), ...initial }))
   const [autoRotate, setAutoRotate] = useState(true)
   const [mode, setMode] = useState<'model' | 'drawing'>('model')
   const { theme } = useTheme()
@@ -224,31 +232,34 @@ export default function ProductViewer({ productId }: { productId: ModelId }) {
 
   return (
     <div className="relative rounded-[4px] border border-formline overflow-hidden bg-slab">
-      {/* Current configuration readout, shared by both views */}
-      <div className="absolute top-4 left-4 z-10 pointer-events-none max-w-[60%]">
-        <p className="type-wide text-xl">{readout.title}</p>
-        {readout.subtitle && <p className="text-sm text-aggregate mt-0.5">{readout.subtitle}</p>}
+      {/* Current configuration readout and the 3D / drawing switch. Over the canvas normally;
+          in its own row when compact, so it never covers the model on a narrow panel. */}
+      <div className={compact ? 'flex items-start justify-between gap-3 px-4 pt-3' : 'contents'}>
+        <div className={compact ? 'min-w-0' : 'absolute top-4 left-4 z-10 pointer-events-none max-w-[60%]'}>
+          <p className={`type-wide ${compact ? 'text-base' : 'text-xl'}`}>{readout.title}</p>
+          {readout.subtitle && <p className="text-sm text-aggregate mt-0.5">{readout.subtitle}</p>}
+        </div>
+
+        {/* 3D model / drawing switch, for products with data-backed dimensions */}
+        {def.dims && (
+          <div className={`${compact ? 'shrink-0' : 'absolute top-4 right-4 z-10'} flex rounded-[3px] border border-formline bg-concrete p-0.5`} role="tablist" aria-label="View">
+            {(['model', 'drawing'] as const).map((m) => (
+              <button
+                key={m}
+                role="tab"
+                aria-selected={mode === m}
+                onClick={() => setMode(m)}
+                className={`px-3 py-1.5 rounded-[2px] text-sm transition-colors ${mode === m ? 'bg-graphite text-concrete' : 'text-aggregate hover:text-graphite'}`}
+              >
+                {m === 'model' ? '3D model' : 'Drawing'}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* 3D model / drawing switch, for products with data-backed dimensions */}
-      {def.dims && (
-        <div className="absolute top-4 right-4 z-10 flex rounded-[3px] border border-formline bg-concrete p-0.5" role="tablist" aria-label="View">
-          {(['model', 'drawing'] as const).map((m) => (
-            <button
-              key={m}
-              role="tab"
-              aria-selected={mode === m}
-              onClick={() => setMode(m)}
-              className={`px-3 py-1.5 rounded-[2px] text-sm transition-colors ${mode === m ? 'bg-graphite text-concrete' : 'text-aggregate hover:text-graphite'}`}
-            >
-              {m === 'model' ? '3D model' : 'Drawing'}
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* The 3D canvas stays mounted while the drawing shows, so switching back is instant */}
-      <div className={mode === 'model' ? 'relative h-105 sm:h-130' : 'hidden'}>
+      <div className={mode === 'model' ? `relative ${compact ? 'h-64 sm:h-72' : 'h-105 sm:h-130'}` : 'hidden'}>
         <div
           ref={mountRef}
           className="absolute inset-0 cursor-grab active:cursor-grabbing"
@@ -257,7 +268,7 @@ export default function ProductViewer({ productId }: { productId: ModelId }) {
       </div>
 
       {mode === 'drawing' && sceneRef.current && (
-        <div className="px-4 sm:px-8 pt-20 pb-6">
+        <div className={compact ? 'px-4 pt-4 pb-4' : 'px-4 sm:px-8 pt-20 pb-6'}>
           <DrawingSheet def={def} params={params} materials={sceneRef.current.materials} />
           <p className="mt-4 text-sm text-aggregate">
             Indicative drawing in first-angle projection, not for construction. Dimensions in mm; only standard product sizes are dimensioned.
@@ -266,7 +277,7 @@ export default function ProductViewer({ productId }: { productId: ModelId }) {
       )}
 
       {/* Controls */}
-      <div className="p-5 sm:p-6 border-t border-formline bg-concrete flex flex-wrap items-start gap-x-8 gap-y-5">
+      <div className={`border-t border-formline bg-concrete flex flex-wrap items-start ${compact ? 'p-4 gap-x-6 gap-y-4' : 'p-5 sm:p-6 gap-x-8 gap-y-5'}`}>
         {def.options?.map((option) => (
           <div key={option.key} role="group" aria-label={option.label}>
             <p className="text-sm text-aggregate mb-2">{option.label}</p>

@@ -35,6 +35,27 @@ export const MODEL_IDS = [
 
 export type ModelId = (typeof MODEL_IDS)[number]
 
+// Railway elements cast to order: viewable in 3D, but not catalogue products
+export const RAIL_MODEL_IDS = [
+  'rail-sleepers',
+  'rail-km-stone',
+  'rail-gradient-post',
+  'rail-fouling-mark',
+  'rail-coping',
+  'rail-shed-footing',
+  'rail-column',
+  'rail-wall-panel',
+  'rail-name-board',
+  'rail-fob',
+  'rail-staircase',
+  'rail-picket-fence',
+] as const
+
+export type RailModelId = (typeof RAIL_MODEL_IDS)[number]
+
+// Anything the 3D viewer can show
+export type ViewerModelId = ModelId | RailModelId
+
 export function hasModel3D(id: string): id is ModelId {
   return (MODEL_IDS as readonly string[]).includes(id)
 }
