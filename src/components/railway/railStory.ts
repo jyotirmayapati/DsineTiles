@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import type { Materials } from '../viewer3d/materials'
 import { MODELS } from '../viewer3d/models'
-import { block, circleHole, extrudeUp, extrudeZ, instances, mesh, polyShape, rectHole, rectShape } from '../viewer3d/helpers'
+import { block, circleHole, extrudeUp, extrudeZ, flightGeo, instances, mesh, painted, polyShape, rectHole, rectShape, textTexture } from '../viewer3d/helpers'
 import { clamp01, createParts, flatten, ownedMaterials, shade, type CameraKey, type StoryDef, type StoryLabel, type StoryWorld } from '../story/kit'
 
 // The railways page story: a station built from bare formation to an arriving train.
@@ -56,31 +56,6 @@ const LABELS: StoryLabel[] = [
   { stage: 6, pos: [-15, 1.3, -10.3], text: 'Bench', productId: 'furniture-and-decor' },
 ]
 
-// Painted text for boards and markers, drawn once to a canvas
-function textTexture(lines: { text: string; size: number }[], bg: string, fg: string, w = 512, h = 160) {
-  const canvas = document.createElement('canvas')
-  canvas.width = w
-  canvas.height = h
-  const ctx = canvas.getContext('2d')!
-  ctx.fillStyle = bg
-  ctx.fillRect(0, 0, w, h)
-  ctx.fillStyle = fg
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  const total = lines.reduce((a, l) => a + l.size * 1.15, 0)
-  let y = h / 2 - total / 2
-  for (const l of lines) {
-    ctx.font = `800 ${l.size}px Archivo, Arial, sans-serif`
-    y += (l.size * 1.15) / 2
-    ctx.fillText(l.text, w / 2, y)
-    y += (l.size * 1.15) / 2
-  }
-  const tex = new THREE.CanvasTexture(canvas)
-  tex.colorSpace = THREE.SRGBColorSpace
-  tex.anisotropy = 4
-  return tex
-}
-
 // Cut-away ground block with open channels: boxes fill every cell of a grid around the voids
 function groundBlock(voids: { x0: number; x1: number; z0: number; z1: number; depth: number }[], mat: THREE.Material) {
   const xs = new Set([-PLATE.x, PLATE.x])
@@ -100,16 +75,6 @@ function groundBlock(voids: { x0: number; x1: number; z0: number; z1: number; de
     }
   }
   return flatten(g)
-}
-
-// Precast stair flight descending toward +x from (0, rise) to (run, 0), extruded across `width`
-function flightGeo(risers: number, rise: number, run: number, width: number) {
-  const r = rise / risers
-  const g = run / risers
-  const pts: [number, number][] = [[0, rise]]
-  for (let i = 0; i < risers; i++) pts.push([(i + 1) * g, rise - i * r], [(i + 1) * g, rise - (i + 1) * r])
-  pts.push([0, rise - 0.28])
-  return extrudeZ(polyShape(pts), width)
 }
 
 // Simple figure: legs, torso, head. Muted clothing so people read as people without stealing the scene.
@@ -213,7 +178,7 @@ function buildStation(m: Materials): StoryWorld {
   kmShape.closePath()
   const km = new THREE.Group()
   km.add(mesh(extrudeZ(kmShape, 0.15), white))
-  const kmPlate = mesh(new THREE.PlaneGeometry(0.32, 0.25), kmFace, 0, 0.42, -0.076)
+  const kmPlate = painted(new THREE.PlaneGeometry(0.32, 0.25), kmFace, 0, 0.42, -0.076)
   kmPlate.rotation.y = Math.PI // faces the track (-z)
   km.add(kmPlate)
   km.position.set(-38, 0, 6.1)
@@ -222,7 +187,7 @@ function buildStation(m: Materials): StoryWorld {
   const grad = new THREE.Group()
   grad.add(block(0.12, 1.0, 0.12, white, 0, 0, 0))
   grad.add(block(0.62, 0.24, 0.06, white, 0, 0.82, 0))
-  const gradPlate = mesh(new THREE.PlaneGeometry(0.58, 0.2), gradFace, 0, 0.94, -0.031)
+  const gradPlate = painted(new THREE.PlaneGeometry(0.58, 0.2), gradFace, 0, 0.94, -0.031)
   gradPlate.rotation.y = Math.PI
   grad.add(gradPlate)
   grad.position.set(-34, 0, 6.1)
@@ -232,7 +197,7 @@ function buildStation(m: Materials): StoryWorld {
   bandCtx.fillStyle = '#1d1f21'
   for (let i = 0; i < 4; i += 2) bandCtx.fillRect(0, i * 16, 64, 16)
   bandTex.needsUpdate = true
-  const fouling = mesh(new THREE.BoxGeometry(0.16, 0.42, 0.16).translate(0, 0.21, 0), own(new THREE.MeshStandardMaterial({ map: bandTex, roughness: 0.8 })), 42, 0, DRAIN_Z)
+  const fouling = painted(new THREE.BoxGeometry(0.16, 0.42, 0.16).translate(0, 0.21, 0), own(new THREE.MeshStandardMaterial({ map: bandTex, roughness: 0.8 })), 42, 0, DRAIN_Z)
   add(fouling, 1, 0.48, [0, 1.5, 0])
 
   // ---------- Stage 2: platforms ----------
@@ -332,7 +297,7 @@ function buildStation(m: Materials): StoryWorld {
     const g = new THREE.Group()
     for (const s of [-1, 1]) g.add(block(0.18, postH, 0.18, concrete, s * (w / 2 - 0.25), 0, 0))
     g.add(block(w, hgt, 0.12, yellow, 0, postH - hgt, 0))
-    const face = mesh(new THREE.PlaneGeometry(w - 0.06, hgt - 0.06), boardMat, 0, postH - hgt / 2, facing * 0.061)
+    const face = painted(new THREE.PlaneGeometry(w - 0.06, hgt - 0.06), boardMat, 0, postH - hgt / 2, facing * 0.061)
     if (facing < 0) face.rotation.y = Math.PI
     g.add(face)
     g.position.set(x, PLAT_TOP, z)
@@ -343,7 +308,7 @@ function buildStation(m: Materials): StoryWorld {
   // Big name board over the entrance, facing the approach road
   const facade = new THREE.Group()
   facade.add(block(8, 1.0, 0.14, yellow, 0, 0, 0))
-  const facadeFace = mesh(new THREE.PlaneGeometry(7.94, 0.94), boardMat, 0, 0.5, -0.071)
+  const facadeFace = painted(new THREE.PlaneGeometry(7.94, 0.94), boardMat, 0, 0.5, -0.071)
   facadeFace.rotation.y = Math.PI
   facade.add(facadeFace)
   facade.position.set(0, PLAT_TOP + SB.h + 0.2, SB.zb - 0.1)
@@ -585,11 +550,7 @@ function buildStation(m: Materials): StoryWorld {
   const under = tmat({ color: '#2e2f33', roughness: 0.7, metalness: 0.4 })
   const skirtMat = tmat({ color: SKIRT, roughness: 0.6 })
   const bellows = tmat({ color: '#25272b', roughness: 0.9, metalness: 0 })
-  const shell = (geo: THREE.BufferGeometry, mat: THREE.Material) => {
-    const s = new THREE.Mesh(geo, mat)
-    s.castShadow = s.receiveShadow = true
-    return s
-  }
+  const shell = (geo: THREE.BufferGeometry, mat: THREE.Material) => painted(geo, mat)
 
   // Nose taper: narrower and lower towards the front, then rounding off into a blunt tip
   const noseScale = (u: number): [number, number] => {

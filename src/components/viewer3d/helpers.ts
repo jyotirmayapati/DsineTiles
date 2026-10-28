@@ -186,3 +186,46 @@ export function group(...children: THREE.Object3D[]) {
   children.forEach((c) => g.add(c))
   return g
 }
+
+// Mesh that keeps its geometry's own UVs, for painted faces (mesh() swaps in world-projected UVs)
+export function painted(geo: THREE.BufferGeometry, mat: THREE.Material, x = 0, y = 0, z = 0) {
+  const m = new THREE.Mesh(geo, mat)
+  m.position.set(x, y, z)
+  m.castShadow = m.receiveShadow = true
+  return m
+}
+
+// Painted text for boards and markers, drawn once to a canvas
+export function textTexture(lines: { text: string; size: number }[], bg: string, fg: string, w = 512, h = 160) {
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const ctx = canvas.getContext('2d')!
+  ctx.fillStyle = bg
+  ctx.fillRect(0, 0, w, h)
+  ctx.fillStyle = fg
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  const total = lines.reduce((a, l) => a + l.size * 1.15, 0)
+  let y = h / 2 - total / 2
+  for (const l of lines) {
+    ctx.font = `800 ${l.size}px Archivo, Arial, sans-serif`
+    y += (l.size * 1.15) / 2
+    ctx.fillText(l.text, w / 2, y)
+    y += (l.size * 1.15) / 2
+  }
+  const tex = new THREE.CanvasTexture(canvas)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.anisotropy = 4
+  return tex
+}
+
+// Precast stair flight descending toward +x from (0, rise) to (run, 0), extruded across `width`
+export function flightGeo(risers: number, rise: number, run: number, width: number) {
+  const r = rise / risers
+  const g = run / risers
+  const pts: [number, number][] = [[0, rise]]
+  for (let i = 0; i < risers; i++) pts.push([(i + 1) * g, rise - i * r], [(i + 1) * g, rise - (i + 1) * r])
+  pts.push([0, rise - 0.28])
+  return extrudeZ(polyShape(pts), width)
+}

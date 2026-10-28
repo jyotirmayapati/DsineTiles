@@ -71,6 +71,18 @@ export default function ScrollStory({ id, stages, Scene, intro, idlePart, introP
     window.scrollTo({ top, behavior: 'smooth' })
   }
 
+  // Other parts of the page can jump back to a stage: dispatch 'story:goto' with { id, stage }
+  useEffect(() => {
+    const onGoto = (e: Event) => {
+      const { id: target, stage } = (e as CustomEvent<{ id: string; stage: number }>).detail
+      if (target === id) goTo(stage)
+    }
+    window.addEventListener('story:goto', onGoto)
+    return () => window.removeEventListener('story:goto', onGoto)
+    // goTo only reads refs and props that are fixed for the page
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
+
   const current = stages[Math.max(active, 0)]
 
   return (

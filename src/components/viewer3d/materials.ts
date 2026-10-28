@@ -91,8 +91,17 @@ export class Materials {
     )
   }
 
+  // Painted canvas texture (lettering, warning bands), cached by key; its texture is freed with it
+  painted(key: string, makeTexture: () => THREE.Texture, roughness = 0.75) {
+    return this.get(`painted:${key}`, () => new THREE.MeshStandardMaterial({ map: makeTexture(), roughness }))
+  }
+
   dispose() {
-    this.cache.forEach((mat) => mat.dispose())
+    this.cache.forEach((mat) => {
+      const map = (mat as THREE.MeshStandardMaterial).map
+      if (map && map !== this.texture) map.dispose()
+      mat.dispose()
+    })
     this.cache.clear()
     this.texture.dispose()
   }
