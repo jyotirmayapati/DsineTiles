@@ -3,5 +3,5 @@ export interface Stage {
   title: string
   body: string
   part: string
-  links?: { label: string; productId: string }[]
+  links?: { label: string; productId: string; pick?: string }[] // pick: element to open in place, where the page supports it
 }

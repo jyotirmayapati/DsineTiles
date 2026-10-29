@@ -7,9 +7,9 @@ export const RAIL_STAGES: Stage[] = [
     body: 'Before any rail goes down, the water is handled. A box culvert carries the stream under the line, a U drain runs between the tracks, and a cable trench is laid for signalling.',
     part: 'Culvert, drains and cable trench',
     links: [
-      { label: 'Box culverts', productId: 'box-culverts' },
-      { label: 'U drains', productId: 'u-drains' },
-      { label: 'Cable trench', productId: 'cable-trays' },
+      { label: 'Box culverts', productId: 'box-culverts', pick: 'box-culvert' },
+      { label: 'U drains', productId: 'u-drains', pick: 'u-drain' },
+      { label: 'Cable trench', productId: 'cable-trays', pick: 'cable-trench' },
     ],
   },
   {
@@ -22,24 +22,24 @@ export const RAIL_STAGES: Stage[] = [
     body: 'Precast walls face the track and hold the platform fill. Coping with a yellow edge band caps them, tactile chequered tiles warn of the edge, and pavers finish the surface.',
     part: 'Platform walls, coping and paving',
     links: [
-      { label: 'Platform walls', productId: 'retaining-walls' },
-      { label: 'Chequered tiles', productId: 'chequered-tiles' },
-      { label: 'Pavers', productId: 'pavers' },
+      { label: 'Platform walls', productId: 'retaining-walls', pick: 'platform-wall' },
+      { label: 'Chequered tiles', productId: 'chequered-tiles', pick: 'tactile-tiles' },
+      { label: 'Pavers', productId: 'pavers', pick: 'pavers' },
     ],
   },
   {
     title: 'Raise the sheds',
     body: 'Footings sit on the platform, precast columns go up, and cantilever beams carry the roof over waiting passengers.',
     part: 'Footings, columns and beams',
-    links: [{ label: 'Precast beams', productId: 'precast-beams' }],
+    links: [{ label: 'Precast beams', productId: 'precast-beams', pick: 'cantilever-beam' }],
   },
   {
     title: 'Build the station',
     body: 'Columns, beams and hollow-core roof slabs frame the station building, wall panels close it in, and the name boards go up.',
     part: 'Station building and name boards',
     links: [
-      { label: 'Hollow-core slabs', productId: 'precast-slabs' },
-      { label: 'Precast beams', productId: 'precast-beams' },
+      { label: 'Hollow-core slabs', productId: 'precast-slabs', pick: 'hollow-core' },
+      { label: 'Precast beams', productId: 'precast-beams', pick: 'cantilever-beam' },
     ],
   },
   {
@@ -47,8 +47,8 @@ export const RAIL_STAGES: Stage[] = [
     body: 'Piers rise on both platforms, precast girders span the tracks and hollow-core slabs form the deck. Precast stair flights bring passengers down to each platform.',
     part: 'Foot over bridge and staircases',
     links: [
-      { label: 'Girders', productId: 'precast-beams' },
-      { label: 'Deck slabs', productId: 'precast-slabs' },
+      { label: 'Girders', productId: 'precast-beams', pick: 'girders' },
+      { label: 'Deck slabs', productId: 'precast-slabs', pick: 'hollow-core' },
     ],
   },
   {
@@ -56,9 +56,9 @@ export const RAIL_STAGES: Stage[] = [
     body: 'A precast picket fence marks the boundary, benches and lamps go in, and the first passengers walk onto the platforms.',
     part: 'Boundary, furniture and lighting',
     links: [
-      { label: 'Fencing', productId: 'walls-and-fencing' },
-      { label: 'Benches', productId: 'furniture-and-decor' },
-      { label: 'Lamp posts', productId: 'light-poles' },
+      { label: 'Fencing', productId: 'walls-and-fencing', pick: 'picket-fence' },
+      { label: 'Benches', productId: 'furniture-and-decor', pick: 'bench' },
+      { label: 'Lamp posts', productId: 'light-poles', pick: 'lamp-post' },
     ],
   },
   {
