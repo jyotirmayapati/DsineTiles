@@ -31,6 +31,7 @@ export interface StoryLabel {
   pos: [number, number, number]
   text: string
   productId?: string
+  pick?: string // element the label opens, on pages that handle picks
 }
 
 // What a story's build function returns
@@ -41,6 +42,8 @@ export interface StoryWorld {
   applyLook: (look: SceneLook) => void
   // Optional custom motion driven by progress (e.g. the arriving train)
   update?: (progress: number) => void
+  // Optional weather: rain 0…1 (eased by the scene), seconds since last frame, and the current look
+  weather?: (rain: number, dt: number, look: SceneLook) => void
   // Frees materials the world created itself (geometries are freed by the renderer)
   dispose: () => void
 }
@@ -56,6 +59,13 @@ export interface StoryDef {
 export const smooth = (t: number) => t * t * (3 - 2 * t)
 export const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
 export const clamp01 = (t: number) => Math.min(Math.max(t, 0), 1)
+
+// Objects tagged with userData.pick can be hovered and clicked in the scene; pickLabel names them
+export function tagPick<T extends THREE.Object3D>(obj: T, id: string, label: string) {
+  obj.userData.pick = id
+  obj.userData.pickLabel = label
+  return obj
+}
 
 // Collects parts as they are added to the root
 export function createParts(root: THREE.Group) {
@@ -87,7 +97,10 @@ export function createParts(root: THREE.Group) {
     const lift = new THREE.Vector3(...offset)
     const hidden = new THREE.Matrix4().makeScale(0, 0, 0)
     const m = new THREE.Matrix4()
-    inst.frustumCulled = false // hidden instances would otherwise shrink its bounds
+    // Bounds from the landed layout: hidden instances would otherwise shrink them (and break picking)
+    inst.computeBoundingSphere()
+    inst.computeBoundingBox()
+    inst.frustumCulled = false
     const first = Math.min(...starts)
     const done = Math.max(...starts) + duration
     let state = '' // 'before' or 'after' once settled there, so idle frames skip the work

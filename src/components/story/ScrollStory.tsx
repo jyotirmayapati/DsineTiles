@@ -19,16 +19,21 @@ interface ScrollStoryProps {
   // Progress the scene plays to on its own after load, before any scrolling
   introProgress?: number
   introMs?: number
+  // Open a tagged element in place (scene clicks, labels and stage links) instead of its product page
+  onPick?: (id: string) => void
+  // Show the monsoon toggle; the story's world draws the rain and water
+  weather?: { label: string; caption: string }
 }
 
 // Sticky 3D stage beside scrolling copy: each stage of copy assembles its part of the model
-export default function ScrollStory({ id, stages, Scene, intro, idlePart, introProgress = 0, introMs = 1600 }: ScrollStoryProps) {
+export default function ScrollStory({ id, stages, Scene, intro, idlePart, introProgress = 0, introMs = 1600, onPick, weather }: ScrollStoryProps) {
   const navigate = useNavigate()
   const { theme } = useTheme()
   const stepsRef = useRef<HTMLDivElement>(null)
   // Continuous progress 0…stages.length, read by the 3D scene every frame
   const progressRef = useRef(0)
   const [active, setActive] = useState(-1)
+  const [rain, setRain] = useState(false)
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -93,8 +98,23 @@ export default function ScrollStory({ id, stages, Scene, intro, idlePart, introP
         <div className="absolute inset-x-0 top-0 h-[calc(52svh+4rem)] pt-16 bg-concrete pointer-events-auto lg:bg-transparent lg:pt-0 lg:h-auto lg:bottom-0 lg:left-[34%]">
           <div className="relative h-full">
             <Suspense fallback={null}>
-              <Scene progressRef={progressRef} theme={theme} onSelect={(pid) => navigate(`/products/${pid}`)} />
+              <Scene progressRef={progressRef} theme={theme} onSelect={(pid) => navigate(`/products/${pid}`)} onPick={onPick} rain={rain} />
             </Suspense>
+            {weather && (
+              <button
+                onClick={() => setRain((r) => !r)}
+                aria-pressed={rain}
+                className={`absolute top-3 right-3 lg:top-20 lg:right-6 z-10 inline-flex items-center gap-2 h-10 px-3.5 rounded-[3px] border text-sm font-semibold backdrop-blur-sm transition-colors ${
+                  rain ? 'bg-marking text-marking-ink border-marking' : 'bg-concrete/85 border-formline hover:border-graphite'
+                }`}
+              >
+                <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M7 15a4.5 4.5 0 1 1 1.2-8.85A6 6 0 0 1 19.5 9 3.5 3.5 0 0 1 18 15.7" />
+                  <path d="M8 18l-1 2.5M12 18l-1 2.5M16 18l-1 2.5" />
+                </svg>
+                {weather.label}
+              </button>
+            )}
             {/* Mobile: soft lower edge where the copy slides under the model */}
             <div className="lg:hidden absolute inset-x-0 bottom-0 h-16 bg-linear-to-b from-transparent to-concrete pointer-events-none" />
           </div>
@@ -124,7 +144,7 @@ export default function ScrollStory({ id, stages, Scene, intro, idlePart, introP
 
         <p className="hidden lg:block absolute left-[calc(34%+2rem)] bottom-6 text-sm text-aggregate" aria-live="polite">
           <span className="block type-wide text-base text-graphite">{active >= 0 ? current.part : idlePart}</span>
-          Schematic model, not to scale
+          {rain && weather ? weather.caption : 'Schematic model, not to scale'}
         </p>
       </div>
 
@@ -152,7 +172,7 @@ export default function ScrollStory({ id, stages, Scene, intro, idlePart, introP
                       {s.links.map((l) => (
                         <button
                           key={l.productId}
-                          onClick={() => navigate(`/products/${l.productId}`)}
+                          onClick={() => (onPick && l.pick ? onPick(l.pick) : navigate(`/products/${l.productId}`))}
                           className="font-semibold underline decoration-marking decoration-2 underline-offset-4 hover:decoration-graphite"
                         >
                           {l.label}

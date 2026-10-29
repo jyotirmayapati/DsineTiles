@@ -1,8 +1,9 @@
 import * as THREE from 'three'
 import type { Materials } from '../viewer3d/materials'
 import { MODELS } from '../viewer3d/models'
+import { RAIL_RANGE } from './range'
 import { block, circleHole, extrudeUp, extrudeZ, flightGeo, instances, mesh, painted, polyShape, rectHole, rectShape, textTexture } from '../viewer3d/helpers'
-import { clamp01, createParts, flatten, ownedMaterials, shade, type CameraKey, type StoryDef, type StoryLabel, type StoryWorld } from '../story/kit'
+import { clamp01, createParts, flatten, ownedMaterials, shade, tagPick, type CameraKey, type StoryDef, type StoryLabel, type StoryWorld } from '../story/kit'
 
 // The railways page story: a station built from bare formation to an arriving train.
 // x runs along the track, z across it, y up. Ground top is y = 0; the model is a cut-away block.
@@ -20,6 +21,10 @@ const CULVERT_X = 36
 const DRAIN_Z = (T1 + T2) / 2
 const TRENCH_Z = 12.3
 
+// Element names, for the hover label when an element is picked in the scene
+const NAMES: Record<string, string> = Object.fromEntries(RAIL_RANGE.flatMap((g) => g.items).map((i) => [i.id, i.name]))
+const tag = <T extends THREE.Object3D>(obj: T, id: string) => tagPick(obj, id, NAMES[id])
+
 const KEYS: CameraKey[] = [
   { target: [6, -0.6, 2], az: 28, el: 30, dist: 122 },
   { target: [-18, 0.4, 1], az: 62, el: 20, dist: 30 },
@@ -32,28 +37,28 @@ const KEYS: CameraKey[] = [
 ]
 
 const LABELS: StoryLabel[] = [
-  { stage: 0, pos: [CULVERT_X, 0.05, 17], text: 'Box culvert', productId: 'box-culverts' },
-  { stage: 0, pos: [-6, 0.05, DRAIN_Z], text: 'U drain between tracks', productId: 'u-drains' },
-  { stage: 0, pos: [-12, 0.05, TRENCH_Z], text: 'Cable trench', productId: 'cable-trays' },
-  { stage: 1, pos: [-22, 0.5, T1], text: 'PSC sleepers' },
-  { stage: 1, pos: [-38, 0.65, 6.1], text: 'Km stone' },
-  { stage: 1, pos: [-34, 1.05, 6.1], text: 'Gradient post' },
-  { stage: 1, pos: [42, 0.35, DRAIN_Z], text: 'Fouling mark' },
-  { stage: 2, pos: [-12, 0.4, P1.face], text: 'Platform wall', productId: 'retaining-walls' },
-  { stage: 2, pos: [-4, 0.86, P1.face - 0.1], text: 'Coping' },
-  { stage: 2, pos: [4, 0.84, P1.face - 0.8], text: 'Tactile tiles', productId: 'chequered-tiles' },
-  { stage: 2, pos: [-2, 0.84, -9], text: 'Pavers', productId: 'pavers' },
-  { stage: 3, pos: [-12, 1.1, -7.4], text: 'Shed footing' },
-  { stage: 3, pos: [-18, 3, -7.4], text: 'Precast column' },
-  { stage: 3, pos: [-6, 5.4, -4.6], text: 'Cantilever beam', productId: 'precast-beams' },
-  { stage: 4, pos: [0, 5.6, -15], text: 'Hollow-core roof', productId: 'precast-slabs' },
-  { stage: 4, pos: [-9, 2.4, -18.5], text: 'Wall panels' },
-  { stage: 4, pos: [2.5, 6.0, -18.6], text: 'Station name board' },
-  { stage: 5, pos: [21, 8.2, 1], text: 'Foot over bridge' },
-  { stage: 5, pos: [21, 7.4, 4], text: 'Precast girders', productId: 'precast-beams' },
-  { stage: 5, pos: [15, 2.6, -8.4], text: 'Precast staircase' },
-  { stage: 6, pos: [-10, 1.3, -21.4], text: 'Picket fence', productId: 'walls-and-fencing' },
-  { stage: 6, pos: [-15, 1.3, -10.3], text: 'Bench', productId: 'furniture-and-decor' },
+  { stage: 0, pos: [CULVERT_X, 0.05, 17], text: 'Box culvert', productId: 'box-culverts', pick: 'box-culvert' },
+  { stage: 0, pos: [-6, 0.05, DRAIN_Z], text: 'U drain between tracks', productId: 'u-drains', pick: 'u-drain' },
+  { stage: 0, pos: [-12, 0.05, TRENCH_Z], text: 'Cable trench', productId: 'cable-trays', pick: 'cable-trench' },
+  { stage: 1, pos: [-22, 0.5, T1], text: 'PSC sleepers', pick: 'sleepers' },
+  { stage: 1, pos: [-38, 0.65, 6.1], text: 'Km stone', pick: 'km-stone' },
+  { stage: 1, pos: [-34, 1.05, 6.1], text: 'Gradient post', pick: 'gradient-post' },
+  { stage: 1, pos: [42, 0.35, DRAIN_Z], text: 'Fouling mark', pick: 'fouling-mark' },
+  { stage: 2, pos: [-12, 0.4, P1.face], text: 'Platform wall', productId: 'retaining-walls', pick: 'platform-wall' },
+  { stage: 2, pos: [-4, 0.86, P1.face - 0.1], text: 'Coping', pick: 'coping' },
+  { stage: 2, pos: [4, 0.84, P1.face - 0.8], text: 'Tactile tiles', productId: 'chequered-tiles', pick: 'tactile-tiles' },
+  { stage: 2, pos: [-2, 0.84, -9], text: 'Pavers', productId: 'pavers', pick: 'pavers' },
+  { stage: 3, pos: [-12, 1.1, -7.4], text: 'Shed footing', pick: 'shed-footing' },
+  { stage: 3, pos: [-18, 3, -7.4], text: 'Precast column', pick: 'column' },
+  { stage: 3, pos: [-6, 5.4, -4.6], text: 'Cantilever beam', productId: 'precast-beams', pick: 'cantilever-beam' },
+  { stage: 4, pos: [0, 5.6, -15], text: 'Hollow-core roof', productId: 'precast-slabs', pick: 'hollow-core' },
+  { stage: 4, pos: [-9, 2.4, -18.5], text: 'Wall panels', pick: 'wall-panels' },
+  { stage: 4, pos: [2.5, 6.0, -18.6], text: 'Station name board', pick: 'name-board' },
+  { stage: 5, pos: [21, 8.2, 1], text: 'Foot over bridge', pick: 'fob' },
+  { stage: 5, pos: [21, 7.4, 4], text: 'Precast girders', productId: 'precast-beams', pick: 'girders' },
+  { stage: 5, pos: [15, 2.6, -8.4], text: 'Precast staircase', pick: 'staircase' },
+  { stage: 6, pos: [-10, 1.3, -21.4], text: 'Picket fence', productId: 'walls-and-fencing', pick: 'picket-fence' },
+  { stage: 6, pos: [-15, 1.3, -10.3], text: 'Bench', productId: 'furniture-and-decor', pick: 'bench' },
 ]
 
 // Cut-away ground block with open channels: boxes fill every cell of a grid around the voids
@@ -115,7 +120,7 @@ function buildStation(m: Materials): StoryWorld {
     }
     const run = flatten(grp)
     run.position.set(CULVERT_X, -culvertW, 0)
-    add(run, 0, 0.05 + g * 0.03, [0, 6, 0])
+    add(tag(run, 'box-culvert'), 0, 0.05 + g * 0.03, [0, 6, 0])
   }
   const drainUnits: number[] = []
   for (let x = -38.975; x < 40; x += 2.05) if (Math.abs(x - CULVERT_X) > culvertW / 2 + 1.05) drainUnits.push(x)
@@ -129,7 +134,7 @@ function buildStation(m: Materials): StoryWorld {
     }
     const run = flatten(grp)
     run.position.set(0, -0.735, DRAIN_Z)
-    add(run, 0, 0.2 + (k / drainUnits.length) * 0.25, [0, 4, 0])
+    add(tag(run, 'u-drain'), 0, 0.2 + (k / drainUnits.length) * 0.25, [0, 4, 0])
   }
   for (let k = 0; k < 10; k++) {
     const grp = new THREE.Group()
@@ -141,7 +146,7 @@ function buildStation(m: Materials): StoryWorld {
     }
     const run = flatten(grp)
     run.position.set(0, -0.425, TRENCH_Z)
-    add(run, 0, 0.3 + k * 0.015, [0, 3, 0])
+    add(tag(run, 'cable-trench'), 0, 0.3 + k * 0.015, [0, 3, 0])
   }
 
   // ---------- Stage 1: track ----------
@@ -157,7 +162,7 @@ function buildStation(m: Materials): StoryWorld {
   for (const z of [T1, T2]) {
     const run = shade(instances(sleeperGeo, concrete, sleeperX.map((x) => ({ x, y: 0.3, z: 0 }))), 400 + z, 0.9)
     run.position.z = z
-    addEach(run, 1, 0.1 + (z === T2 ? 0.04 : 0), 0.26, [0, 3, 0], 0.06)
+    addEach(tag(run, 'sleepers'), 1, 0.1 + (z === T2 ? 0.04 : 0), 0.26, [0, 3, 0], 0.06)
   }
   const railGeo = new THREE.BoxGeometry(PLATE.x * 2 / 3, 0.16, 0.07).translate(0, 0.08, 0)
   for (const z of [T1, T2]) {
@@ -182,7 +187,7 @@ function buildStation(m: Materials): StoryWorld {
   kmPlate.rotation.y = Math.PI // faces the track (-z)
   km.add(kmPlate)
   km.position.set(-38, 0, 6.1)
-  add(km, 1, 0.45, [0, 1.5, 0])
+  add(tag(km, 'km-stone'), 1, 0.45, [0, 1.5, 0])
   const gradFace = own(new THREE.MeshStandardMaterial({ map: textTexture([{ text: '1 IN 200', size: 64 }], '#eceae4', '#1d1f21', 320, 120), roughness: 0.8 }))
   const grad = new THREE.Group()
   grad.add(block(0.12, 1.0, 0.12, white, 0, 0, 0))
@@ -191,14 +196,14 @@ function buildStation(m: Materials): StoryWorld {
   gradPlate.rotation.y = Math.PI
   grad.add(gradPlate)
   grad.position.set(-34, 0, 6.1)
-  add(grad, 1, 0.47, [0, 1.5, 0])
+  add(tag(grad, 'gradient-post'), 1, 0.47, [0, 1.5, 0])
   const bandTex = textTexture([], '#eceae4', '#1d1f21', 64, 64)
   const bandCtx = (bandTex.image as HTMLCanvasElement).getContext('2d')!
   bandCtx.fillStyle = '#1d1f21'
   for (let i = 0; i < 4; i += 2) bandCtx.fillRect(0, i * 16, 64, 16)
   bandTex.needsUpdate = true
   const fouling = painted(new THREE.BoxGeometry(0.16, 0.42, 0.16).translate(0, 0.21, 0), own(new THREE.MeshStandardMaterial({ map: bandTex, roughness: 0.8 })), 42, 0, DRAIN_Z)
-  add(fouling, 1, 0.48, [0, 1.5, 0])
+  add(tag(fouling, 'fouling-mark'), 1, 0.48, [0, 1.5, 0])
 
   // ---------- Stage 2: platforms ----------
   // Precast cantilever wall: stem on the track face, heel under the fill. Profile u (into the platform) × y
@@ -208,19 +213,21 @@ function buildStation(m: Materials): StoryWorld {
   const paverGeo = new THREE.BoxGeometry(0.4, 0.06, 0.2).translate(0, 0.03, 0)
   const yellow = own(new THREE.MeshStandardMaterial({ color: '#e3b42a', roughness: 0.6 }))
   const fill = m.concrete('#a29d95')
+  const tactileMat = m.concrete('#b8b3aa')
+  const paverMat = m.concrete('#aaa59d')
   for (const [P, dir, seed] of [[P1, -1, 1], [P2, 1, 2]] as const) {
     const ry = dir < 0 ? Math.PI / 2 : -Math.PI / 2 // profile u axis points into the platform
     const at = (u: number) => P.face + dir * u
     // Platform 2 follows just behind platform 1. Walls, coping, tactile tiles and pavers are laid one at a time along the platform.
     const delay = seed === 2 ? 0.04 : 0
-    addEach(shade(instances(wallGeo, concrete, Array.from({ length: 25 }, (_, k) => ({ x: -28.8 + k * 2.4, y: 0, z: 0, ry }))), 50 + seed, 0.9).translateZ(P.face), 2, delay, 0.2, [0, 3, 0], 0.07)
+    addEach(tag(shade(instances(wallGeo, concrete, Array.from({ length: 25 }, (_, k) => ({ x: -28.8 + k * 2.4, y: 0, z: 0, ry }))), 50 + seed, 0.9).translateZ(P.face), 'platform-wall'), 2, delay, 0.2, [0, 3, 0], 0.07)
     const depth = Math.abs(P.back - P.face) - 0.15
     add(block(PLAT_X * 2, 0.76, depth, fill, 0, 0, at(0.15 + depth / 2)), 2, 0.24 + delay, [0, -0.8, 0])
-    addEach(shade(instances(copingGeo, concrete, Array.from({ length: 100 }, (_, k) => ({ x: -29.7 + k * 0.6, y: 0, z: 0, ry }))), 60 + seed, 0.9).translateZ(P.face), 2, 0.24 + delay, 0.14, [0, 2, 0], 0.06)
-    add(block(PLAT_X * 2, 0.004, 0.25, yellow, 0, 0.84, at(0.125)), 2, 0.42 + delay, [0, 1, 0])
+    addEach(tag(shade(instances(copingGeo, concrete, Array.from({ length: 100 }, (_, k) => ({ x: -29.7 + k * 0.6, y: 0, z: 0, ry }))), 60 + seed, 0.9).translateZ(P.face), 'coping'), 2, 0.24 + delay, 0.14, [0, 2, 0], 0.06)
+    add(tag(block(PLAT_X * 2, 0.004, 0.25, yellow, 0, 0.84, at(0.125)), 'coping'), 2, 0.42 + delay, [0, 1, 0])
     const tiles: { x: number; y: number; z: number }[] = []
     for (let r = 0; r < 2; r++) for (let c = 0; c < 200; c++) tiles.push({ x: -29.85 + c * 0.3, y: 0.76, z: at(0.65 + r * 0.3) })
-    addEach(shade(instances(tactileGeo, m.concrete('#b8b3aa'), tiles), 0, 0, (i) => ((Math.floor(i / 200) + i) % 2 ? 0.84 : 1)), 2, 0.34 + delay, 0.16, [0, 1.5, 0], 0.05)
+    addEach(tag(shade(instances(tactileGeo, tactileMat, tiles), 0, 0, (i) => ((Math.floor(i / 200) + i) % 2 ? 0.84 : 1)), 'tactile-tiles'), 2, 0.34 + delay, 0.16, [0, 1.5, 0], 0.05)
     const rows = Math.floor((depth - 0.95) / 0.2)
     for (let chunk = 0; chunk < 4; chunk++) {
       const items: { x: number; y: number; z: number }[] = []
@@ -231,7 +238,7 @@ function buildStation(m: Materials): StoryWorld {
           items.push({ x, y: 0.76, z: at(1.2 + r * 0.2) })
         }
       }
-      addEach(shade(instances(paverGeo, m.concrete('#aaa59d'), items), 70 + chunk + seed * 10, 0.86), 2, 0.4 + chunk * 0.02 + delay, 0.12, [0, 1.5, 0], 0.05)
+      addEach(tag(shade(instances(paverGeo, paverMat, items), 70 + chunk + seed * 10, 0.86), 'pavers'), 2, 0.4 + chunk * 0.02 + delay, 0.12, [0, 1.5, 0], 0.05)
     }
   }
 
@@ -240,10 +247,10 @@ function buildStation(m: Materials): StoryWorld {
   const metal = own(new THREE.MeshStandardMaterial({ color: '#676c72', roughness: 0.45, metalness: 0.5 }))
   for (const [zc, seed] of [[-7.4, 0], [8.43, 1]] as const) {
     const d = seed * 0.05
-    shedX.forEach((x, i) => add(block(0.9, 0.3, 0.9, concrete, x, PLAT_TOP, zc, 0.01), 3, d + i * 0.02, [0, 4, 0]))
-    shedX.forEach((x, i) => add(block(0.3, 4.1, 0.3, concrete, x, PLAT_TOP + 0.3, zc, 0.005), 3, 0.12 + d + i * 0.02, [0, 8, 0]))
-    shedX.forEach((x, i) => add(block(0.3, 0.45, 6.4, concrete, x, 5.15, zc, 0.005), 3, 0.24 + d + i * 0.02, [0, 4, 0]))
-    add(block(31, 0.3, 0.3, concrete, -9, 5.3, zc, 0.005), 3, 0.3 + d, [0, 4, 0])
+    shedX.forEach((x, i) => add(tag(block(0.9, 0.3, 0.9, concrete, x, PLAT_TOP, zc, 0.01), 'shed-footing'), 3, d + i * 0.02, [0, 4, 0]))
+    shedX.forEach((x, i) => add(tag(block(0.3, 4.1, 0.3, concrete, x, PLAT_TOP + 0.3, zc, 0.005), 'column'), 3, 0.12 + d + i * 0.02, [0, 8, 0]))
+    shedX.forEach((x, i) => add(tag(block(0.3, 0.45, 6.4, concrete, x, 5.15, zc, 0.005), 'cantilever-beam'), 3, 0.24 + d + i * 0.02, [0, 4, 0]))
+    add(tag(block(31, 0.3, 0.3, concrete, -9, 5.3, zc, 0.005), 'cantilever-beam'), 3, 0.3 + d, [0, 4, 0])
     add(block(33, 0.06, 6.8, metal, -9, 5.6, zc), 3, 0.38 + d, [0, 3, 0])
     // Lamp strips under the roof: lit at night
     add(instances(new THREE.BoxGeometry(1.2, 0.03, 0.12).translate(0, 0.015, 0), lamp,
@@ -254,15 +261,15 @@ function buildStation(m: Materials): StoryWorld {
   const SB = { x0: -15, x1: 15, zf: -11.6, zb: -18.2, h: 4.5 }
   add(block(30.6, PLAT_TOP, 7.2, fill, 0, 0, (SB.zf + SB.zb) / 2), 4, 0, [0, -0.9, 0])
   const sbX = [-15, -9, -3, 3, 9, 15]
-  sbX.forEach((x, i) => [SB.zf, SB.zb].forEach((z) => add(block(0.35, SB.h, 0.35, concrete, x, PLAT_TOP, z, 0.005), 4, 0.04 + i * 0.015, [0, 7, 0])))
-  for (const z of [SB.zf, SB.zb]) for (let i = 0; i < 5; i++) add(block(5.65, 0.5, 0.3, concrete, -12 + i * 6, PLAT_TOP + SB.h - 0.5, z, 0.005), 4, 0.14 + i * 0.015, [0, 5, 0])
+  sbX.forEach((x, i) => [SB.zf, SB.zb].forEach((z) => add(tag(block(0.35, SB.h, 0.35, concrete, x, PLAT_TOP, z, 0.005), 'column'), 4, 0.04 + i * 0.015, [0, 7, 0])))
+  for (const z of [SB.zf, SB.zb]) for (let i = 0; i < 5; i++) add(tag(block(5.65, 0.5, 0.3, concrete, -12 + i * 6, PLAT_TOP + SB.h - 0.5, z, 0.005), 'cantilever-beam'), 4, 0.14 + i * 0.015, [0, 5, 0])
   const sbSlab = rectShape(1.2, 0.2, 0, 0.1)
   for (let k = 0; k < 5; k++) sbSlab.holes.push(circleHole(0.065, -0.47 + k * 0.235, 0.1))
   const sbSlabGeo = extrudeZ(sbSlab, Math.abs(SB.zb - SB.zf) + 0.2)
   for (let b = 0; b < 5; b++) {
     const bay = shade(instances(sbSlabGeo, concrete, Array.from({ length: 5 }, (_, k) => ({ x: -14.4 + b * 6 + k * 1.2, y: 0, z: 0 }))), 0, 0, (k) => (k % 2 ? 0.94 : 1))
     bay.position.set(0, PLAT_TOP + SB.h, (SB.zf + SB.zb) / 2)
-    add(bay, 4, 0.22 + b * 0.03, [0, 5, 0])
+    add(tag(bay, 'hollow-core'), 4, 0.22 + b * 0.03, [0, 5, 0])
   }
   const panelH = SB.h - 0.02
   const winPanel = (() => { const s = rectShape(5.98, panelH, 0, panelH / 2); s.holes.push(rectHole(2.4, 1.4, 0, panelH * 0.55)); return extrudeZ(s, 0.15, 0.005) })()
@@ -276,19 +283,19 @@ function buildStation(m: Materials): StoryWorld {
     const fill2 = new THREE.Mesh(door ? doorGeo : paneGeo, door ? m.dark : glass)
     fill2.position.y = door ? 1.35 : panelH * 0.55
     front.add(fill2)
-    add(front, 4, 0.32 + i * 0.03, [0, 0, 7])
+    add(tag(front, 'wall-panels'), 4, 0.32 + i * 0.03, [0, 0, 7])
     // Road side: the entrance faces the approach, as at most stations
     const back = mesh(door ? doorPanel : winPanel, concrete, x, PLAT_TOP, SB.zb - 0.25)
     const fill3 = new THREE.Mesh(door ? doorGeo : paneGeo, door ? m.dark : glass)
     fill3.position.y = door ? 1.35 : panelH * 0.55
     fill3.rotation.y = Math.PI
     back.add(fill3)
-    add(back, 4, 0.36 + i * 0.02, [0, 0, -7])
+    add(tag(back, 'wall-panels'), 4, 0.36 + i * 0.02, [0, 0, -7])
   }
   for (const side of [-1, 1]) {
     const p = mesh(extrudeZ(rectShape(6.95, panelH, 0, panelH / 2), 0.15, 0.005), concrete, side * (SB.x1 + 0.25), PLAT_TOP, (SB.zf + SB.zb) / 2)
     p.rotation.y = Math.PI / 2
-    add(p, 4, 0.38, [side * 7, 0, 0])
+    add(tag(p, 'wall-panels'), 4, 0.38, [side * 7, 0, 0])
   }
   // Station name boards: precast boards on precast posts, painted yellow with black lettering
   const boardTex = textTexture([{ text: 'BARIPADA', size: 108 }], '#f0c22e', '#1d1f21', 640, 180)
@@ -303,8 +310,8 @@ function buildStation(m: Materials): StoryWorld {
     g.position.set(x, PLAT_TOP, z)
     return g
   }
-  add(nameBoard(26, -4.9, 1), 4, 0.44, [0, 3, 0])
-  add(nameBoard(26, 7.0, -1), 4, 0.46, [0, 3, 0])
+  add(tag(nameBoard(26, -4.9, 1), 'name-board'), 4, 0.44, [0, 3, 0])
+  add(tag(nameBoard(26, 7.0, -1), 'name-board'), 4, 0.46, [0, 3, 0])
   // Big name board over the entrance, facing the approach road
   const facade = new THREE.Group()
   facade.add(block(8, 1.0, 0.14, yellow, 0, 0, 0))
@@ -312,19 +319,19 @@ function buildStation(m: Materials): StoryWorld {
   facadeFace.rotation.y = Math.PI
   facade.add(facadeFace)
   facade.position.set(0, PLAT_TOP + SB.h + 0.2, SB.zb - 0.1)
-  add(facade, 4, 0.48, [0, 3, 0])
+  add(tag(facade, 'name-board'), 4, 0.48, [0, 3, 0])
 
   // ---------- Stage 5: foot over bridge with precast stairs ----------
   const FOB = { x0: 19.5, x1: 22.5, z0: -7.4, z1: 9.4, soffit: 7.1, deck: 7.9 }
-  for (const z of [-7.0, 9.0]) for (const x of [19.8, 22.2]) add(block(0.5, FOB.soffit - PLAT_TOP, 0.5, concrete, x, PLAT_TOP, z, 0.006), 5, (z > 0 ? 0.05 : 0), [0, 9, 0])
+  for (const z of [-7.0, 9.0]) for (const x of [19.8, 22.2]) add(tag(block(0.5, FOB.soffit - PLAT_TOP, 0.5, concrete, x, PLAT_TOP, z, 0.006), 'fob'), 5, (z > 0 ? 0.05 : 0), [0, 9, 0])
   const girderGeo = extrudeZ(polyShape([[-0.2, 0], [0.2, 0], [0.2, 0.12], [0.075, 0.2], [0.075, 0.42], [0.2, 0.5], [0.2, 0.6], [-0.2, 0.6], [-0.2, 0.5], [-0.075, 0.42], [-0.075, 0.2], [-0.2, 0.12]]), FOB.z1 - FOB.z0, 0.004)
-  for (const x of [19.8, 22.2]) add(mesh(girderGeo, concrete, x, FOB.soffit, (FOB.z0 + FOB.z1) / 2), 5, 0.12, [0, 5, 0])
+  for (const x of [19.8, 22.2]) add(tag(mesh(girderGeo, concrete, x, FOB.soffit, (FOB.z0 + FOB.z1) / 2), 'girders'), 5, 0.12, [0, 5, 0])
   const deckSection = rectShape(1.2, 0.2, 0, 0.1)
   for (let k = 0; k < 5; k++) deckSection.holes.push(circleHole(0.065, -0.47 + k * 0.235, 0.1))
   const deckGeo = extrudeZ(deckSection, FOB.x1 - FOB.x0)
   deckGeo.rotateY(Math.PI / 2)
   const deckCount = Math.round((FOB.z1 - FOB.z0) / 1.2)
-  add(shade(instances(deckGeo, concrete, Array.from({ length: deckCount }, (_, k) => ({ x: (FOB.x0 + FOB.x1) / 2, y: FOB.soffit + 0.6, z: FOB.z0 + 0.6 + k * 1.2 }))), 0, 0, (k) => (k % 2 ? 0.94 : 1)), 5, 0.2, [0, 4, 0])
+  add(tag(shade(instances(deckGeo, concrete, Array.from({ length: deckCount }, (_, k) => ({ x: (FOB.x0 + FOB.x1) / 2, y: FOB.soffit + 0.6, z: FOB.z0 + 0.6 + k * 1.2 }))), 0, 0, (k) => (k % 2 ? 0.94 : 1)), 'fob'), 5, 0.2, [0, 4, 0])
   const parapets: { x: number; y: number; z: number; ry: number }[] = []
   for (const x of [FOB.x0 + 0.06, FOB.x1 - 0.06]) {
     for (let k = 0; k < 7; k++) {
@@ -333,7 +340,7 @@ function buildStation(m: Materials): StoryWorld {
       parapets.push({ x, y: FOB.deck, z: FOB.z0 + 1.2 + k * 2.4, ry: Math.PI / 2 })
     }
   }
-  add(shade(instances(new THREE.BoxGeometry(2.38, 1.1, 0.12).translate(0, 0.55, 0), concrete, parapets), 90, 0.9), 5, 0.28, [0, 3, 0])
+  add(tag(shade(instances(new THREE.BoxGeometry(2.38, 1.1, 0.12).translate(0, 0.55, 0), concrete, parapets), 90, 0.9), 'fob'), 5, 0.28, [0, 3, 0])
   // Dog-leg stairs: flight A from the deck to a mid landing, flight B down to the platform
   const RISERS = 24
   const rise = (FOB.deck - PLAT_TOP) / 2
@@ -344,32 +351,32 @@ function buildStation(m: Materials): StoryWorld {
     const d = dz > 0 ? 0.04 : 0
     const a = mesh(flight, concrete, FOB.x0, mid, zA)
     a.rotation.y = Math.PI // descends toward -x
-    add(a, 5, 0.32 + d, [0, 4, 0])
-    add(block(1.6, 0.2, 3.6, concrete, FOB.x0 - run - 0.8, mid - 0.2, zMid, 0.004), 5, 0.36 + d, [0, 4, 0])
-    for (const z of [zMid - 1.4, zMid + 1.4]) add(block(0.3, mid - 0.2 - PLAT_TOP, 0.3, concrete, FOB.x0 - run - 0.8, PLAT_TOP, z), 5, 0.3 + d, [0, 5, 0])
-    add(mesh(flight, concrete, FOB.x0 - run, PLAT_TOP, zB), 5, 0.4 + d, [0, 4, 0])
+    add(tag(a, 'staircase'), 5, 0.32 + d, [0, 4, 0])
+    add(tag(block(1.6, 0.2, 3.6, concrete, FOB.x0 - run - 0.8, mid - 0.2, zMid, 0.004), 'staircase'), 5, 0.36 + d, [0, 4, 0])
+    for (const z of [zMid - 1.4, zMid + 1.4]) add(tag(block(0.3, mid - 0.2 - PLAT_TOP, 0.3, concrete, FOB.x0 - run - 0.8, PLAT_TOP, z), 'staircase'), 5, 0.3 + d, [0, 5, 0])
+    add(tag(mesh(flight, concrete, FOB.x0 - run, PLAT_TOP, zB), 'staircase'), 5, 0.4 + d, [0, 4, 0])
   }
 
   // ---------- Stage 6: boundary, furniture, lighting and people ----------
   const pickets: { x: number; y: number; z: number }[] = []
   const posts: { x: number; y: number; z: number }[] = []
   for (const z of [-21.4, 21.4]) {
-    add(block(PLATE.x * 2 - 0.4, 0.4, 0.18, concrete, 0, 0, z), 6, z > 0 ? 0.05 : 0, [0, 2, 0])
+    add(tag(block(PLATE.x * 2 - 0.4, 0.4, 0.18, concrete, 0, 0, z), 'picket-fence'), 6, z > 0 ? 0.05 : 0, [0, 2, 0])
     for (let x = -45.6; x <= 45.6; x += 0.2) pickets.push({ x, y: 0.4, z })
     for (let x = -45; x <= 45; x += 2.5) posts.push({ x, y: 0, z })
   }
-  add(shade(instances(new THREE.BoxGeometry(0.15, 1.7, 0.15).translate(0, 0.85, 0), concrete, posts), 120, 0.9), 6, 0.06, [0, 3, 0])
-  add(shade(instances(new THREE.BoxGeometry(0.07, 1.15, 0.05).translate(0, 0.575, 0), concrete, pickets), 121, 0.9), 6, 0.12, [0, 2, 0])
+  add(tag(shade(instances(new THREE.BoxGeometry(0.15, 1.7, 0.15).translate(0, 0.85, 0), concrete, posts), 120, 0.9), 'picket-fence'), 6, 0.06, [0, 3, 0])
+  add(tag(shade(instances(new THREE.BoxGeometry(0.07, 1.15, 0.05).translate(0, 0.575, 0), concrete, pickets), 121, 0.9), 'picket-fence'), 6, 0.12, [0, 2, 0])
   const bench = MODELS['furniture-and-decor']
   ;[[-27, -10.3], [-15, -10.3], [-3, -10.3], [-21, 10.6], [-9, 10.6]].forEach(([x, z], i) => {
     const b = flatten(bench.build({ item: 'bench' }, m))
     b.position.set(x, PLAT_TOP, z)
-    add(b, 6, 0.16 + i * 0.02, [0, 2, 0])
+    add(tag(b, 'bench'), 6, 0.16 + i * 0.02, [0, 2, 0])
   })
   ;[[26, -9.6], [26, 10.4]].forEach(([x, z], i) => {
     const l = flatten(MODELS['light-poles'].build({ style: 'post', lit: true }, m))
     l.position.set(x, PLAT_TOP, z)
-    add(l, 6, 0.2 + i * 0.03, [0, 6, 0])
+    add(tag(l, 'lamp-post'), 6, 0.2 + i * 0.03, [0, 6, 0])
   })
   const shirts = ['#3e5872', '#8a4b3c', '#c9a24a', '#e9e6df', '#5d6b4f', '#6a5a7a', '#b5654a', '#2f3a4a']
   const legsC = ['#34363a', '#4a4f57', '#5b4a3a', '#2a2c30']
@@ -608,6 +615,71 @@ function buildStation(m: Materials): StoryWorld {
   root.add(trainMerged)
   const STOP_X = 27 // tip of the nose when stopped at the platform
 
+  // ---------- Monsoon: rain, running water in the drain and culvert, wet surfaces ----------
+  const small = window.innerWidth < 768
+  // Flowing water: a blue-grey surface with lighter streaks, scrolled along the channel
+  const flowTex = (() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 256
+    canvas.height = 64
+    const ctx = canvas.getContext('2d')!
+    ctx.fillStyle = '#5a86ab'
+    ctx.fillRect(0, 0, 256, 64)
+    for (let i = 0; i < 70; i++) {
+      ctx.fillStyle = `rgba(230,240,248,${0.2 + Math.random() * 0.4})`
+      ctx.fillRect(Math.random() * 256, Math.random() * 64, 20 + Math.random() * 60, 1 + Math.random() * 2)
+    }
+    const tex = new THREE.CanvasTexture(canvas)
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping
+    tex.colorSpace = THREE.SRGBColorSpace
+    textures.push(tex)
+    return tex
+  })()
+  const water = (len: number, along: 'x' | 'z') => {
+    const t = flowTex.clone()
+    t.repeat.set(len / 3, 1)
+    textures.push(t)
+    const mat = own(new THREE.MeshStandardMaterial({ map: t, roughness: 0.12, metalness: 0.1, transparent: true, opacity: 0.88 }))
+    const m2 = new THREE.Mesh(new THREE.PlaneGeometry(len, 1).rotateX(-Math.PI / 2), mat)
+    if (along === 'z') m2.rotation.y = -Math.PI / 2 // texture flows toward +z
+    m2.receiveShadow = true
+    m2.visible = false
+    root.add(m2)
+    return { mesh: m2, tex: t }
+  }
+  // Drain between the tracks (inside floor about 0.6 m down) and the culvert under the line (floor about 1.38 m down)
+  const drainWater = water(79.5, 'x')
+  drainWater.mesh.scale.z = 0.58
+  drainWater.mesh.position.set(0.25, -0.59, DRAIN_Z)
+  const culvertWater = water(PLATE.z1 - PLATE.z0, 'z')
+  culvertWater.mesh.scale.z = 1.18
+  culvertWater.mesh.position.set(CULVERT_X, -1.37, 0)
+
+  // Rain: short streaks falling over the model, slanted a little by the wind
+  const DROPS = small ? 2200 : 6000
+  const RAIN_TOP = 24
+  const dropPos = new Float32Array(DROPS * 6)
+  const drops = Array.from({ length: DROPS }, () => ({
+    x: (Math.random() * 2 - 1) * PLATE.x,
+    y: Math.random() * RAIN_TOP,
+    z: PLATE.z0 + Math.random() * (PLATE.z1 - PLATE.z0),
+    v: 16 + Math.random() * 6,
+  }))
+  const rainGeo = new THREE.BufferGeometry()
+  rainGeo.setAttribute('position', new THREE.BufferAttribute(dropPos, 3))
+  const rainMat = own(new THREE.LineBasicMaterial({ color: '#7d8a96', transparent: true, opacity: 0, depthWrite: false }))
+  const rain = new THREE.LineSegments(rainGeo, rainMat)
+  rain.frustumCulled = false
+  rain.visible = false
+  root.add(rain)
+  const day = new THREE.Color('#6f7c88')
+  const night = new THREE.Color('#b9c6d2')
+
+  // Wet concrete: darker and glossier
+  const wetMats = [concrete, fill, tactileMat, paverMat, ballast, plate]
+  const dry = wetMats.map((mat) => ({ color: mat.color.clone(), roughness: mat.roughness }))
+  let progressNow = 0
+
   return {
     root,
     parts,
@@ -619,11 +691,50 @@ function buildStation(m: Materials): StoryWorld {
       noseMat.emissiveIntensity = 0.6 + l.lamp
     },
     update: (progress) => {
+      progressNow = progress
       // The train eases in over stage 7 and stops with its nose at the far end of platform 1
       const t = clamp01((progress - 7.05) / 0.85)
       const eased = 1 - Math.pow(1 - t, 3)
       trainMerged.position.x = -130 + (STOP_X + 130) * eased
       trainMerged.visible = t > 0
+    },
+    weather: (amount, dt, l) => {
+      const raining = amount > 0.005
+      // Plate colour is reset from the look every frame, so its dry colour follows day and night
+      dry[dry.length - 1].color.copy(l.plate)
+      wetMats.forEach((mat, i) => {
+        mat.color.copy(dry[i].color).multiplyScalar(1 - 0.2 * amount)
+        mat.roughness = dry[i].roughness - 0.5 * amount
+      })
+      // Water rises once the drain and culvert are in place
+      const built = clamp01((progressNow - 0.55) / 0.3)
+      for (const [w, low, high, speed] of [[drainWater, -0.59, -0.2, 0.5], [culvertWater, -1.37, -0.95, 0.35]] as const) {
+        w.mesh.visible = raining && built > 0
+        w.mesh.position.y = low + (high - low) * amount * built
+        w.tex.offset.x -= dt * speed * (0.3 + amount)
+      }
+      rain.visible = raining
+      if (!raining) return
+      rainMat.opacity = 0.42 * amount
+      rainMat.color.copy(day).lerp(night, Math.min(l.lamp, 1))
+      for (let i = 0; i < DROPS; i++) {
+        const d = drops[i]
+        d.y -= d.v * dt
+        d.x += d.v * dt * 0.12
+        if (d.y < 0) {
+          d.y += RAIN_TOP
+          d.x = (Math.random() * 2 - 1) * PLATE.x
+        }
+        if (d.x > PLATE.x) d.x -= PLATE.x * 2
+        const k = i * 6
+        dropPos[k] = d.x
+        dropPos[k + 1] = d.y
+        dropPos[k + 2] = d.z
+        dropPos[k + 3] = d.x - 0.09
+        dropPos[k + 4] = d.y + 0.75
+        dropPos[k + 5] = d.z
+      }
+      rainGeo.attributes.position.needsUpdate = true
     },
     dispose: () => {
       dispose()

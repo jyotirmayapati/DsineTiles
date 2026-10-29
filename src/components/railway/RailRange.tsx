@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RAIL_STAGES } from './stages'
 import { RAIL_RANGE, type RangeItem } from './range'
 import RangePanel, { type PanelItem } from './RangePanel'
@@ -44,6 +44,15 @@ function RangeCard({ item, onOpen }: { item: RangeItem; onOpen: () => void }) {
 // The elements of the station, stage by stage, each shown in place with a pin
 export default function RailRange() {
   const [open, setOpen] = useState<number | null>(null)
+  // The station story opens elements clicked in the 3D scene, its labels and stage links
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const i = ALL.findIndex((a) => a.id === (e as CustomEvent<{ id: string }>).detail.id)
+      if (i >= 0) setOpen(i)
+    }
+    window.addEventListener('range:open', onOpen)
+    return () => window.removeEventListener('range:open', onOpen)
+  }, [])
   return (
     <section id="range" className="py-24 sm:py-32 border-t border-formline">
       <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
