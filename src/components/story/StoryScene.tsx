@@ -1,6 +1,7 @@
 import { useEffect, useRef, type RefObject } from 'react'
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Materials } from '../viewer3d/materials'
 import { LookTransition } from '../viewer3d/sceneTheme'
 import type { Theme } from '../../theme'
@@ -13,18 +14,22 @@ export interface SceneProps {
   // Elements tagged in the story can be hovered and clicked; the page opens them in place
   onPick?: (id: string) => void
   rain?: boolean
+  // Free camera over the finished model: drag to turn, zoom and pan
+  explore?: boolean
 }
 
 // Renders a scroll-built story: parts fly in by stage, the camera eases between stage stops,
 // labels track their 3D anchors, and the lighting blends between day and night.
-export default function StoryScene({ def, progressRef, theme, onSelect, onPick, rain = false }: SceneProps & { def: StoryDef }) {
+export default function StoryScene({ def, progressRef, theme, onSelect, onPick, rain = false, explore = false }: SceneProps & { def: StoryDef }) {
   const mountRef = useRef<HTMLDivElement>(null)
   const tipRef = useRef<HTMLDivElement>(null)
   const rainRef = useRef(rain)
   const onPickRef = useRef(onPick)
+  const exploreRef = useRef(explore)
   useEffect(() => {
     rainRef.current = rain
     onPickRef.current = onPick
+    exploreRef.current = explore
   })
   const labelRefs = useRef<(HTMLButtonElement | null)[]>([])
   const themeRef = useRef(theme)
@@ -165,7 +170,7 @@ export default function StoryScene({ def, progressRef, theme, onSelect, onPick, 
       if (hovered) overlaysFor(hovered).forEach((o) => (o.visible = false))
       if (id) overlaysFor(id).forEach((o) => (o.visible = true))
       hovered = id
-      mount.style.cursor = id ? 'pointer' : ''
+      mount.style.cursor = id ? 'pointer' : controls ? 'grab' : ''
       if (tip) tip.style.opacity = id ? '1' : '0'
     }
     const onMove = (e: PointerEvent) => {
@@ -176,14 +181,18 @@ export default function StoryScene({ def, progressRef, theme, onSelect, onPick, 
       mouseInside = false
       setHover(null)
     }
+    // A drag that turns the camera ends in a click too; only a still press picks
+    let downAt = { x: 0, y: 0 }
+    const onDown = (e: PointerEvent) => { downAt = { x: e.clientX, y: e.clientY } }
     const onClick = (e: MouseEvent) => {
-      if (!onPickRef.current) return
+      if (!onPickRef.current || Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 6) return
       const r = mount.getBoundingClientRect()
       const hit = pickAt(((e.clientX - r.left) / r.width) * 2 - 1, -(((e.clientY - r.top) / r.height) * 2 - 1))
       if (hit) onPickRef.current(hit.userData.pick)
     }
     mount.addEventListener('pointermove', onMove)
     mount.addEventListener('pointerleave', onLeave)
+    mount.addEventListener('pointerdown', onDown)
     mount.addEventListener('click', onClick)
 
     let visible = true
@@ -198,6 +207,36 @@ export default function StoryScene({ def, progressRef, theme, onSelect, onPick, 
     const tb = new THREE.Vector3()
     let frame = 0
 
+    // Explore: orbit controls take the camera; leaving eases back to the scroll camera
+    let controls: OrbitControls | null = null
+    let back: { pos: THREE.Vector3; target: THREE.Vector3; t: number } | null = null
+    const scrollPos = new THREE.Vector3()
+    const lookAt = new THREE.Vector3()
+    const startExplore = () => {
+      const c = new OrbitControls(camera, renderer.domElement)
+      c.target.copy(target)
+      c.enableDamping = true
+      c.dampingFactor = 0.08
+      c.minDistance = 6
+      c.maxDistance = 150
+      c.maxPolarAngle = THREE.MathUtils.degToRad(84) // stay above the ground
+      c.screenSpacePanning = false
+      c.zoomToCursor = true // zoom toward what you point at
+      c.autoRotate = !reduced
+      c.autoRotateSpeed = 0.5
+      c.addEventListener('start', () => { c.autoRotate = false })
+      mount.style.cursor = 'grab'
+      controls = c
+      back = null
+    }
+    const stopExplore = () => {
+      if (!controls) return
+      back = { pos: camera.position.clone(), target: controls.target.clone(), t: 0 }
+      controls.dispose()
+      controls = null
+      mount.style.cursor = ''
+    }
+
     let last = performance.now()
     let driftT = 0
     let tick = 0
@@ -208,7 +247,10 @@ export default function StoryScene({ def, progressRef, theme, onSelect, onPick, 
       last = now
       if (!visible) return
       wet += ((rainRef.current ? 1 : 0) - wet) * (reduced ? 1 : Math.min(1, dt * 1.5))
-      const goal = progressRef.current ?? 0
+      if (exploreRef.current && !controls) startExplore()
+      if (!exploreRef.current && controls) stopExplore()
+      // Exploring shows the finished model, train in
+      const goal = controls ? KEYS.length : progressRef.current ?? 0
       current = reduced ? goal : current + (goal - current) * 0.1
 
       // Parts: each flies in over the first part of its stage
@@ -239,12 +281,28 @@ export default function StoryScene({ def, progressRef, theme, onSelect, onPick, 
       const az = THREE.MathUtils.degToRad(A.az + (B.az - A.az) * t + parallaxX * 6 + drift)
       const el = THREE.MathUtils.degToRad(A.el + (B.el - A.el) * t - parallaxY * 3)
       const dist = (A.dist + (B.dist - A.dist) * t) * Math.max(1, 1.25 / camera.aspect)
-      camera.position.set(
+      scrollPos.set(
         target.x + dist * Math.cos(el) * Math.sin(az),
         target.y + dist * Math.sin(el),
         target.z + dist * Math.cos(el) * Math.cos(az),
       )
-      camera.lookAt(target)
+      if (controls) {
+        controls.update()
+        // Keep the view over the model
+        controls.target.x = THREE.MathUtils.clamp(controls.target.x, -40, 40)
+        controls.target.z = THREE.MathUtils.clamp(controls.target.z, -20, 20)
+        controls.target.y = THREE.MathUtils.clamp(controls.target.y, 0, 8)
+      } else if (back) {
+        // Ease from where exploring left the camera back to the scroll camera
+        back.t = Math.min(back.t + dt / 1.1, 1)
+        const k = reduced ? 1 : smooth(back.t)
+        camera.position.lerpVectors(back.pos, scrollPos, k)
+        camera.lookAt(lookAt.lerpVectors(back.target, target, k))
+        if (back.t >= 1) back = null
+      } else {
+        camera.position.copy(scrollPos)
+        camera.lookAt(target)
+      }
 
       // Labels for the current stage appear once its parts have landed
       const stageNow = Math.floor(current)
@@ -256,7 +314,7 @@ export default function StoryScene({ def, progressRef, theme, onSelect, onPick, 
         const el = labelRefs.current[i]
         if (!el) return
         const p = labelPos[i].clone().project(camera)
-        const show = l.stage === stageNow && into > 0.55 && p.z < 1 && Math.abs(p.x) < 0.95 && Math.abs(p.y) < 0.95
+        const show = !controls && l.stage === stageNow && into > 0.55 && p.z < 1 && Math.abs(p.x) < 0.95 && Math.abs(p.y) < 0.95
         const x = ((p.x + 1) / 2) * w
         const y = ((1 - p.y) / 2) * h - 12
         // Near the right edge (and the stage buttons) the label sits to the left of its dot
@@ -298,7 +356,9 @@ export default function StoryScene({ def, progressRef, theme, onSelect, onPick, 
       mount.removeEventListener('pointermove', onPointer)
       mount.removeEventListener('pointermove', onMove)
       mount.removeEventListener('pointerleave', onLeave)
+      mount.removeEventListener('pointerdown', onDown)
       mount.removeEventListener('click', onClick)
+      controls?.dispose()
       highlight.dispose()
       const geometries = new Set<THREE.BufferGeometry>()
       root.traverse((o) => { if (o instanceof THREE.Mesh) geometries.add(o.geometry) })

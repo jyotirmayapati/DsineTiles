@@ -32,6 +32,7 @@ export default function RailwaysPage() {
           idlePart="Bare formation"
           onPick={(element) => window.dispatchEvent(new CustomEvent('range:open', { detail: { id: element } }))}
           weather={{ label: 'Monsoon', caption: 'Monsoon: the U drain and box culvert carry the water away' }}
+          explore={{ label: 'Explore the station', title: 'Explore the station' }}
           intro={
             <>
               <h1 className="type-display text-[2.5rem] sm:text-6xl xl:text-[4rem] rise">Precast for the railways.</h1>

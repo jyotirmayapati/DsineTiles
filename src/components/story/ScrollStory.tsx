@@ -23,10 +23,12 @@ interface ScrollStoryProps {
   onPick?: (id: string) => void
   // Show the monsoon toggle; the story's world draws the rain and water
   weather?: { label: string; caption: string }
+  // Offer a free look around the finished model after the last stage
+  explore?: { label: string; title: string }
 }
 
 // Sticky 3D stage beside scrolling copy: each stage of copy assembles its part of the model
-export default function ScrollStory({ id, stages, Scene, intro, idlePart, introProgress = 0, introMs = 1600, onPick, weather }: ScrollStoryProps) {
+export default function ScrollStory({ id, stages, Scene, intro, idlePart, introProgress = 0, introMs = 1600, onPick, weather, explore }: ScrollStoryProps) {
   const navigate = useNavigate()
   const { theme } = useTheme()
   const stepsRef = useRef<HTMLDivElement>(null)
@@ -34,6 +36,28 @@ export default function ScrollStory({ id, stages, Scene, intro, idlePart, introP
   const progressRef = useRef(0)
   const [active, setActive] = useState(-1)
   const [rain, setRain] = useState(false)
+  const [exploring, setExploring] = useState(false)
+  const exploreBtnRef = useRef<HTMLButtonElement>(null)
+  const backRef = useRef<HTMLButtonElement>(null)
+
+  // Exploring fills the screen: lock the page, Esc goes back (unless a detail panel is open on top)
+  useEffect(() => {
+    if (!exploring) return
+    const root = document.documentElement
+    const prev = root.style.overflow
+    root.style.overflow = 'hidden'
+    backRef.current?.focus({ preventScroll: true })
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !document.querySelector('[role="dialog"]')) setExploring(false)
+    }
+    window.addEventListener('keydown', onKey)
+    const opener = exploreBtnRef.current
+    return () => {
+      root.style.overflow = prev
+      window.removeEventListener('keydown', onKey)
+      opener?.focus({ preventScroll: true })
+    }
+  }, [exploring])
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -94,13 +118,47 @@ export default function ScrollStory({ id, stages, Scene, intro, idlePart, introP
     <section id={id} className="relative">
       {/* Sticky 3D stage: right of the copy on desktop. On mobile it sits above the copy,
           which slides underneath it, so text never covers the model. */}
-      <div className="sticky top-0 h-[100svh] overflow-hidden z-20 lg:z-auto pointer-events-none lg:pointer-events-auto">
-        <div className="absolute inset-x-0 top-0 h-[calc(52svh+4rem)] pt-16 bg-concrete pointer-events-auto lg:bg-transparent lg:pt-0 lg:h-auto lg:bottom-0 lg:left-[34%]">
+      <div className={`sticky top-0 h-[100svh] overflow-hidden ${exploring ? 'z-[60] pointer-events-auto' : 'z-20 lg:z-auto pointer-events-none lg:pointer-events-auto'}`}>
+        <div
+          className={
+            exploring
+              ? 'fixed inset-0 z-[60] bg-concrete'
+              : 'absolute inset-x-0 top-0 h-[calc(52svh+4rem)] pt-16 bg-concrete pointer-events-auto lg:bg-transparent lg:pt-0 lg:h-auto lg:bottom-0 lg:left-[34%]'
+          }
+          role={exploring ? 'region' : undefined}
+          aria-label={exploring ? explore?.title : undefined}
+        >
           <div className="relative h-full">
             <Suspense fallback={null}>
-              <Scene progressRef={progressRef} theme={theme} onSelect={(pid) => navigate(`/products/${pid}`)} onPick={onPick} rain={rain} />
+              <Scene progressRef={progressRef} theme={theme} onSelect={(pid) => navigate(`/products/${pid}`)} onPick={onPick} rain={rain} explore={exploring} />
             </Suspense>
-            {weather && (
+            {exploring && explore && (
+              <div className="absolute inset-x-0 top-0 p-4 sm:p-6 flex flex-wrap items-start justify-between gap-3 pointer-events-none">
+                <div className="px-3.5 py-2.5 rounded-[4px] bg-concrete/85 backdrop-blur-sm border border-formline max-w-md">
+                  <p className="type-wide text-lg leading-tight">{explore.title}</p>
+                  <p className="mt-1 text-sm text-aggregate pointer-coarse:hidden">Drag to turn, scroll to zoom, right-drag to move. Click any element to open it.</p>
+                  <p className="mt-1 text-sm text-aggregate hidden pointer-coarse:block">Drag to turn, pinch to zoom, two fingers to move. Tap any element to open it.</p>
+                </div>
+                <div className="flex gap-2 pointer-events-auto">
+                  {weather && (
+                    <button
+                      onClick={() => setRain((r) => !r)}
+                      aria-pressed={rain}
+                      className={`inline-flex items-center gap-2 h-10 px-3.5 rounded-[3px] border text-sm font-semibold backdrop-blur-sm transition-colors ${
+                        rain ? 'bg-marking text-marking-ink border-marking' : 'bg-concrete/85 border-formline hover:border-graphite'
+                      }`}
+                    >
+                      {weather.label}
+                    </button>
+                  )}
+                  <button ref={backRef} onClick={() => setExploring(false)} className="inline-flex items-center gap-2 h-10 px-3.5 rounded-[3px] bg-graphite text-concrete text-sm font-semibold hover:opacity-90 transition-opacity">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
+                    Back to the story
+                  </button>
+                </div>
+              </div>
+            )}
+            {weather && !exploring && (
               <button
                 onClick={() => setRain((r) => !r)}
                 aria-pressed={rain}
@@ -116,7 +174,7 @@ export default function ScrollStory({ id, stages, Scene, intro, idlePart, introP
               </button>
             )}
             {/* Mobile: soft lower edge where the copy slides under the model */}
-            <div className="lg:hidden absolute inset-x-0 bottom-0 h-16 bg-linear-to-b from-transparent to-concrete pointer-events-none" />
+            {!exploring && <div className="lg:hidden absolute inset-x-0 bottom-0 h-16 bg-linear-to-b from-transparent to-concrete pointer-events-none" />}
           </div>
         </div>
         {/* Soft edge so the model melts into the copy column */}
@@ -167,6 +225,14 @@ export default function ScrollStory({ id, stages, Scene, intro, idlePart, introP
                   <p className="text-sm tabular text-aggregate">Stage {i + 1} of {stages.length}</p>
                   <h2 className="mt-2 type-display text-3xl sm:text-4xl lg:text-5xl">{s.title}</h2>
                   <p className="mt-4 max-w-md text-aggregate">{s.body}</p>
+                  {explore && i === stages.length - 1 && (
+                    <button ref={exploreBtnRef} onClick={() => setExploring(true)} className="btn-mark mt-6 inline-flex items-center gap-2">
+                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M12 3a9 9 0 1 0 9 9" /><path d="M21 3l-6 6M15 3h6v6" />
+                      </svg>
+                      {explore.label}
+                    </button>
+                  )}
                   {s.links && (
                     <p className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
                       {s.links.map((l) => (
