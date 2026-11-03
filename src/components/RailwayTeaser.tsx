@@ -6,7 +6,8 @@ export default function RailwayTeaser() {
     <section className="border-t border-formline">
       <div className="mx-auto max-w-[88rem] px-5 sm:px-8 py-24 sm:py-28 grid gap-10 lg:grid-cols-[1fr_1.25fr] items-center">
         <div>
-          <h2 className="type-display text-4xl sm:text-5xl lg:text-6xl">Built for the railways</h2>
+          <p className="kicker"><b>03</b><span aria-hidden="true"> — </span>Railways</p>
+          <h2 className="mt-3 type-display text-4xl sm:text-5xl lg:text-6xl">Built for the railways</h2>
           <p className="mt-6 max-w-md text-lg text-aggregate">
             Culverts, drains, platforms, sheds and foot over bridges. Watch a whole station assemble from precast, from bare ground to the first train.
           </p>

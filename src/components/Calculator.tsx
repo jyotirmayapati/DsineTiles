@@ -212,7 +212,10 @@ export default function Calculator() {
     <section id="impact" className="py-24 sm:py-32 border-t border-formline">
       <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_1fr] items-end">
-          <h2 className="type-display text-4xl sm:text-5xl lg:text-6xl">Carbon calculator</h2>
+          <div>
+            <p className="kicker"><b>06</b><span aria-hidden="true"> — </span>Impact</p>
+            <h2 className="mt-3 type-display text-4xl sm:text-5xl lg:text-6xl">Carbon calculator</h2>
+          </div>
           <p className="text-lg text-aggregate max-w-lg lg:justify-self-end">
             Pick a product and enter your quantities to see what our lower-carbon precast saves against conventional concrete.
           </p>

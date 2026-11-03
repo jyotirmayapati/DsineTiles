@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { productsData as allProducts } from '../data/products'
 import { hasModel3D } from './viewer3d/modelIds'
@@ -7,6 +7,7 @@ import { whatsappLink } from '../data/contact'
 import Navigation from './Navigation'
 import Footer from './Footer'
 import WhatsAppButton from './WhatsAppButton'
+import Reveal from './Reveal'
 import { ProductTile } from './Catalogue'
 
 // Loaded on demand so three.js only ships when a 3D view is shown
@@ -295,6 +296,34 @@ export default function ProductDetailPage() {
 
   const basicProduct = allProducts.find((p) => p.id === productId)
   const product = basicProduct ? generateDetailedProduct(basicProduct) : null
+  const photos = basicProduct ? photosFor(basicProduct.id) : []
+  const gallery = photos.slice(1)
+
+  const show = (src: string) => setLightbox(src)
+  const turn = (dir: number) => {
+    if (!lightbox || gallery.length < 2) return
+    const i = Math.max(0, gallery.indexOf(lightbox))
+    setLightbox(gallery[(i + dir + gallery.length) % gallery.length])
+  }
+
+  // While a photo is open: Escape closes, arrows move through the set, page scroll locks
+  useEffect(() => {
+    if (!lightbox) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightbox(null)
+      else if (e.key === 'ArrowRight') turn(1)
+      else if (e.key === 'ArrowLeft') turn(-1)
+    }
+    window.addEventListener('keydown', onKey)
+    const prevScroll = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevScroll
+    }
+    // turn only reads the refs captured here; gallery.length and lightbox cover its inputs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightbox, gallery])
 
   if (!basicProduct || !product) {
     return (
@@ -311,12 +340,12 @@ export default function ProductDetailPage() {
     )
   }
 
-  const photos = photosFor(basicProduct.id)
   const heroImage = photos[0]
-  const gallery = photos.slice(1)
   const specs: Spec[] = product.specifications
   const features: Feature[] = product.features
   const groups: { label: string; sizes: string[] }[] = product.dimensionGroups ?? [{ label: '', sizes: product.dimensions }]
+  // Four headline figures for the strip under the hero
+  const stats = specs.slice(0, 4)
   const related = allProducts.filter((p) => p.brand === basicProduct.brand && p.id !== basicProduct.id).slice(0, 4)
   const quote = whatsappLink(`Hi, I'd like a quote for ${basicProduct.title}.`)
 
@@ -325,31 +354,48 @@ export default function ProductDetailPage() {
       <Navigation />
       <main className="pt-16">
         {/* Hero */}
-        <section className="mx-auto max-w-[88rem] px-5 sm:px-8 pt-10 sm:pt-16 pb-16 grid gap-12 lg:grid-cols-[1fr_1.1fr] items-center">
+        <section className="mx-auto max-w-[88rem] px-5 sm:px-8 pt-10 sm:pt-16 pb-12 grid gap-12 lg:grid-cols-[1fr_1.1fr] items-center">
           <div>
-            <nav aria-label="Breadcrumb" className="text-sm text-aggregate">
-              <Link to="/products" className="hover:text-graphite">Products</Link>
-              <span className="mx-2">/</span>
-              <Link to={`/products?brand=${basicProduct.brand}`} className="hover:text-graphite">{basicProduct.brand}</Link>
+            <nav aria-label="Breadcrumb" className="rise text-sm text-aggregate flex flex-wrap items-center gap-x-1">
+              <Link to="/products" className="hover:text-graphite transition-colors">Products</Link>
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+              <Link to={`/products?brand=${basicProduct.brand}`} className="hover:text-graphite transition-colors">{basicProduct.brand}</Link>
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+              <span className="text-graphite font-semibold" aria-current="page">{product.title}</span>
             </nav>
-            <h1 className="mt-6 type-display text-4xl sm:text-5xl xl:text-6xl">{product.title}</h1>
-            <p className="mt-6 max-w-xl text-lg text-aggregate">{product.description}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <h1 className="rise rise-2 mt-6 type-display text-4xl sm:text-5xl xl:text-6xl">{product.title}</h1>
+            <p className="rise rise-3 mt-6 max-w-xl text-lg text-aggregate">{product.description}</p>
+            <div className="rise rise-4 mt-8 flex flex-wrap gap-3">
               <a href={quote} target="_blank" rel="noopener noreferrer" className="btn-mark">Get a quote</a>
               <a href="#specifications" className="btn-line">Sizes and specifications</a>
             </div>
           </div>
 
-          <figure className="relative aspect-[4/3] rounded-[4px] overflow-hidden bg-slab border border-formline">
+          <figure className="rise rise-3 relative aspect-[4/3] rounded-[4px] overflow-hidden bg-slab border border-formline">
             {basicProduct.video ? (
               <video src={basicProduct.video} poster={renderFor(basicProduct.id)} autoPlay muted loop playsInline className="w-full h-full object-cover" />
             ) : heroImage ? (
-              <img src={heroImage} alt={product.title} className="w-full h-full object-cover" />
+              <img src={heroImage} alt={product.title} fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
             ) : (
-              <img src={renderFor(basicProduct.id)} alt={`${product.title}, studio render`} className="w-full h-full object-contain" />
+              <img src={renderFor(basicProduct.id)} alt={`${product.title}, studio render`} fetchPriority="high" decoding="async" className="w-full h-full object-contain" />
             )}
+            {/* Brand stamp on the photo corner */}
+            <figcaption className="chip-mark absolute left-4 bottom-4">{basicProduct.brand}</figcaption>
           </figure>
         </section>
+
+        {/* Headline figures: the numbers that matter, before anyone reads a table */}
+        <div className="mx-auto max-w-[88rem] px-5 sm:px-8 pb-16">
+          <dl className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-formline border border-formline rounded-[4px] overflow-hidden">
+            {stats.map((s) => (
+              <div key={s.label} className="bg-slab px-5 py-6 grid content-start gap-0.5">
+                <dt className="kicker">{s.label}</dt>
+                <dd className="type-display text-2xl sm:text-3xl tabular pt-1.5">{s.value}</dd>
+                <dd className="text-sm text-aggregate">{s.unit}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
 
         {/* Interactive 3D model */}
         {hasModel3D(basicProduct.id) && (
@@ -369,6 +415,7 @@ export default function ProductDetailPage() {
         {/* Specifications and sizes */}
         <section id="specifications" className="border-t border-formline py-20 bg-slab">
           <div className="mx-auto max-w-[88rem] px-5 sm:px-8 grid gap-14 lg:grid-cols-2">
+            <p className="kicker lg:col-span-2"><b>02</b><span aria-hidden="true"> — </span>Specifications and sizes</p>
             <div>
               <h2 className="type-display text-3xl sm:text-4xl">Specifications</h2>
               <dl className="mt-8 border-t border-formline">
@@ -404,16 +451,20 @@ export default function ProductDetailPage() {
         {/* Features and applications */}
         <section className="border-t border-formline py-20">
           <div className="mx-auto max-w-[88rem] px-5 sm:px-8 grid gap-14 lg:grid-cols-[1.3fr_1fr]">
+            <p className="kicker lg:col-span-2"><b>03</b><span aria-hidden="true"> — </span>Features and use</p>
             <div>
               <h2 className="type-display text-3xl sm:text-4xl">Features</h2>
-              <dl className="mt-8 grid sm:grid-cols-2 gap-x-10 gap-y-8">
-                {features.map((f) => (
-                  <div key={f.title} className="border-t border-formline pt-4">
-                    <dt className="font-semibold">{f.title}</dt>
-                    {f.description && <dd className="mt-1 text-aggregate">{f.description}</dd>}
-                  </div>
-                ))}
-              </dl>
+              <Reveal className="mt-8">
+                <dl className="grid sm:grid-cols-2 gap-x-10 gap-y-8">
+                  {features.map((f) => (
+                    <div key={f.title} className="relative border-t border-formline pt-4">
+                      <span aria-hidden="true" className="absolute top-0 left-0 h-[3px] w-8 bg-marking" />
+                      <dt className="font-semibold">{f.title}</dt>
+                      {f.description && <dd className="mt-1 text-aggregate">{f.description}</dd>}
+                    </div>
+                  ))}
+                </dl>
+              </Reveal>
             </div>
             <div>
               <h2 className="type-display text-3xl sm:text-4xl">Where it's used</h2>
@@ -430,23 +481,42 @@ export default function ProductDetailPage() {
         {gallery.length > 0 && (
           <section className="border-t border-formline py-20 bg-slab">
             <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
-              <h2 className="type-display text-3xl sm:text-4xl">On site</h2>
-              <div className="mt-8 grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <p className="kicker"><b>04</b><span aria-hidden="true"> — </span>Photo record</p>
+              <h2 className="mt-3 type-display text-3xl sm:text-4xl">On site</h2>
+              <Reveal className="mt-8 grid grid-cols-2 lg:grid-cols-3 gap-3">
                 {gallery.map((src, i) => (
-                  <button key={src} onClick={() => setLightbox(src)} className="aspect-[4/3] overflow-hidden rounded-[4px] group" aria-label={`Enlarge photo ${i + 2} of ${product.title}`}>
-                    <img src={src} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+                  <button key={`${src}-${i}`} onClick={() => show(src)} className="relative aspect-[4/3] overflow-hidden rounded-[4px] group" aria-label={`Enlarge photo ${i + 2} of ${product.title}`}>
+                    <img src={src} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                    <span aria-hidden="true" className="absolute inset-0 grid place-items-center bg-graphite/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="grid place-items-center w-10 h-10 rounded-full bg-concrete text-graphite">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35M8 11h6M11 8v6" /></svg>
+                      </span>
+                    </span>
                   </button>
                 ))}
-              </div>
+              </Reveal>
             </div>
           </section>
         )}
 
         {lightbox && (
-          <div onClick={() => setLightbox(null)} className="fixed inset-0 z-[100] bg-black/90 grid place-items-center p-4 sm:p-10 cursor-zoom-out" role="dialog" aria-label="Photo">
-            <button onClick={() => setLightbox(null)} aria-label="Close photo" className="absolute top-5 right-5 w-11 h-11 grid place-items-center rounded-full bg-white/10 text-white hover:bg-white/20">
+          <div onClick={() => setLightbox(null)} className="lightbox-in fixed inset-0 z-[100] bg-black/90 grid place-items-center p-4 sm:p-10 cursor-zoom-out" role="dialog" aria-label="Photo" aria-modal="true">
+            <button onClick={() => setLightbox(null)} aria-label="Close photo" className="absolute top-5 right-5 w-11 h-11 grid place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
+            {gallery.length > 1 && (
+              <>
+                <button onClick={(e) => { e.stopPropagation(); turn(-1) }} aria-label="Previous photo" className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 grid place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); turn(1) }} aria-label="Next photo" className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 grid place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+                </button>
+                <span className="absolute bottom-6 left-1/2 -translate-x-1/2 text-sm text-white/70 tabular" aria-hidden="true">
+                  {gallery.indexOf(lightbox) + 2} / {photos.length}
+                </span>
+              </>
+            )}
             <img src={lightbox} alt={product.title} onClick={(e) => e.stopPropagation()} className="max-w-full max-h-full object-contain rounded-[4px] cursor-default" />
           </div>
         )}
@@ -454,8 +524,9 @@ export default function ProductDetailPage() {
         {/* Quote */}
         <section className="border-t border-formline">
           <div className="mx-auto max-w-[88rem] px-5 sm:px-8 py-20 grid gap-8 lg:grid-cols-[1fr_auto] items-end">
-            <div>
-              <h2 className="type-display text-3xl sm:text-4xl lg:text-5xl">Price this for your site</h2>
+            <div className="max-w-2xl">
+              <p className="kicker"><b>05</b><span aria-hidden="true"> — </span>Pricing</p>
+              <h2 className="mt-3 type-display text-3xl sm:text-4xl lg:text-5xl">Price this for your site</h2>
               <p className="mt-4 max-w-xl text-lg text-aggregate">Send the size and quantity you need. We reply with a price and lead time.</p>
             </div>
             <div className="flex flex-wrap gap-3">

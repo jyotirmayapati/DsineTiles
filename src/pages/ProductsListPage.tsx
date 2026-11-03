@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router-dom'
 import Navigation from '../components/Navigation'
 import Footer from '../components/Footer'
 import WhatsAppButton from '../components/WhatsAppButton'
+import Reveal from '../components/Reveal'
 import { BrandHeader, ProductTile } from '../components/Catalogue'
 import { productsData, brands, type Brand } from '../data/products'
 import { whatsappLink } from '../data/contact'
@@ -21,12 +22,13 @@ export default function ProductsListPage() {
       <Navigation />
       <main className="pt-16">
         <header className="mx-auto max-w-[88rem] px-5 sm:px-8 pt-16 sm:pt-24 pb-10">
-          <h1 className="type-display text-5xl sm:text-7xl">Products</h1>
-          <p className="mt-6 max-w-xl text-lg text-aggregate">
+          <p className="rise kicker"><b>01</b><span aria-hidden="true"> — </span>The catalogue</p>
+          <h1 className="rise rise-2 mt-3 type-display text-5xl sm:text-7xl">Products</h1>
+          <p className="rise rise-3 mt-6 max-w-xl text-lg text-aggregate">
             Everything we cast, from cover blocks to box culverts. Open a product to see its sizes and turn it around in 3D.
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-2" role="group" aria-label="Filter by brand">
+          <div className="rise rise-4 mt-10 flex flex-wrap gap-2" role="group" aria-label="Filter by brand">
             {filters.map((f) => {
               const active = f.value === selected
               return (
@@ -48,11 +50,11 @@ export default function ProductsListPage() {
         {shown.map((brand) => (
           <section key={brand} className="mx-auto max-w-[88rem] px-5 sm:px-8 pb-20">
             <BrandHeader brand={brand} count={productsData.filter((p) => p.brand === brand).length} />
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-10">
+            <Reveal className="mt-8 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-10">
               {productsData.filter((p) => p.brand === brand).map((p) => (
                 <ProductTile key={p.id} product={p} />
               ))}
-            </div>
+            </Reveal>
           </section>
         ))}
 

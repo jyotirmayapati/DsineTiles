@@ -57,28 +57,39 @@ export default function Navigation() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color] duration-300 border-b ${
-        scrolled || open ? 'bg-concrete/90 backdrop-blur-md border-formline' : 'bg-transparent border-transparent'
+      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,box-shadow] duration-300 border-b ${
+        scrolled || open
+          ? 'bg-concrete/90 backdrop-blur-md border-formline shadow-[0_16px_36px_-24px_rgba(29,31,33,0.45)]'
+          : 'bg-transparent border-transparent'
       }`}
     >
       <nav className="mx-auto max-w-[88rem] px-5 sm:px-8 h-16 flex items-center justify-between gap-6" aria-label="Main">
-        <button onClick={() => go('/')} className="flex items-center gap-3" aria-label="Hiperstructures home">
-          <span className="w-8 h-8 grid place-items-center rounded-[3px] bg-graphite text-concrete type-wide text-lg leading-none" aria-hidden="true">H</span>
-          <span className="type-wide text-lg">Hiperstructures</span>
+        <button onClick={() => go('/')} className="group flex items-center gap-3" aria-label="Hiperstructures home">
+          {/* Mark: pressed-concrete block with a sharp top-left highlight, like the marking yellow wipes around the yard */}
+          <span className="relative w-8 h-8 grid place-items-center rounded-[3px] bg-graphite text-concrete type-wide text-lg leading-none transition-transform duration-300 group-hover:-translate-y-px" aria-hidden="true">
+            H
+            <span className="absolute -top-1 left-1.5 right-1.5 h-0.5 bg-marking opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </span>
+          <span className="type-wide text-lg transition-colors group-hover:text-graphite">Hiperstructures</span>
         </button>
 
         <div className="hidden lg:flex items-center gap-8">
-          {LINKS.map((l) => (
-            <button
-              key={l.name}
-              onClick={() => go(l.path, l.hash)}
-              className={`text-[0.95rem] transition-colors hover:text-graphite ${
-                !l.hash && l.path !== '/' && location.pathname.startsWith(l.path) ? 'text-graphite font-semibold' : 'text-aggregate'
-              }`}
-            >
-              {l.name}
-            </button>
-          ))}
+          {LINKS.map((l) => {
+            const active = !l.hash && l.path !== '/' && location.pathname.startsWith(l.path)
+            return (
+              <button
+                key={l.name}
+                onClick={() => go(l.path, l.hash)}
+                // h-16 row + a marking-yellow bar on the header's bottom edge for the active page
+                className={`relative h-16 grid place-items-center text-[0.95rem] transition-colors hover:text-graphite ${
+                  active ? 'text-graphite font-semibold' : 'text-aggregate'
+                } after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:bg-marking after:transition-transform after:duration-300 after:origin-left ${active ? 'after:scale-x-100' : 'after:scale-x-0'}`}
+                aria-current={active ? 'page' : undefined}
+              >
+                {l.name}
+              </button>
+            )
+          })}
         </div>
 
         <div className="flex items-center gap-3">

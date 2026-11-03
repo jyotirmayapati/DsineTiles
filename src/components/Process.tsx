@@ -19,7 +19,8 @@ export default function Process() {
     <section id="process" className="py-24 sm:py-32">
       <div className="mx-auto max-w-[88rem] px-5 sm:px-8 grid gap-14 lg:grid-cols-[1fr_1.35fr]">
         <div className="lg:sticky lg:top-28 self-start">
-          <h2 className="type-display text-4xl sm:text-5xl lg:text-6xl">How a project runs</h2>
+          <p className="kicker"><b>05</b><span aria-hidden="true"> — </span>Process</p>
+          <h2 className="mt-3 type-display text-4xl sm:text-5xl lg:text-6xl">How a project runs</h2>
           <p className="mt-6 max-w-md text-lg text-aggregate">
             One team from the first drawing to the last unit on site, so nothing gets lost between design and delivery.
           </p>
@@ -28,8 +29,11 @@ export default function Process() {
         <div>
           <ol>
             {STEPS.map((s, i) => (
-              <li key={s.title} className="grid grid-cols-[3.5rem_1fr] gap-x-4 border-t border-formline py-8">
-                <span className="type-display text-3xl text-aggregate tabular">{i + 1}</span>
+              <li key={s.title} className="group grid grid-cols-[3.5rem_1fr] gap-x-4 border-t border-formline py-8">
+                {/* Step number as a cast tag: raised square, graphite ink, fills with marking on hover */}
+                <span className="w-14 h-14 grid place-items-center rounded-[3px] border border-formline bg-slab type-display text-xl tabular text-graphite transition-colors duration-300 group-hover:bg-marking group-hover:border-marking group-hover:text-marking-ink" aria-hidden="true">
+                  {i + 1}
+                </span>
                 <div>
                   <h3 className="type-wide text-2xl">{s.title}</h3>
                   <p className="mt-2 max-w-xl text-aggregate">{s.body}</p>

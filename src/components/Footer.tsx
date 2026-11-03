@@ -19,11 +19,14 @@ export default function Footer() {
 
         {brands.map((brand) => (
           <div key={brand}>
-            <h3 className="type-wide text-base">{brand}</h3>
+            <h3 className="type-wide text-base flex items-center gap-2">
+              {brand}
+              <span className="h-0.5 w-5 bg-marking" aria-hidden="true" />
+            </h3>
             <ul className="mt-4 space-y-2 text-[0.95rem]">
               {productsData.filter((p) => p.brand === brand).slice(0, 6).map((p) => (
                 <li key={p.id}>
-                  <button onClick={() => navigate(`/products/${p.id}`)} className="text-aggregate hover:text-graphite transition-colors text-left">
+                  <button onClick={() => navigate(`/products/${p.id}`)} className="text-aggregate hover:text-graphite transition-colors underline decoration-transparent decoration-2 underline-offset-4 hover:decoration-marking text-left">
                     {p.title}
                   </button>
                 </li>

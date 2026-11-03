@@ -31,7 +31,8 @@ export default function WhyPrecast() {
   return (
     <section id="why" className="py-24 sm:py-32 bg-slab border-y border-formline">
       <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
-        <h2 className="type-display text-4xl sm:text-5xl lg:text-6xl max-w-3xl">Why build with precast</h2>
+        <p className="kicker"><b>04</b><span aria-hidden="true"> — </span>Why precast</p>
+        <h2 className="mt-3 type-display text-4xl sm:text-5xl lg:text-6xl max-w-3xl">Why build with precast</h2>
 
         {/* Panels widen on hover or focus; the open one shows its full text */}
         <div className="mt-14 flex flex-col md:flex-row gap-3 md:h-[30rem]">
@@ -64,7 +65,9 @@ export default function WhyPrecast() {
 
         <dl className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6">
           {FIGURES.map((f) => (
-            <div key={f.label} className="border-t border-formline pt-5">
+            <div key={f.label} className="relative border-t border-formline pt-5">
+              {/* Short marking tape on each figure's rule, like the painted ticks on a yard wall */}
+              <span aria-hidden="true" className="absolute top-0 left-0 h-[3px] w-10 bg-marking" />
               <dt className="text-aggregate">{f.label}</dt>
               <dd className="mt-1 type-display text-4xl sm:text-5xl tabular">{f.value}</dd>
             </div>
