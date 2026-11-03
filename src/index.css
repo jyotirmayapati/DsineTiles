@@ -132,6 +132,46 @@
   .field-label {
     @apply block mb-2 text-sm font-semibold text-graphite;
   }
+
+  /* Buttons: a soft lift reads as "this can be pressed" */
+  .btn-mark:hover {
+    box-shadow: 0 12px 28px -14px color-mix(in srgb, var(--marking) 80%, rgba(0, 0, 0, 0.55));
+  }
+  .btn-line:hover {
+    box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Marking-yellow stamp for footsteps and image corners */
+  .chip-mark {
+    @apply inline-flex items-center gap-1.5 bg-marking text-marking-ink rounded-[3px] px-2.5 py-1 text-xs font-bold uppercase tracking-[0.08em] leading-none;
+  }
+
+  /* Numbered section label: "01 — Specifications" */
+  .kicker {
+    @apply text-aggregate;
+    font-stretch: 115%;
+    font-weight: 650;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .kicker b { font-weight: 800; color: var(--graphite); }
+
+  /* Selects: replace the OS chevron with one drawn in our ink */
+  select.field {
+    appearance: none;
+    padding-right: 2.75rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23706f6b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 1rem;
+  }
+
+  /* Lightbox: overlay fades, photo settles */
+  .lightbox-in { animation: fade 0.25s ease both; }
+  .lightbox-in img { animation: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 }
 
 /* Theme switch: a slow cross-fade of the whole page (see theme.tsx) */
@@ -150,3 +190,4 @@
 .rise { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .rise-2 { animation-delay: 0.12s; }
 .rise-3 { animation-delay: 0.24s; }
+.rise-4 { animation-delay: 0.36s; }

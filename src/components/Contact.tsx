@@ -45,7 +45,8 @@ export default function Contact() {
     <section id="contact" className="py-24 sm:py-32 bg-slab border-t border-formline">
       <div className="mx-auto max-w-[88rem] px-5 sm:px-8 grid gap-14 lg:grid-cols-[1fr_1.1fr]">
         <div>
-          <h2 className="type-display text-4xl sm:text-5xl lg:text-6xl max-w-xl">Tell us what you're building</h2>
+          <p className="kicker"><b>07</b><span aria-hidden="true"> — </span>Contact</p>
+          <h2 className="mt-3 type-display text-4xl sm:text-5xl lg:text-6xl max-w-xl">Tell us what you're building</h2>
           <p className="mt-6 max-w-md text-lg text-aggregate">
             Send the site, the products and rough quantities. We reply with sizes, lead times and a price.
           </p>
@@ -118,7 +119,7 @@ export default function Contact() {
 
           {missing && <p role="alert" className="text-sm text-red-600 dark:text-red-400">Add your name and a few words about the project.</p>}
           {sent && !missing && (
-            <p role="status" className="text-sm">
+            <p role="status" className="text-sm border-l-2 border-l-marking pl-3 py-1 text-aggregate">
               {sent === 'whatsapp' ? 'WhatsApp opened with your message. Press send there and we will reply.' : 'Your email app opened with the message. Press send there and we will reply.'}
             </p>
           )}

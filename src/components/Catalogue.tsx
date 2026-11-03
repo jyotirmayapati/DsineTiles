@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { brands, productsData, type Brand, type Product } from '../data/products'
 import { BRAND_INFO, sizeSummary } from '../data/brands'
 import { TURN_FRAMES, renderFor, turntableFor } from '../data/media'
+import { hasModel3D } from './viewer3d/modelIds'
+import Reveal from './Reveal'
 
 const TURN_MS = 900
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
@@ -88,7 +90,7 @@ export function ProductTile({ product, className = '' }: { product: Product; cla
       {...handlers}
       className={`group flex flex-col justify-start text-left ${className}`}
     >
-      <span className="relative block aspect-[4/3] rounded-[4px] bg-slab border border-formline overflow-hidden transition-colors group-hover:border-aggregate">
+      <span className="relative block aspect-[4/3] rounded-[4px] bg-slab border border-formline overflow-hidden transition-[border-color,transform,box-shadow] duration-300 group-hover:border-aggregate group-hover:-translate-y-0.5 group-hover:shadow-[0_18px_36px_-24px_rgba(29,31,33,0.5)]">
         <img ref={stillRef} src={renderFor(product.id)} alt="" loading="lazy" className="w-full h-full object-contain" />
         <span
           ref={stripRef}
@@ -96,6 +98,14 @@ export function ProductTile({ product, className = '' }: { product: Product; cla
           className="absolute inset-0 bg-no-repeat opacity-0"
           style={{ backgroundSize: `${TURN_FRAMES * 100}% 100%` }}
         />
+        {/* Open-me arrow: touches down only on hover, like a placed marker */}
+        <span aria-hidden="true" className="absolute right-3 top-3 grid place-items-center w-8 h-8 rounded-full bg-marking text-marking-ink opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-300">
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M9 7h8v8" /></svg>
+        </span>
+        {/* 3D flag: this product can be turned around on its page */}
+        {hasModel3D(product.id) && (
+          <span aria-hidden="true" className="chip-mark absolute left-3 bottom-3">3D</span>
+        )}
       </span>
       <span className="mt-3 type-wide text-base sm:text-lg leading-snug line-clamp-2">{product.title}</span>
       {sizes && <span className="mt-0.5 text-sm text-aggregate line-clamp-2">{sizes}</span>}
@@ -173,12 +183,15 @@ export default function Catalogue() {
   return (
     <section id="catalogue" className="py-24 sm:py-32 border-t border-formline">
       <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
-        <div className="grid gap-6 lg:grid-cols-[1fr_1fr] items-end">
-          <h2 className="type-display text-4xl sm:text-5xl lg:text-6xl">What we cast</h2>
+        <Reveal className="grid gap-6 lg:grid-cols-[1fr_1fr] items-end">
+          <div>
+            <p className="kicker"><b>02</b><span aria-hidden="true"> — </span>The range</p>
+            <h2 className="mt-3 type-display text-4xl sm:text-5xl lg:text-6xl">What we cast</h2>
+          </div>
           <p className="text-lg text-aggregate max-w-lg lg:justify-self-end">
             {productsData.length} products across three brands. Open any of them to turn it around in 3D and try its sizes.
           </p>
-        </div>
+        </Reveal>
 
         {brands.map((brand) => (
           <BrandRow key={brand} brand={brand} />
